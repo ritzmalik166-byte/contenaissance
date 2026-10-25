@@ -1,0 +1,25 @@
+{
+  "name": "contenaissance",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev -p 5200",
+    "build": "next build",
+    "start": "next start -p 5200",
+    "assets": "powershell -ExecutionPolicy Bypass -File scripts/fetch-assets.ps1",
+    "videos": "powershell -ExecutionPolicy Bypass -File scripts/make-videos.ps1",
+    "blog": "node scripts/scrape-blog.mjs"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.27",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}
