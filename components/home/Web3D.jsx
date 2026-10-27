@@ -13,6 +13,7 @@ export default function Web3D() {
   const [active, setActive] = useState(0);
   const [live, setLive] = useState(false);
   const steps = webExperiences.length;
+  const leftCount = Math.floor(steps / 2);
 
   useGSAP(
     (ctx, contextSafe) => {
@@ -22,7 +23,7 @@ export default function Web3D() {
         .from('.web3d__title .split-line > span', { yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.1 })
         .from('.ring', { rotateX: 55, scale: 0.6, opacity: 0, duration: 1.6, ease: 'expo.out' }, 0.1)
         .from('.web3d__floor', { opacity: 0, duration: 1.4 }, 0.2)
-        .from('.wchip', { opacity: 0, x: (i) => (i < 3 ? -40 : 40), duration: 0.9, stagger: 0.06, ease: 'power3.out' }, 0.5)
+        .from('.wchip', { opacity: 0, x: (i) => (i < leftCount ? -40 : 40), duration: 0.9, stagger: 0.06, ease: 'power3.out' }, 0.5)
         .from('.web3d__caption, .web3d__note', { y: 30, opacity: 0, duration: 0.9, ease: 'power3.out' }, 0.7);
 
       const tl = gsap.timeline({
@@ -129,7 +130,10 @@ export default function Web3D() {
         <button
           key={w.title}
           className={`wchip${i === active ? ' is-on' : ''}`}
-          style={{ '--row': i % 3, [i < 3 ? 'left' : 'right']: 'var(--pad)' }}
+          style={{
+            '--row': i < leftCount ? i : i - leftCount,
+            [i < leftCount ? 'left' : 'right']: 'var(--pad)',
+          }}
           onClick={() => goTo(i)}
         >
           <span className="wchip__num">{String(i + 1).padStart(2, '0')}</span>

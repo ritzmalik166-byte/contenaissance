@@ -5,7 +5,10 @@ import { gsap, useGSAP } from '@/lib/gsap';
 import { formats, webExperiences } from '@/lib/content';
 import { openVideo } from '../VideoModal';
 
-const reel = [...formats, ...webExperiences.slice(0, 3)];
+const reel = [
+  ...formats,
+  ...webExperiences.filter((w) => !formats.some((f) => f.video.src === w.video.src)).slice(0, 3),
+];
 
 export default function Gallery() {
   const root = useRef(null);
