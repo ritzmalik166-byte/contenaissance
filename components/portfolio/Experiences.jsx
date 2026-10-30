@@ -15,7 +15,7 @@ const items = [
   { title: 'Product Flow', name: '13' },
   { title: 'Landing Page', name: '14' },
   { title: 'WebGL Interface', name: '15' },
-  // { title: 'Automotive', name: 'auto' },
+  { title: 'Automotive', name: 'auto' },
 ];
 
 export default function Experiences() {
