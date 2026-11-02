@@ -1466,7 +1466,7 @@ textarea {
 
 .solutions__label {
   position: absolute;
-  top: 12vh;
+  top: 10vh;
   left: var(--pad);
   z-index: 3;
   font-weight: 600;
@@ -1568,8 +1568,8 @@ textarea {
 
 .flip {
   position: relative;
-  width: min(26vw, 380px);
-  aspect-ratio: 4 / 5;
+  width: min(26vw, 320px);
+  aspect-ratio: 9 / 16;
   transform-style: preserve-3d;
 }
 
@@ -3601,7 +3601,7 @@ textarea {
 
 .jfeat__media {
   position: relative;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 16 / 9;
   border-radius: 22px;
   background: var(--panel);
 }
@@ -3832,7 +3832,7 @@ textarea {
   left: 0;
   z-index: 60;
   width: 340px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   margin: -150px 0 0 40px;
   border-radius: 16px;
   overflow: hidden;
@@ -3876,7 +3876,7 @@ textarea {
 }
 
 .jcard__img {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
   background: #000;
@@ -3974,16 +3974,20 @@ textarea {
 .art__cover {
   position: relative;
   margin-top: clamp(40px, 5vw, 70px);
-  aspect-ratio: 21 / 9;
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
   border-radius: 24px;
   overflow: hidden;
   background: var(--panel);
 }
 
 .art__cover img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
 }
 
 .art__body {
@@ -4088,6 +4092,31 @@ textarea {
   font-size: 17.5px;
   line-height: 1.8;
   color: #c9c4b9;
+}
+
+.prose * {
+  color: inherit;
+  background-color: transparent;
+}
+
+.prose [style*="color: #000"],
+.prose [style*="color:#000"],
+.prose [style*="color: black"],
+.prose [style*="color: rgb(0, 0, 0)"],
+.prose [style*="color: rgb(43, 45, 56)"],
+.prose [style*="color:#2b2d38"],
+.prose [style*="color: #2b2d38"] {
+  color: #c9c4b9 !important;
+}
+
+.prose [style*="background: rgb(255"],
+.prose [style*="background-color: rgb(255"],
+.prose [style*="background-color: #fff"],
+.prose [style*="background-color:#fff"],
+.prose [style*="background: white"],
+.prose [style*="background-color: white"] {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .prose h2 {
@@ -4196,7 +4225,7 @@ textarea {
 
 .anext__img {
   width: min(100%, 900px);
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 9;
   border-radius: 20px;
   overflow: hidden;
 }
@@ -4312,8 +4341,8 @@ textarea {
   }
 
   .flip {
-    width: min(66vw, 420px);
-    height: min(96vw, 620px);
+    width: min(66vw, 400px);
+    aspect-ratio: 9 / 16;
   }
 
   .web3d {

@@ -2,10 +2,10 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { gsap, Flip, useGSAP, isTouch } from '@/lib/gsap';
+import { gsap, Flip, useGSAP } from '@/lib/gsap';
 import { ArrowUpRight } from '../Icons';
 
-export default function BlogIndex({ posts, topics }) {
+export default function BlogIndex({ posts = [], topics = [] }) {
   const root = useRef(null);
   const preview = useRef(null);
   const flipState = useRef(null);
@@ -13,19 +13,32 @@ export default function BlogIndex({ posts, topics }) {
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
 
-  const featured = posts[0];
-  const rest = useMemo(() => posts.slice(1), [posts]);
+  const featured = posts?.[0] || null;
+  const rest = useMemo(() => (posts && posts.length > 1 ? posts.slice(1) : []), [posts]);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return new Set(
       rest
-        .filter((p) => (topic === 'all' || p.topics.includes(topic)) && (!q || `${p.title} ${p.excerpt}`.toLowerCase().includes(q)))
+        .filter((p) => {
+          const pTopics = p.topics || [];
+          const matchTopic = topic === 'all' || pTopics.includes(topic);
+          const matchQuery = !q || `${p.title || ''} ${p.excerpt || ''}`.toLowerCase().includes(q);
+          return matchTopic && matchQuery;
+        })
         .map((p) => p.slug)
     );
   }, [rest, topic, query]);
 
   const update = (fn) => {
-    flipState.current = Flip.getState(root.current.querySelectorAll('.jrow'));
+    if (!root.current) {
+      fn();
+      return;
+    }
+    const rows = root.current.querySelectorAll('.jrow');
+    if (rows.length > 0) {
+      flipState.current = Flip.getState(rows);
+    }
     fn();
   };
 
@@ -44,63 +57,80 @@ export default function BlogIndex({ posts, topics }) {
 
   useGSAP(
     (ctx, contextSafe) => {
-      gsap
-        .timeline({ scrollTrigger: { trigger: '.jfeat', start: 'top 80%' } })
-        .from('.jfeat__copy > *', { y: 50, opacity: 0, duration: 1, stagger: 0.08, ease: 'power3.out' }, 0.3);
+      if (featured) {
+        gsap
+          .timeline({ scrollTrigger: { trigger: '.jfeat', start: 'top 80%' } })
+          .from('.jfeat__copy > *', { y: 50, opacity: 0, duration: 1, stagger: 0.08, ease: 'power3.out' }, 0.3);
+      }
 
-      gsap.from('.jrow', {
-        y: 80,
-        opacity: 0,
-        rotateX: -30,
-        transformOrigin: '50% 0%',
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.05,
-        scrollTrigger: { trigger: '.jlist', start: 'top 85%' },
-      });
+      if (rest.length > 0) {
+        gsap.from('.jrow', {
+          y: 80,
+          opacity: 0,
+          rotateX: -30,
+          transformOrigin: '50% 0%',
+          duration: 1,
+          ease: 'power3.out',
+          stagger: 0.05,
+          scrollTrigger: { trigger: '.jlist', start: 'top 85%' },
+        });
+      }
 
-      if (isTouch()) return;
-      const el = preview.current;
-      const xTo = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3.out' });
-      const yTo = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3.out' });
-      const rTo = gsap.quickTo(el, 'rotate', { duration: 0.9, ease: 'power3.out' });
-      let lastX = 0;
-      const move = contextSafe((e) => {
-        xTo(e.clientX);
-        yTo(e.clientY);
-        rTo(gsap.utils.clamp(-14, 14, (e.clientX - lastX) * 0.6));
-        lastX = e.clientX;
-      });
-      window.addEventListener('pointermove', move);
-      return () => window.removeEventListener('pointermove', move);
+      // if (isTouch() || !preview.current) return;
+      // const el = preview.current;
+      // const xTo = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3.out' });
+      // const yTo = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3.out' });
+      // const rTo = gsap.quickTo(el, 'rotate', { duration: 0.9, ease: 'power3.out' });
+      // let lastX = 0;
+      // const move = contextSafe((e) => {
+      //   xTo(e.clientX);
+      //   yTo(e.clientY);
+      //   rTo(gsap.utils.clamp(-14, 14, (e.clientX - lastX) * 0.6));
+      //   lastX = e.clientX;
+      // });
+      // window.addEventListener('pointermove', move);
+      // return () => window.removeEventListener('pointermove', move);
     },
     { scope: root }
   );
 
-  useGSAP(() => {
-    if (isTouch()) return;
-    gsap.to(preview.current, {
-      scale: hovered >= 0 ? 1 : 0,
-      opacity: hovered >= 0 ? 1 : 0,
-      duration: 0.5,
-      ease: hovered >= 0 ? 'back.out(1.6)' : 'power3.out',
-      overwrite: 'auto',
-    });
-  }, [hovered]);
+  // useGSAP(() => {
+  //   if (isTouch() || !preview.current) return;
+  //   gsap.to(preview.current, {
+  //     scale: hovered >= 0 ? 1 : 0,
+  //     opacity: hovered >= 0 ? 1 : 0,
+  //     duration: 0.5,
+  //     ease: hovered >= 0 ? 'back.out(1.6)' : 'power3.out',
+  //     overwrite: 'auto',
+  //   });
+  // }, [hovered]);
+
+  if (!featured) {
+    return (
+      <section ref={root} className="journal">
+        <div className="container" style={{ padding: '100px 0', textAlign: 'center' }}>
+          <p className="lead" style={{ opacity: 0.7 }}>
+            No journal articles found at the moment. Please check back later.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={root} className="journal">
       <div className="container">
-        <Link href={`/blog/${featured.slug}`} className="jfeat" data-cursor="Read">
+        {/* <Link href={`/blog/${featured.slug}`} className="jfeat" data-cursor="Read"> */}
+        <Link href={`/blog/${featured.slug}`} className="jfeat">
           <div className="jfeat__media" data-reveal="media">
-            <img src={featured.image} alt={featured.title} data-parallax="6" />
+            <img src={featured.image || '/images/logo.png'} alt={featured.title || ''} data-parallax="6" />
           </div>
           <div className="jfeat__copy">
             <p className="kicker">Latest Article</p>
             <p className="jmeta">
               <span>{featured.date}</span>
-              <span>{featured.author}</span>
-              <span>{featured.readTime} read</span>
+              <span>{featured.author || 'Contenaissance Team'}</span>
+              <span>{featured.readTime || '5 min'} read</span>
             </p>
             <h2 className="display h-md">{featured.title}</h2>
             <p className="lead">{featured.excerpt}</p>
@@ -112,7 +142,7 @@ export default function BlogIndex({ posts, topics }) {
 
         <div className="jbar">
           <div className="jchips" role="tablist" aria-label="Filter articles">
-            {[{ id: 'all', label: 'All' }, ...topics].map((t) => (
+            {[{ id: 'all', label: 'All' }, ...(topics || [])].map((t) => (
               <button
                 key={t.id}
                 role="tab"
@@ -139,17 +169,18 @@ export default function BlogIndex({ posts, topics }) {
           </label>
         </div>
 
-        <div className="jlist" onPointerLeave={() => setHovered(-1)}>
+        {/* <div className="jlist" onPointerLeave={() => setHovered(-1)}> */}
+        <div className="jlist">
           {rest.map((p, i) => (
             <Link
               key={p.slug}
               href={`/blog/${p.slug}`}
               className={`jrow${visible.has(p.slug) ? '' : ' is-hidden'}`}
-              onPointerEnter={() => setHovered(i)}
-              data-cursor="Read"
+              // onPointerEnter={() => setHovered(i)}
+              // data-cursor="Read"
             >
               <span className="jrow__num">{String(i + 2).padStart(2, '0')}</span>
-              <img className="jrow__thumb" src={p.image} alt="" loading="lazy" />
+              <img className="jrow__thumb" src={p.image || '/images/logo.png'} alt="" loading="lazy" />
               <span className="jrow__title">{p.title}</span>
               <span className="jrow__meta">
                 <span>{p.date}</span>
@@ -160,15 +191,23 @@ export default function BlogIndex({ posts, topics }) {
               </span>
             </Link>
           ))}
-          {visible.size === 0 && <p className="jempty">No articles match that search — try another keyword.</p>}
+          {visible.size === 0 && rest.length > 0 && (
+            <p className="jempty">No articles match that search — try another keyword.</p>
+          )}
         </div>
       </div>
 
-      <div ref={preview} className="jpreview" aria-hidden="true">
+      {/* <div ref={preview} className="jpreview" aria-hidden="true">
         {rest.map((p, i) => (
-          <img key={p.slug} src={p.image} alt="" loading="lazy" className={i === hovered ? 'is-on' : ''} />
+          <img
+            key={p.slug}
+            src={p.image || '/images/logo.png'}
+            alt=""
+            loading="lazy"
+            className={i === hovered ? 'is-on' : ''}
+          />
         ))}
-      </div>
+      </div> */}
     </section>
   );
 }

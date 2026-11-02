@@ -1,7 +1,7 @@
 import PageHero from '@/components/PageHero';
 import BlogIndex from '@/components/blog/BlogIndex';
 import Cta from '@/components/Cta';
-import { posts, topics } from '@/lib/blog';
+import { getPosts, topics } from '@/lib/blog';
 import { v } from '@/lib/content';
 
 export const metadata = {
@@ -10,8 +10,12 @@ export const metadata = {
     'Contenaissance Journal — where AI, creativity, and cinematic storytelling shape the future of digital innovation.',
 };
 
-export default function BlogPage() {
-  const list = posts.map(({ html, toc, description, ...p }) => p);
+export const revalidate = 3600;
+
+export default async function BlogPage() {
+  const posts = await getPosts();
+  const list = (posts || []).map(({ html, toc, description, ...p }) => p);
+
   return (
     <>
       <PageHero
