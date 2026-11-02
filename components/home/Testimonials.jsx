@@ -72,7 +72,7 @@ export default function Testimonials() {
   return (
     <section ref={root} className="voices" id="testimonials">
       <div className="container voices__head">
-        <p className="kicker">07 / Transmissions received</p>
+        <p className="kicker">07 / Client Stories</p>
         <Split as="h2" className="display h-lg" lines={['AI Driven Creative Excellence']} />
       </div>
 
@@ -90,7 +90,9 @@ export default function Testimonials() {
       </div>
 
       <div className="container tools">
-        <p className="mono">Powered by the tools shaping the future</p>
+<p className="tools__heading">
+  Powered by the tools shaping the future
+</p>
         <div className="tools__row">
           {aiTools.map((name) => (
             <img key={name} src={`/images/${name}.png`} alt={name} loading="lazy" />
