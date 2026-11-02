@@ -64,6 +64,12 @@ export default function Footer() {
               <a href={site.social.linkedin} target="_blank" rel="noreferrer">
                 LinkedIn
               </a>
+              <a href={site.social.youtube} target="_blank" rel="noreferrer">
+                Youtube
+              </a>
+              {/* <a href={site.social.facebook} target="_blank" rel="noreferrer">
+                Facebook
+              </a> */}
             </div>
             <div className="footer__col">
               <h5>Reach</h5>

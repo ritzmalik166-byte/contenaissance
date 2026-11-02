@@ -59,12 +59,12 @@ export default function Gallery() {
     <section ref={root} className="hgallery">
       <div className="hgallery__head">
         <div>
-          <p className="kicker">Brand films</p>
+          <p className="kicker">Featured Productions</p>
           <h2 className="display h-md" style={{ marginTop: 14 }}>
-            Hover any card to preview the reel.
+            Brand Films
           </h2>
         </div>
-        <p>Click to open the cinematic player.</p>
+        <p>Hover any card to preview the reel. Click to open the cinematic player.</p>
       </div>
 
       <div className="hgallery__track">

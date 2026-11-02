@@ -15,8 +15,8 @@ export default function BlogPage() {
   return (
     <>
       <PageHero
-        kicker="Contenaissance Journal"
-        lines={['Stories from the', 'edge of AI.']}
+        kicker="Insights & Stories"
+        lines={['Contenaissance', 'Journal']}
         text="Where AI, creativity, and cinematic storytelling shape the future of digital innovation."
         video={v('13')}
       />

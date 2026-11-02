@@ -55,7 +55,7 @@ export default function Experiences() {
       <section className="masonry">
         <div className="container">
           <div className="masonry__head">
-            <p className="kicker">Selected work</p>
+            <p className="kicker">Visual Systems</p>
             <h2 className="display h-lg" style={{ marginTop: 16 }}>
               AI Creative Experiences
             </h2>

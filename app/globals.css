@@ -700,7 +700,7 @@ textarea {
   font-family: var(--font-display);
   font-size: 14px;
   color: #d8d1c2;
-  max-width: 280px;
+  max-width: 350px;
 }
 
 .hero__ticker em {
@@ -1060,7 +1060,7 @@ textarea {
 
 .about {
   position: relative;
-  padding: clamp(100px, 14vw, 200px) 0 0;
+  padding: clamp(100px, 14vw, 150px) 0 0;
   background: var(--bg);
 }
 
@@ -1487,7 +1487,7 @@ textarea {
 
 .archive {
   position: relative;
-  padding: clamp(90px, 10vw, 150px) 0 clamp(60px, 7vw, 100px);
+  padding: clamp(90px, 10vw, 150px) 0 clamp(150px, 7vw, 100px);
   background: var(--panel);
 }
 
@@ -1954,14 +1954,14 @@ textarea {
 
 .voices {
   position: relative;
-  padding: clamp(100px, 11vw, 170px) 0;
+  padding: clamp(100px, 11vw, 150px) 0;
   background: var(--bg);
   overflow: hidden;
 }
 
 .voices__head {
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: 40px;
 }
 
 .voices__head h2 {
@@ -2026,7 +2026,7 @@ textarea {
 }
 
 .tools {
-  margin-top: 90px;
+  margin-top: 70px;
   text-align: center;
 }
 
@@ -2041,8 +2041,8 @@ textarea {
 .tools__row img {
   height: 34px;
   width: auto;
-  filter: grayscale(1) brightness(1.6);
-  opacity: 0.6;
+  filter: grayscale(1) brightness(2.9);
+  opacity: 0.8;
   transition: filter 0.4s, opacity 0.4s, transform 0.4s var(--ease);
 }
 
@@ -2058,7 +2058,7 @@ textarea {
   position: relative;
   background: var(--paper);
   color: var(--ink);
-  padding: clamp(100px, 12vw, 180px) 0;
+  padding: clamp(100px, 12vw, 150px) 0;
   will-change: clip-path;
 }
 
@@ -2123,7 +2123,7 @@ textarea {
 
 .cta {
   position: relative;
-  padding: clamp(110px, 12vw, 190px) 0;
+  padding: clamp(110px, 12vw, 150px) 0;
   background: var(--bg);
   overflow: hidden;
 }
@@ -2849,14 +2849,14 @@ textarea {
 
 .hgallery__head {
   position: absolute;
-  top: 13vh;
+  top: 6vh;
   left: var(--pad);
   right: var(--pad);
   z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 30px;
+  gap: 20px;
 }
 
 .hgallery__head p {
@@ -3153,7 +3153,7 @@ textarea {
 }
 
 .info__quote {
-  margin-top: 10px;
+  margin-top: 70px;
   padding: 28px;
   border-radius: 18px;
   background: linear-gradient(120deg, #8a4614, #e08b17 60%, #ff6d38);
@@ -3521,7 +3521,7 @@ textarea {
 
 .hjournal {
   position: relative;
-  padding: clamp(90px, 10vw, 160px) 0;
+  padding: clamp(90px, 10vw, 150px) 0;
   overflow: hidden;
 }
 
@@ -3531,7 +3531,7 @@ textarea {
   align-items: flex-end;
   gap: 30px;
   flex-wrap: wrap;
-  margin-bottom: clamp(40px, 5vw, 70px);
+  margin-bottom: clamp(40px, 5vw, 40px);
 }
 
 .hjournal__head h2 {
