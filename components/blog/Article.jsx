@@ -7,9 +7,9 @@ import { onSiteReady } from '@/lib/ready';
 import Split from '../Split';
 import { ArrowRight, ArrowUpRight } from '../Icons';
 
-export default function Article({ post, next, related }) {
+export default function Article({ post, next, related = [] }) {
   const root = useRef(null);
-  const [active, setActive] = useState(post.toc[0]?.id);
+  const [active, setActive] = useState(post?.toc?.[0]?.id || '');
   const [copied, setCopied] = useState(false);
 
   useGSAP(
@@ -26,15 +26,28 @@ export default function Article({ post, next, related }) {
           .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.2, stagger: 0.012 })
           .to('.art__fade', { y: 0, opacity: 1, duration: 1, stagger: 0.08 }, 0.3)
           .to('.art__cover', { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.6, ease: 'expo.inOut' }, 0.4)
-          .to('.art__cover img', { scale: 1.12, duration: 2, ease: 'expo.out' }, 0.5);
+.to(
+  '.art__cover img',
+  {
+    scale: 1.02,
+    duration: 2,
+    ease: 'expo.out',
+  },
+  0.5
+);
       });
       const off = onSiteReady(intro);
 
-      gsap.to('.art__cover img', {
-        yPercent: 10,
-        ease: 'none',
-        scrollTrigger: { trigger: '.art__cover', start: 'top top', end: 'bottom top', scrub: true },
-      });
+gsap.to('.art__cover img', {
+  yPercent: 1,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '.art__cover',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true,
+  },
+});
 
       gsap.fromTo(
         '.art__toc-progress i',
@@ -61,10 +74,12 @@ export default function Article({ post, next, related }) {
         });
       });
 
-      gsap
-        .timeline({ scrollTrigger: { trigger: '.anext', start: 'top 85%', end: 'top 30%', scrub: 1 } })
-        .fromTo('.anext__img', { clipPath: 'inset(30% 40% 30% 40%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' })
-        .fromTo('.anext__img img', { scale: 1.5 }, { scale: 1, ease: 'none' }, 0);
+      if (root.current.querySelector('.anext')) {
+        gsap
+          .timeline({ scrollTrigger: { trigger: '.anext', start: 'top 85%', end: 'top 30%', scrub: 1 } })
+          .fromTo('.anext__img', { clipPath: 'inset(30% 40% 30% 40%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' })
+          .fromTo('.anext__img img', { scale: 1.5 }, { scale: 1, ease: 'none' }, 0);
+      }
 
       return off;
     },
@@ -72,8 +87,9 @@ export default function Article({ post, next, related }) {
   );
 
   const share = (net) => {
+    if (typeof window === 'undefined') return;
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(post.title);
+    const text = encodeURIComponent(post?.title || '');
     if (net === 'copy') {
       navigator.clipboard?.writeText(window.location.href);
       setCopied(true);
@@ -85,8 +101,12 @@ export default function Article({ post, next, related }) {
       x: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
       whatsapp: `https://wa.me/?text=${text}%20${url}`,
     };
-    window.open(map[net], '_blank', 'noopener,noreferrer');
+    if (map[net]) {
+      window.open(map[net], '_blank', 'noopener,noreferrer');
+    }
   };
+
+  if (!post) return null;
 
   return (
     <article ref={root} className="art">
@@ -96,88 +116,94 @@ export default function Article({ post, next, related }) {
         </Link>
         <p className="jmeta art__fade">
           <span>{post.date}</span>
-          <span>By {post.author}</span>
-          <span>{post.readTime} read</span>
+          <span>By {post.author || 'Contenaissance Team'}</span>
+          <span>{post.readTime || '5 min'} read</span>
         </p>
-        <Split as="h1" className="display art__title" by="words" text={post.title} />
-        <p className="lead art__fade">{post.excerpt}</p>
+        <Split as="h1" className="display art__title" by="words" text={post.title || ''} />
+        {post.excerpt && <p className="lead art__fade">{post.excerpt}</p>}
       </header>
 
       <div className="container">
         <div className="art__cover">
-          <img src={post.image} alt={post.title} />
+          <img src={post.image || '/images/logo.png'} alt={post.title || ''} />
         </div>
       </div>
 
       <div className="container art__body">
         <aside className="art__aside">
-          <nav className="art__toc" aria-label="In this article">
-            <p className="mono">In this article</p>
-            <div className="art__toc-wrap">
-              <span className="art__toc-progress">
-                <i />
-              </span>
-              <ol>
-                {post.toc.map((t, i) => (
-                  <li key={t.id}>
-                    <a href={`#${t.id}`} className={active === t.id ? 'is-active' : ''}>
-                      <span>{String(i + 1).padStart(2, '0')}</span>
-                      {t.label}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </nav>
+          {post.toc && post.toc.length > 0 && (
+            <nav className="art__toc" aria-label="In this article">
+              <p className="mono">In this article</p>
+              <div className="art__toc-wrap">
+                <span className="art__toc-progress">
+                  <i />
+                </span>
+                <ol>
+                  {post.toc.map((t, i) => (
+                    <li key={t.id}>
+                      <a href={`#${t.id}`} className={active === t.id ? 'is-active' : ''}>
+                        <span>{String(i + 1).padStart(2, '0')}</span>
+                        {t.label}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </nav>
+          )}
           <div className="art__share">
             <p className="mono">Share</p>
             <div>
-              <button onClick={() => share('linkedin')} data-magnetic="0.4">in</button>
-              <button onClick={() => share('x')} data-magnetic="0.4">X</button>
-              <button onClick={() => share('whatsapp')} data-magnetic="0.4">wa</button>
-              <button onClick={() => share('copy')} data-magnetic="0.4">{copied ? '✓' : '⧉'}</button>
+              <button onClick={() => share('linkedin')} data-magnetic="0.4" aria-label="Share on LinkedIn">in</button>
+              <button onClick={() => share('x')} data-magnetic="0.4" aria-label="Share on X">X</button>
+              <button onClick={() => share('whatsapp')} data-magnetic="0.4" aria-label="Share on WhatsApp">wa</button>
+              <button onClick={() => share('copy')} data-magnetic="0.4" aria-label="Copy link">{copied ? '✓' : '⧉'}</button>
             </div>
           </div>
         </aside>
 
-        <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
+        <div className="prose" dangerouslySetInnerHTML={{ __html: post.html || '' }} />
       </div>
 
-      <section className="container anext-wrap">
-        <Link href={`/blog/${next.slug}`} className="anext" data-cursor="Next">
-          <p className="mono">Next article</p>
-          <div className="anext__img">
-            <img src={next.image} alt="" loading="lazy" />
-          </div>
-          <h2 className="display h-md">{next.title}</h2>
-          <span className="anext__go">
-            Continue reading <ArrowUpRight size={18} />
-          </span>
-        </Link>
-      </section>
-
-      <section className="container arel">
-        <div className="arel__head">
-          <p className="kicker">Keep exploring</p>
-          <Link href="/blog" className="btn btn--ghost">
-            All articles <ArrowUpRight />
+      {next && next.slug && (
+        <section className="container anext-wrap">
+          <Link href={`/blog/${next.slug}`} className="anext" data-cursor="Next">
+            <p className="mono">Next article</p>
+            <div className="anext__img">
+              <img src={next.image || '/images/logo.png'} alt={next.title || ''} loading="lazy" />
+            </div>
+            <h2 className="display h-md">{next.title}</h2>
+            <span className="anext__go">
+              Continue reading <ArrowUpRight size={18} />
+            </span>
           </Link>
-        </div>
-        <div className="arel__grid" data-reveal="up">
-          {related.map((p) => (
-            <Link key={p.slug} href={`/blog/${p.slug}`} className="jcard" data-tilt="7" data-cursor="Read">
-              <div className="jcard__img">
-                <img src={p.image} alt="" loading="lazy" />
-              </div>
-              <p className="jmeta">
-                <span>{p.date}</span>
-                <span>{p.readTime}</span>
-              </p>
-              <h3>{p.title}</h3>
+        </section>
+      )}
+
+      {related && related.length > 0 && (
+        <section className="container arel">
+          <div className="arel__head">
+            <p className="kicker">Keep exploring</p>
+            <Link href="/blog" className="btn btn--ghost">
+              All articles <ArrowUpRight />
             </Link>
-          ))}
-        </div>
-      </section>
+          </div>
+          <div className="arel__grid" data-reveal="up">
+            {related.map((p) => (
+              <Link key={p.slug} href={`/blog/${p.slug}`} className="jcard" data-tilt="7" data-cursor="Read">
+                <div className="jcard__img">
+                  <img src={p.image || '/images/logo.png'} alt={p.title || ''} loading="lazy" />
+                </div>
+                <p className="jmeta">
+                  <span>{p.date}</span>
+                  <span>{p.readTime}</span>
+                </p>
+                <h3>{p.title}</h3>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   );
 }

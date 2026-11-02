@@ -6,8 +6,9 @@ import { gsap, useGSAP } from '@/lib/gsap';
 import Split from '../Split';
 import { ArrowUpRight } from '../Icons';
 
-export default function Journal({ posts }) {
+export default function Journal({ posts = [] }) {
   const root = useRef(null);
+  const items = posts || [];
 
   useGSAP(
     () => {
@@ -23,38 +24,43 @@ export default function Journal({ posts }) {
       const mm = gsap.matchMedia();
       mm.add('(min-width: 900px)', () => {
         const cards = gsap.utils.toArray('.hjournal__card');
-        gsap.fromTo(
-          cards,
-          {
-            xPercent: (i) => (1 - i) * 100,
-            yPercent: 30,
-            rotate: (i) => (i - 1) * 9,
-            rotateY: (i) => (i - 1) * -25,
-            z: (i) => -Math.abs(i - 1) * 120,
-            scale: 0.82,
-          },
-          {
-            xPercent: 0,
-            yPercent: 0,
-            rotate: 0,
-            rotateY: 0,
-            z: 0,
-            scale: 1,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: '.hjournal__grid', start: 'top 95%', end: 'center 55%', scrub: 1 },
-          }
-        );
+        if (cards.length > 0) {
+          gsap.fromTo(
+            cards,
+            {
+              xPercent: (i) => (1 - i) * 100,
+              yPercent: 30,
+              rotate: (i) => (i - 1) * 9,
+              rotateY: (i) => (i - 1) * -25,
+              z: (i) => -Math.abs(i - 1) * 120,
+              scale: 0.82,
+            },
+            {
+              xPercent: 0,
+              yPercent: 0,
+              rotate: 0,
+              rotateY: 0,
+              z: 0,
+              scale: 1,
+              ease: 'power2.out',
+              scrollTrigger: { trigger: '.hjournal__grid', start: 'top 95%', end: 'center 55%', scrub: 1 },
+            }
+          );
+        }
       });
       mm.add('(max-width: 899px)', () => {
-        gsap.from('.hjournal__card', {
-          y: 80,
-          opacity: 0,
-          rotateX: -25,
-          duration: 1,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: '.hjournal__grid', start: 'top 85%' },
-        });
+        const cards = gsap.utils.toArray('.hjournal__card');
+        if (cards.length > 0) {
+          gsap.from('.hjournal__card', {
+            y: 80,
+            opacity: 0,
+            rotateX: -25,
+            duration: 1,
+            stagger: 0.1,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: '.hjournal__grid', start: 'top 85%' },
+          });
+        }
       });
     },
     { scope: root }
@@ -74,10 +80,10 @@ export default function Journal({ posts }) {
         </div>
 
         <div className="hjournal__grid">
-          {posts.map((p) => (
+          {items.map((p) => (
             <Link key={p.slug} href={`/blog/${p.slug}`} className="hjournal__card jcard" data-tilt="8" data-cursor="Read">
               <div className="jcard__img">
-                <img src={p.image} alt="" loading="lazy" />
+                <img src={p.image || '/images/logo.png'} alt={p.title || ''} loading="lazy" />
               </div>
               <p className="jmeta">
                 <span>{p.date}</span>

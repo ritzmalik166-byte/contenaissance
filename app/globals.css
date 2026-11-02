@@ -1056,6 +1056,165 @@ textarea {
   margin-top: 16px;
 }
 
+@media (max-width: 1024px) {
+  .rocket-sec {
+    height: 100svh;
+    min-height: 700px;
+    overflow: hidden;
+  }
+
+  .rocket-sec__inner {
+    height: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0;
+    padding-top: 65px;
+    padding-bottom: 44px;
+    align-items: stretch;
+  }
+
+  .rocket-stage {
+    min-height: 0;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .rocket {
+    width: 130px;
+  }
+
+  .rocket__module {
+    height: 120px;
+  }
+
+  .rocket__module svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .rocket__fins {
+    width: 130px;
+    height: 86px;
+  }
+
+  /* Increased rings around and below the rocket */
+  .orbit--1 {
+    width: min(90vw, 560px);
+  }
+
+  .orbit--2 {
+    width: min(78vw, 480px);
+  }
+
+  .stage-label__txt strong {
+    font-size: 11px;
+  }
+
+  .stage-label--right {
+    left: calc(100% + 8px);
+  }
+
+  .stage-label--left {
+    right: calc(100% + 8px);
+  }
+
+  .stage-label__line {
+    width: 12px;
+  }
+
+  .rocket-copy {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding-bottom: 0;
+    z-index: 2;
+  }
+
+  .rocket-copy__head {
+    display: none;
+  }
+
+  .rocket-panels {
+    position: relative;
+    min-height: 170px;
+    overflow: visible;
+  }
+
+  .rocket-panel {
+    inset: 0;
+    width: 100%;
+  }
+
+  .rocket-panel h3 {
+    font-size: clamp(21px, 5.5vw, 28px);
+    line-height: 1.2;
+    margin: 10px 0 12px;
+  }
+
+  .rocket-panel p {
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 100%;
+  }
+
+  .rocket-panel__num {
+    margin-bottom: 0;
+  }
+
+  .rocket-panel--final {
+    padding-bottom: 20px;
+  }
+
+  .rocket-progress {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rocket-sec {
+    min-height: 680px;
+  }
+
+  .rocket-sec__inner {
+    padding-top: 30px;
+    padding-bottom: 20px;
+  }
+
+  .rocket-stage {
+    min-height: 0;
+  }
+
+  .rocket {
+    width: 72px;
+  }
+
+  .rocket__module {
+    height: 74px;
+  }
+
+  .rocket__module svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .rocket-panels {
+    min-height: 185px;
+  }
+
+  .rocket-panel h3 {
+    font-size: 22px;
+  }
+
+  .rocket-panel p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .rocket-panel__button {
+    margin-top: 12px;
+  }
+}
+
 /* ---------- about ---------- */
 
 .about {
@@ -1307,7 +1466,7 @@ textarea {
 
 .solutions__label {
   position: absolute;
-  top: 12vh;
+  top: 10vh;
   left: var(--pad);
   z-index: 3;
   font-weight: 600;
@@ -1409,8 +1568,8 @@ textarea {
 
 .flip {
   position: relative;
-  width: min(26vw, 380px);
-  aspect-ratio: 4 / 5;
+  width: min(26vw, 320px);
+  aspect-ratio: 9 / 16;
   transform-style: preserve-3d;
 }
 
@@ -1487,7 +1646,7 @@ textarea {
 
 .archive {
   position: relative;
-  padding: clamp(90px, 10vw, 150px) 0 clamp(150px, 7vw, 100px);
+  padding: clamp(100px, 10vw, 150px) 0 clamp(100px, 7vw, 100px);
   background: var(--panel);
 }
 
@@ -1950,6 +2109,46 @@ textarea {
 }
 
 
+/* Mobile: increase video container height */
+@media (max-width: 768px) {
+  .web3d {
+    --w: 78vw;
+    min-height: 780px;
+    height: 100svh;
+  }
+
+  .ring {
+    width: var(--w);
+    aspect-ratio: 4 / 5;
+  }
+
+  .ring-pos {
+    transform: translateZ(calc(var(--w) * -1.05));
+  }
+
+  .web3d__stage {
+    padding-top: 0;
+    transform: translateY(-20px);
+  }
+
+  .bwin {
+    border-radius: 12px;
+  }
+
+  .bwin__bar {
+    height: 28px;
+    padding: 0 10px;
+  }
+
+  .bwin__screen {
+    min-height: 0;
+  } 
+
+  .web3d__caption {
+    bottom: 5vh;
+  }
+}
+
 /* ---------- testimonials ---------- */
 
 .voices {
@@ -2026,24 +2225,49 @@ textarea {
 }
 
 .tools {
+  position: relative;
+  display: block;
+  width: 100%;
   margin-top: 70px;
   text-align: center;
+  z-index: 2;
+}
+
+.tools__heading {
+  display: block;
+  position: relative;
+  margin: 0 auto;
+  padding: 0;
+  color: #c9a45c;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
 }
 
 .tools__row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: clamp(22px, 4vw, 56px);
   margin-top: 26px;
 }
 
 .tools__row img {
+  display: block;
   height: 34px;
   width: auto;
+  max-width: 100px;
+  object-fit: contain;
   filter: grayscale(1) brightness(2.9);
   opacity: 0.8;
-  transition: filter 0.4s, opacity 0.4s, transform 0.4s var(--ease);
 }
 
 .tools__row img:hover {
@@ -2117,6 +2341,52 @@ textarea {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #555;
+}
+
+/* ---------- quote mobile responsive ---------- */
+
+@media (max-width: 768px) {
+  .quote {
+    padding: 70px 0 70px;
+  }
+
+  .quote__grid {
+    grid-template-columns: 1fr;
+    gap: 1px;
+  }
+
+  .quote__mark {
+    margin-top: 20px;
+    font-size: 64px;
+    line-height: 0.65;
+  }
+
+  .quote__text {
+    font-size: clamp(25px, 6.2vw, 32px);
+    line-height: 1.16;
+    letter-spacing: -0.035em;
+    max-width: 100%;
+  }
+
+  .quote__sign {
+    margin-top: 26px;
+    gap: 12px;
+  }
+
+  .quote__sign i {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .quote__sign strong {
+    font-size: 12px;
+  }
+
+  .quote__sign span {
+    font-size: 9px;
+    line-height: 1.5;
+  }
 }
 
 /* ---------- cta ---------- */
@@ -2926,8 +3196,126 @@ textarea {
   color: #cfc9be;
 }
 
+/* Tablet */
+@media (min-width: 761px) and (max-width: 1024px) {
+  .hgallery {
+    height: 100svh;
+    min-height: 850px;
+  }
+
+  .hgallery__head {
+    top: 10vh;
+    align-items: flex-start;
+    gap: 30px;
+  }
+
+  .hgallery__head > div {
+    flex: 0 0 40%;
+  }
+
+  .hgallery__head p {
+    max-width: 300px;
+    font-size: 14px;
+  }
+
+  .hgallery__track {
+    top: 0;
+    bottom: 50;
+    align-items: center;
+    gap: 28px;
+    padding: 220px var(--pad) 40px;
+  }
+
+  .hcard {
+    width: clamp(420px, 42vw, 540px);
+    aspect-ratio: 4 / 7;
+    border-radius: 18px;
+  }
+
+  .hcard__info {
+    padding: 26px;
+  }
+
+  .hcard__info h3 {
+    font-size: 28px;
+  }
+}
+
+/* Mobile */
 @media (max-width: 760px) {
-  
+  .hgallery {
+    height: 100svh;
+    min-height: 760px;
+    overflow: hidden;
+  }
+
+  .hgallery__head {
+    top: 10vh;
+    left: var(--pad);
+    right: var(--pad);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .hgallery__head .kicker {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .hgallery__head h2 {
+    font-size: clamp(24px, 6vw, 32px);
+    line-height: 1.05;
+    margin-top: 10px !important;
+  }
+
+  .hgallery__head > p {
+    max-width: none;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .hgallery__track {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    align-items: center;
+    gap: 22px;
+    padding: 180px var(--pad) 20px;
+    perspective: 1000px;
+  }
+
+  .hcard {
+    width: min(80vw, 370px);
+    aspect-ratio: 3 / 5;
+    border-radius: 14px;
+  }
+
+  .hcard video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hcard__info {
+    padding: 18px;
+  }
+
+  .hcard__info span {
+    font-size: 10px;
+  }
+
+  .hcard__info h3 {
+    font-size: 21px;
+    line-height: 1.2;
+  }
+
+  .hcard__info p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
 }
 
 .masonry {
@@ -3213,7 +3601,7 @@ textarea {
 
 .jfeat__media {
   position: relative;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 16 / 9;
   border-radius: 22px;
   background: var(--panel);
 }
@@ -3444,7 +3832,7 @@ textarea {
   left: 0;
   z-index: 60;
   width: 340px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   margin: -150px 0 0 40px;
   border-radius: 16px;
   overflow: hidden;
@@ -3488,7 +3876,7 @@ textarea {
 }
 
 .jcard__img {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
   background: #000;
@@ -3586,16 +3974,20 @@ textarea {
 .art__cover {
   position: relative;
   margin-top: clamp(40px, 5vw, 70px);
-  aspect-ratio: 21 / 9;
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
   border-radius: 24px;
   overflow: hidden;
   background: var(--panel);
 }
 
 .art__cover img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
 }
 
 .art__body {
@@ -3700,6 +4092,31 @@ textarea {
   font-size: 17.5px;
   line-height: 1.8;
   color: #c9c4b9;
+}
+
+.prose * {
+  color: inherit;
+  background-color: transparent;
+}
+
+.prose [style*="color: #000"],
+.prose [style*="color:#000"],
+.prose [style*="color: black"],
+.prose [style*="color: rgb(0, 0, 0)"],
+.prose [style*="color: rgb(43, 45, 56)"],
+.prose [style*="color:#2b2d38"],
+.prose [style*="color: #2b2d38"] {
+  color: #c9c4b9 !important;
+}
+
+.prose [style*="background: rgb(255"],
+.prose [style*="background-color: rgb(255"],
+.prose [style*="background-color: #fff"],
+.prose [style*="background-color:#fff"],
+.prose [style*="background: white"],
+.prose [style*="background-color: white"] {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .prose h2 {
@@ -3808,7 +4225,7 @@ textarea {
 
 .anext__img {
   width: min(100%, 900px);
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 9;
   border-radius: 20px;
   overflow: hidden;
 }
@@ -3899,51 +4316,6 @@ textarea {
 /* ---------- responsive ---------- */
 
 @media (max-width: 1024px) {
-  .rocket-sec__inner {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1.25fr auto;
-    gap: 0;
-    padding-top: 80px;
-  }
-
-  .rocket {
-    width: 74px;
-  }
-
-  .rocket__module {
-    height: 78px;
-  }
-
-  .rocket__module svg {
-    width: 32px;
-    height: 32px;
-  }
-
-  .rocket__fins {
-    width: 130px;
-    height: 86px;
-  }
-
-  .stage-label__txt strong {
-    font-size: 12px;
-  }
-
-  .rocket-copy {
-    padding-bottom: 40px;
-  }
-
-  .rocket-copy__head {
-    display: none;
-  }
-
-  .rocket-panels {
-    min-height: 190px;
-  }
-
-  .rocket-panel p {
-    font-size: 14px;
-  }
-
   .about__grid,
   .quote__grid,
   .cta__grid,
@@ -3969,11 +4341,16 @@ textarea {
   }
 
   .flip {
-    width: min(56vw, 320px);
+    width: min(66vw, 400px);
+    aspect-ratio: 9 / 16;
   }
 
   .web3d {
-    --w: min(78vw, 520px);
+    --w: min(52vw, 520px);
+  }
+
+    .ring {
+    aspect-ratio: 4 / 5;
   }
 
   .wchip,

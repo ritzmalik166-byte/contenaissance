@@ -9,10 +9,16 @@ import Testimonials from '@/components/home/Testimonials';
 import Journal from '@/components/home/Journal';
 import Quote from '@/components/home/Quote';
 import Cta from '@/components/Cta';
-import { posts } from '@/lib/blog';
+import { getPosts } from '@/lib/blog';
 
-export default function Home() {
-  const latest = posts.slice(0, 3).map(({ slug, title, image, date, readTime }) => ({ slug, title, image, date, readTime }));
+export const revalidate = 3600;
+
+export default async function Home() {
+  const posts = await getPosts();
+  const latest = (posts || [])
+    .slice(0, 3)
+    .map(({ slug, title, image, date, readTime }) => ({ slug, title, image, date, readTime }));
+
   return (
     <>
       <Hero />
