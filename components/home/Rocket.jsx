@@ -152,11 +152,11 @@ export default function Rocket() {
                 <p>{s.body}</p>
               </article>
             ))}
-            <article className="rocket-panel">
+            <article className="rocket-panel rocket-panel--final">
               <p className="rocket-panel__num">{finalPanel.num}</p>
               <h3>{finalPanel.title}</h3>
               <p>{finalPanel.body}</p>
-              <Link href="/services" className="btn btn--ghost" style={{ marginTop: 22 }}>
+              <Link href="/services" className="btn btn--ghost rocket-panel__button" style={{ marginTop: 22 }}>
                 See every stage <ArrowRight />
               </Link>
             </article>

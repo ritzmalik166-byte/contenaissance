@@ -96,7 +96,7 @@ export default function BlogIndex({ posts, topics }) {
             <img src={featured.image} alt={featured.title} data-parallax="6" />
           </div>
           <div className="jfeat__copy">
-            <p className="kicker">Latest dispatch</p>
+            <p className="kicker">Latest Article</p>
             <p className="jmeta">
               <span>{featured.date}</span>
               <span>{featured.author}</span>
