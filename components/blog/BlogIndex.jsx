@@ -159,6 +159,18 @@ export default function BlogIndex({ posts = [], topics = [] }) {
   return (
     <section ref={root} className="journal">
       <div className="container">
+
+        <div className="journal__hero">
+          <span className="journal__eyebrow">Insights &amp; Stories</span>
+
+          <h1>Contenaissance <span>Journal</span></h1>
+
+          <p>
+            Where AI, creativity, and cinematic storytelling
+            shape the future of digital innovation.
+          </p>
+        </div>
+
         {/* <Link href={`/blog/${featured.slug}`} className="jfeat" data-cursor="Read"> */}
         <Link href={`/blog/${featured.slug}`} className="jfeat">
           <div className="jfeat__media" data-reveal="media">

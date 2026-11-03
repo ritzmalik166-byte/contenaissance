@@ -18,12 +18,12 @@ export default async function BlogPage() {
 
   return (
     <>
-      <PageHero
+      {/* <PageHero
         kicker="Insights & Stories"
         lines={['Contenaissance', 'Journal']}
         text="Where AI, creativity, and cinematic storytelling shape the future of digital innovation."
         video={v('13')}
-      />
+      /> */}
       <BlogIndex posts={list} topics={topics} />
       <Cta />
     </>

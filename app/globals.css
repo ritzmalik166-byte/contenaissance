@@ -3816,6 +3816,62 @@ textarea {
 }
 
 
+/* Compact Insights & Stories hero */
+.journal__hero {
+  padding: 50px 0 40px;
+  max-width: 850px;
+}
+
+.journal__eyebrow {
+  display: block;
+  margin-bottom: 18px;
+  color: #d9a928;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.journal__hero h1 {
+  margin: 0 0 18px;
+  color: #f5f0e8;
+  font-size: clamp(42px, 5.5vw, 86px);
+  line-height: 1.05;
+  letter-spacing: -2.5px;
+  font-weight: 650;
+}
+
+.journal__hero h1 span{
+  color: #d9a928;
+}
+
+.journal__hero p {
+  max-width: 650px;
+  margin: 0;
+  color: #aaa49a;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.65;
+}
+
+/* Reduce the gap before the featured article */
+.journal .jfeat {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .journal__hero {
+    padding: 50px 0 30px;
+  }
+
+  .journal__hero h1 {
+    font-size: clamp(38px, 9vw, 54px);
+    letter-spacing: -1.5px;
+  }
+
+  .journal__hero p {
+    font-size: 15px;
+  }
+}
+
 .jfeat__media {
   position: relative;
   width: 100%;
