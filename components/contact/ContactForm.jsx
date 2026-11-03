@@ -161,7 +161,56 @@ export default function ContactForm() {
 
   return (
     <section ref={root} className="contact">
+
+      <section class="contact-hero">
+        <div class="contact-hero-content">
+          <span class="contact-eyebrow">GET IN TOUCH</span>
+
+          <h1>Let’s Build  <span>Together</span></h1>
+
+          <p>
+            Tell us about your project — we respond within 24 hours.
+            Let’s create something extraordinary.
+          </p>
+        </div>
+      </section>
+
       <div className="container contact__grid">
+        <aside className="info">
+          <p className="mono">24h response</p>
+
+          <a className="info__card" href={`mailto:${site.email}`}>
+            <span className="info__icon"><Mail /></span>
+            <span>
+              <small>Email</small>
+              <p>{site.email}</p>
+            </span>
+          </a>
+
+          <a className="info__card" href={site.phoneHref}>
+            <span className="info__icon"><Phone /></span>
+            <span>
+              <small>Phone</small>
+              <p>{site.phone}</p>
+            </span>
+          </a>
+
+          <div className="info__card">
+            <span className="info__icon"><Pin /></span>
+            <span>
+              <small>Location</small>
+              <p>{site.address}</p>
+            </span>
+          </div>
+
+          <figure className="info__quote">
+            <blockquote>
+              “Where human creativity meets artificial precision,
+              we craft experiences that define the future.”
+            </blockquote>
+            <cite>Contenaissance Studio</cite>
+          </figure>
+        </aside>
         <form
           ref={formRef}
           className="form"
@@ -294,42 +343,6 @@ export default function ContactForm() {
             </p>
           )}
         </form>
-
-        <aside className="info">
-          <p className="mono">24h response</p>
-
-          <a className="info__card" href={`mailto:${site.email}`}>
-            <span className="info__icon"><Mail /></span>
-            <span>
-              <small>Email</small>
-              <p>{site.email}</p>
-            </span>
-          </a>
-
-          <a className="info__card" href={site.phoneHref}>
-            <span className="info__icon"><Phone /></span>
-            <span>
-              <small>Phone</small>
-              <p>{site.phone}</p>
-            </span>
-          </a>
-
-          <div className="info__card">
-            <span className="info__icon"><Pin /></span>
-            <span>
-              <small>Location</small>
-              <p>{site.address}</p>
-            </span>
-          </div>
-
-          <figure className="info__quote">
-            <blockquote>
-              “Where human creativity meets artificial precision,
-              we craft experiences that define the future.”
-            </blockquote>
-            <cite>Contenaissance Studio</cite>
-          </figure>
-        </aside>
       </div>
 
       {/* OTP popup */}

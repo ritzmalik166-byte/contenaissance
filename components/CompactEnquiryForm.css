@@ -140,6 +140,7 @@
   min-height: 44px;
   margin: 1px 0 0;
   padding: 10px 14px;
+  margin-top: 20px;
   color: #111;
   background: var(--color-gold, #d3b477);
   border: 1px solid transparent;

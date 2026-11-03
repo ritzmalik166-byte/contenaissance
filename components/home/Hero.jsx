@@ -80,7 +80,7 @@ export default function Hero() {
         </h1>
         <Split as="h2" className="display hero__title" lines={['Our AI Stages.', 'One Launch.']} />
         <p className="hero__sub hero__fade">
-          Each stage of the rocket is one of our AI services. Use one stage, or fire all four together.
+          AI Creative Agency in India for Brand Films, Advertising & Digital Experiences
         </p>
         <div className="hero__actions hero__fade">
           <Link href="/portfolio" className="btn btn--light">

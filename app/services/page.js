@@ -4,11 +4,13 @@ import ServiceList from '@/components/services/ServiceList';
 import Cta from '@/components/Cta';
 import { v } from '@/lib/content';
 
-export const metadata = {
-  title:
-    'AI Content Creation & Video Production Services India | Contenaissance',
+export const metadata ={
+  title: "AI Content Creation & Video Production Services India",
   description:
-    'AI-powered brand films, platform-specific content, AI marketing campaigns and AI-driven branding frameworks from Contenaissance.',
+    "Discover Contenaissance's AI-powered creative services, including brand films, digital content creation, marketing campaigns and visual identity design.",
+  alternates: {
+    canonical: "https://www.contenaissance.com/services",
+  },
 };
 
 export default function ServicesPage() {

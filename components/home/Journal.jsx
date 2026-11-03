@@ -82,7 +82,7 @@ export default function Journal({ posts = [] }) {
             <Split as="h2" className="display h-lg hjournal__title" lines={['From the', 'Journal']} />
           </div>
           <Link href="/blog" className="btn btn--ghost">
-            Read the journal <ArrowUpRight />
+            Read the Blog <ArrowUpRight />
           </Link>
         </div>
 
