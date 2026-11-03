@@ -7,8 +7,9 @@ import { gsap, useGSAP } from '@/lib/gsap';
 import { services } from '@/lib/content';
 import LazyVideo from '../LazyVideo';
 import Cta from '../Cta';
+import CompactEnquiryForm from '../CompactEnquiryForm';
 import { ArrowRight, ArrowUpRight } from '../Icons';
-import './service-detail.css'
+import './service-detail.css';
 
 function slugifyService(title = '') {
   return title
@@ -23,18 +24,21 @@ export default function ServiceDetail({ service }) {
   const root = useRef(null);
 
   const relatedServices = services
-    .filter((item) => item.title !== service.title)
+    .filter((item) => item.title !== service?.title)
     .slice(0, 3);
 
   useGSAP(
     () => {
-      gsap.from('.sd-title > *, .sd-description, .sd-video', {
-        y: 20,
-        opacity: 0,
-        duration: 0.7,
-        stagger: 0.1,
-        ease: 'power2.out',
-      });
+      gsap.from(
+        '.sd-title > *, .sd-description, .sd-video, .sd-enquiry',
+        {
+          y: 20,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power2.out',
+        }
+      );
 
       gsap.utils.toArray('.sd-reveal').forEach((element) => {
         gsap.from(element, {
@@ -57,34 +61,42 @@ export default function ServiceDetail({ service }) {
 
   return (
     <main ref={root} className="sd-page">
-      {/* Page heading */}
-      <section className="container sd-header">
-        <Link href="/services" className="sd-back">
-          <ArrowRight />
-          All Services
-        </Link>
+      {/* Header and enquiry form */}
+      <section className="container sd-hero-layout">
+        <div className="sd-hero-main">
+          <header className="sd-header">
+            <Link href="/services" className="sd-back">
+              <ArrowRight />
+              All Services
+            </Link>
 
-        <div className="sd-title">
-          <p className="sd-label">{service.kicker}</p>
+            <div className="sd-title">
+              <p className="sd-label">{service.kicker}</p>
+              <h1 className="display">{service.title}</h1>
+            </div>
 
-          <h1 className="display">{service.title}</h1>
+            <p className="sd-description">
+              {service.paragraphs?.[0]}
+            </p>
+
+            <a href="#sd-overview" className="sd-link">
+              Explore service <ArrowUpRight />
+            </a>
+          </header>
+
+          <section className="sd-video">
+            <LazyVideo
+              src={service.video.preview}
+              poster={service.video.poster}
+            />
+          </section>
         </div>
 
-        <p className="sd-description">
-          {service.paragraphs?.[0]}
-        </p>
-
-        <a href="#sd-overview" className="sd-link">
-          Explore service <ArrowUpRight />
-        </a>
-      </section>
-
-      {/* Service video */}
-      <section className="container sd-video">
-        <LazyVideo
-          src={service.video.preview}
-          poster={service.video.poster}
-        />
+        <aside className="sd-enquiry">
+          <div className="sd-enquiry-inner">
+            <CompactEnquiryForm variant="sidebar" />
+          </div>
+        </aside>
       </section>
 
       {/* Overview */}
@@ -131,7 +143,6 @@ export default function ServiceDetail({ service }) {
                 </div>
 
                 <h3>{item.title}</h3>
-
                 <p>{item.paragraphs?.[0]}</p>
 
                 <span className="sd-card-bottom">

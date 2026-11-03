@@ -1,8 +1,13 @@
 
+/* =========================================
+   Service Detail Page
+========================================= */
+
 .sd-page {
   --sd-text: var(--text, #22221f);
   --sd-muted: #777770;
   --sd-border: rgba(34, 34, 31, 0.14);
+
   overflow: clip;
 }
 
@@ -11,10 +16,27 @@
   margin-inline: auto;
 }
 
-/* Header */
+/* =========================================
+   Hero Layout
+========================================= */
+
+.sd-hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
+  align-items: stretch;
+  gap: clamp(32px, 4vw, 60px);
+}
+
+.sd-hero-main {
+  min-width: 0;
+}
+
+/* =========================================
+   Header
+========================================= */
 
 .sd-header {
-  padding-top: clamp(55px, 8vw, 105px);
+  padding-top: clamp(140px, 14vw, 150px);
   padding-bottom: 45px;
 }
 
@@ -30,7 +52,13 @@
 
 .sd-back svg {
   width: 16px;
+  height: 16px;
   transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.sd-back:hover svg {
+  transform: rotate(180deg) translateX(4px);
 }
 
 .sd-title {
@@ -62,6 +90,10 @@
   color: var(--sd-muted);
 }
 
+/* =========================================
+   Links
+========================================= */
+
 .sd-link {
   display: inline-flex;
   align-items: center;
@@ -76,6 +108,7 @@
 .sd-card-bottom svg {
   width: 17px;
   height: 17px;
+  flex-shrink: 0;
   transition: transform 0.25s ease;
 }
 
@@ -84,9 +117,13 @@
   transform: translate(3px, -3px);
 }
 
-/* Video */
+/* =========================================
+   Service Video
+========================================= */
 
 .sd-video {
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
   border-radius: 5px;
 }
@@ -98,7 +135,82 @@
   object-fit: cover;
 }
 
-/* Overview */
+/* =========================================
+   Enquiry Form Sidebar
+========================================= */
+
+.sd-enquiry {
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  padding-top: clamp(140px, 14vw, 150px);
+  z-index: 5;
+}
+
+.sd-enquiry-inner {
+  position: sticky;
+  top: 24px;
+  width: 100%;
+  height: fit-content;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sd-border) transparent;
+}
+
+.sd-enquiry-inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sd-enquiry-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sd-enquiry-inner::-webkit-scrollbar-thumb {
+  background: var(--sd-border);
+  border-radius: 10px;
+}
+
+.sd-enquiry .compact-enquiry,
+.sd-enquiry .compact-enquiry__panel {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.sd-enquiry .compact-enquiry__panel {
+  padding: 20px;
+}
+
+.sd-enquiry .compact-enquiry__title {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.sd-enquiry .compact-enquiry__intro {
+  line-height: 1.6;
+}
+
+/* Prevent form fields from overflowing */
+
+.sd-enquiry .compact-enquiry__field,
+.sd-enquiry .compact-enquiry__field input,
+.sd-enquiry .compact-enquiry__field select,
+.sd-enquiry .compact-enquiry__field textarea,
+.sd-enquiry .compact-enquiry__button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   Overview
+========================================= */
 
 .sd-overview {
   display: grid;
@@ -120,6 +232,7 @@
 
 .sd-copy {
   max-width: 680px;
+  min-width: 0;
 }
 
 .sd-copy p {
@@ -133,7 +246,9 @@
   margin-bottom: 0;
 }
 
-/* Related services */
+/* =========================================
+   Related Services
+========================================= */
 
 .sd-related {
   padding-top: clamp(70px, 9vw, 110px);
@@ -143,7 +258,7 @@
 .sd-related-heading {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 25px;
   margin-bottom: 32px;
 }
@@ -215,32 +330,65 @@
   font-size: 12px;
 }
 
-/* Existing CTA */
+.sd-card:hover .sd-card-bottom svg {
+  transform: translateX(4px);
+}
+
+/* =========================================
+   CTA
+========================================= */
 
 .sd-cta {
   padding-bottom: 20px;
 }
 
-/* Responsive */
+/* =========================================
+   Tablet
+========================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .sd-hero-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 330px);
+    gap: 26px;
+  }
+
+  .sd-enquiry .compact-enquiry__panel {
+    padding: 17px;
+  }
+
+  .sd-enquiry .compact-enquiry__title {
+    font-size: 22px;
+  }
+
+  .sd-title h1 {
+    font-size: clamp(40px, 5.5vw, 68px);
+  }
+
+  .sd-overview {
+    gap: 35px;
+  }
+
+  .sd-related-grid {
+    gap: 14px;
+  }
+
+  .sd-card {
+    padding: 20px;
+  }
+}
+
+/* =========================================
+   Mobile and Small Tablets
+========================================= */
+
+@media (max-width: 760px) {
   .sd-page .container {
     width: min(100% - 40px, 1320px);
   }
 
-  .sd-overview {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-
-  .sd-related-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .sd-page .container {
-    width: calc(100% - 36px);
+  .sd-hero-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
   }
 
   .sd-header {
@@ -253,7 +401,7 @@
   }
 
   .sd-title h1 {
-    font-size: clamp(38px, 11vw, 58px);
+    font-size: clamp(38px, 8vw, 58px);
   }
 
   .sd-description {
@@ -265,9 +413,41 @@
     border-radius: 3px;
   }
 
+  .sd-enquiry {
+    position: static;
+    padding-top: 0;
+  }
+
+  .sd-enquiry-inner {
+    position: static;
+    top: auto;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sd-enquiry .compact-enquiry__panel {
+    padding: 22px;
+  }
+
+  .sd-enquiry .compact-enquiry__title {
+    font-size: 25px;
+  }
+
+  .sd-enquiry .compact-enquiry__intro {
+    font-size: 13px;
+  }
+
   .sd-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
     padding-top: 65px;
     padding-bottom: 65px;
+  }
+
+  .sd-related {
+    padding-top: 65px;
+    padding-bottom: 75px;
   }
 
   .sd-related-heading {
@@ -277,8 +457,8 @@
   }
 
   .sd-related-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 
   .sd-card {
@@ -289,6 +469,57 @@
     margin-top: 28px;
   }
 }
+
+/* =========================================
+   Small Phones
+========================================= */
+
+@media (max-width: 480px) {
+  .sd-page .container {
+    width: calc(100% - 36px);
+  }
+
+  .sd-header {
+    padding-top: 40px;
+  }
+
+  .sd-title h1 {
+    font-size: clamp(36px, 10vw, 48px);
+  }
+
+  .sd-back {
+    margin-bottom: 38px;
+  }
+
+  .sd-enquiry .compact-enquiry__panel {
+    padding: 18px;
+  }
+
+  .sd-enquiry .compact-enquiry__title {
+    font-size: 23px;
+  }
+
+  .sd-enquiry .compact-enquiry__form {
+    gap: 12px;
+  }
+
+  .sd-related-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .sd-card {
+    padding: 20px;
+  }
+
+  .sd-card h3 {
+    margin-top: 28px;
+  }
+}
+
+/* =========================================
+   Reduced Motion
+========================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .sd-page *,
