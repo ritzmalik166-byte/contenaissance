@@ -1,17 +1,21 @@
 'use client';
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap, Flip, useGSAP } from '@/lib/gsap';
 import { ArrowUpRight } from '../Icons';
 
 export default function BlogIndex({ posts = [], topics = [] }) {
   const root = useRef(null);
+  const gridRef = useRef(null);
+  const pendingScroll = useRef(false);
   const preview = useRef(null);
   const flipState = useRef(null);
   const [topic, setTopic] = useState('all');
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 9;
 
   const featured = posts?.[0] || null;
   const rest = useMemo(() => (posts && posts.length > 1 ? posts.slice(1) : []), [posts]);
@@ -29,6 +33,41 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         .map((p) => p.slug)
     );
   }, [rest, topic, query]);
+
+  const filteredPosts = useMemo(
+    () => rest.filter((p) => visible.has(p.slug)),
+    [rest, visible]
+  );
+
+  const totalPages = Math.ceil(filteredPosts.length / PAGE_SIZE);
+
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+
+  const paginatedPosts = filteredPosts.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  useEffect(() => {
+    if (!pendingScroll.current) return;
+
+    pendingScroll.current = false;
+
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const top =
+      grid.getBoundingClientRect().top + window.scrollY - 24;
+
+    window.scrollTo({
+      top,
+      behavior: 'smooth',
+    });
+  }, [page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [topic, query]);
 
   const update = (fn) => {
     if (!root.current) {
@@ -170,31 +209,112 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         </div>
 
         {/* <div className="jlist" onPointerLeave={() => setHovered(-1)}> */}
-        <div className="jlist">
-          {rest.map((p, i) => (
-            <Link
-              key={p.slug}
-              href={`/blog/${p.slug}`}
-              className={`jrow${visible.has(p.slug) ? '' : ' is-hidden'}`}
-              // onPointerEnter={() => setHovered(i)}
-              // data-cursor="Read"
-            >
-              <span className="jrow__num">{String(i + 2).padStart(2, '0')}</span>
-              <img className="jrow__thumb" src={p.image || '/images/logo.png'} alt="" loading="lazy" />
-              <span className="jrow__title">{p.title}</span>
-              <span className="jrow__meta">
-                <span>{p.date}</span>
-                <span>{p.readTime}</span>
-              </span>
-              <span className="jrow__arrow">
-                <ArrowUpRight size={18} />
-              </span>
-            </Link>
-          ))}
+
+        <div className="jgrid" ref={gridRef}>
+          {paginatedPosts.map((p, i) => {
+            const categoryId = p.topics?.[0];
+            const category =
+              topics.find((t) => t.id === categoryId)?.label ||
+              categoryId ||
+              'Insights';
+
+            return (
+              <Link
+                key={p.slug}
+                href={`/blog/${p.slug}`}
+                className={`jcard${visible.has(p.slug) ? '' : ' is-hidden'}`}
+              >
+                <div className="jcard__media">
+                  <img
+                    src={p.image || '/images/logo.png'}
+                    alt={p.title || ''}
+                    loading="lazy"
+                  />
+                  <span className="jcard__number">
+                    {String((currentPage - 1) * PAGE_SIZE + i + 2).padStart(2, '0')}
+                  </span>
+                </div>
+
+                <div className="jcard__body">
+                  <div className="jcard__meta">
+                    <span className="jcard__category">{category}</span>
+                    <span className="jcard__date">{p.date}</span>
+                  </div>
+
+                  <h2 className="jcard__title">{p.title}</h2>
+
+                  <p className="jcard__excerpt">
+                    {p.excerpt || 'Explore this article for insights, ideas, and practical guidance.'}
+                  </p>
+
+                  <div className="jcard__footer">
+                    <span>READ ARTICLE</span>
+                    <span className="jcard__arrow">
+                      <ArrowUpRight size={18} />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+
           {visible.size === 0 && rest.length > 0 && (
-            <p className="jempty">No articles match that search — try another keyword.</p>
+            <p className="jempty">
+              No articles match that search — try another keyword.
+            </p>
           )}
         </div>
+
+
+        {totalPages > 1 && (
+          <nav className="jpagination" aria-label="Blog pagination">
+            <button
+              type="button"
+              className="jpagination__arrow"
+              disabled={currentPage === 1}
+              onClick={() => {
+                if (currentPage === 1) return;
+                pendingScroll.current = true;
+                setPage(currentPage - 1);
+              }}
+            >
+              ← Previous
+            </button>
+
+            <div className="jpagination__pages">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  type="button"
+                  key={n}
+                  className={`jpagination__number${currentPage === n ? ' is-active' : ''
+                    }`}
+                  aria-current={currentPage === n ? 'page' : undefined}
+                  onClick={() => {
+                    if (currentPage === n) return;
+                    pendingScroll.current = true;
+                    setPage(n);
+                  }}
+                >
+                  {String(n).padStart(2, '0')}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="jpagination__arrow"
+              disabled={currentPage === totalPages}
+              onClick={() => {
+                if (currentPage === totalPages) return;
+                pendingScroll.current = true;
+                setPage(currentPage + 1);
+              }}
+            >
+              Next →
+            </button>
+          </nav>
+        )}
+
       </div>
 
       {/* <div ref={preview} className="jpreview" aria-hidden="true">

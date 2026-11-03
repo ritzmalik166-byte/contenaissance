@@ -2,6 +2,7 @@
 'use client';
 
 import { Fragment, useRef, useState } from 'react';
+import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/gsap';
 import { services } from '@/lib/content';
 import LazyVideo from '../LazyVideo';
@@ -18,6 +19,15 @@ const interludes = {
     direction: 1,
   },
 };
+
+export function slugifyService(title = '') {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 export default function ServiceList() {
   const root = useRef(null);
@@ -74,7 +84,6 @@ export default function ServiceList() {
         );
 
         paragraphs.forEach((paragraph) => {
-          // Desktop keeps the second paragraph visible.
           const isDesktopSecond =
             window.matchMedia('(min-width: 768px)').matches &&
             paragraph.classList.contains('svc__second-paragraph');
@@ -86,21 +95,12 @@ export default function ServiceList() {
             return;
           }
 
-          if (expanded) {
-            gsap.set(paragraph, {
-              height: 'auto',
-              overflow: 'visible',
-              opacity: 1,
-              visibility: 'visible',
-            });
-          } else {
-            gsap.set(paragraph, {
-              height: 0,
-              overflow: 'hidden',
-              opacity: 0,
-              visibility: 'hidden',
-            });
-          }
+          gsap.set(paragraph, {
+            height: expanded ? 'auto' : 0,
+            overflow: expanded ? 'visible' : 'hidden',
+            opacity: expanded ? 1 : 0,
+            visibility: expanded ? 'visible' : 'hidden',
+          });
         });
       });
     },
@@ -115,20 +115,18 @@ export default function ServiceList() {
         '.svc__second-paragraph, .svc__extra-text'
       )
     ).filter((paragraph) => {
-      const isDesktopSecond =
+      return !(
         window.matchMedia('(min-width: 768px)').matches &&
-        paragraph.classList.contains('svc__second-paragraph');
-
-      return !isDesktopSecond;
+        paragraph.classList.contains('svc__second-paragraph')
+      );
     });
 
-    // Stop an in-progress animation before reversing direction.
     paragraphs.forEach((paragraph) => {
       gsap.killTweensOf(paragraph);
     });
 
-    if (nextExpanded) {
-      paragraphs.forEach((paragraph) => {
+    paragraphs.forEach((paragraph) => {
+      if (nextExpanded) {
         gsap.set(paragraph, {
           height: 'auto',
           overflow: 'hidden',
@@ -140,10 +138,7 @@ export default function ServiceList() {
 
         gsap.fromTo(
           paragraph,
-          {
-            height: 0,
-            opacity: 0,
-          },
+          { height: 0, opacity: 0 },
           {
             height: fullHeight,
             opacity: 1,
@@ -157,15 +152,11 @@ export default function ServiceList() {
             },
           }
         );
-      });
-    } else {
-      paragraphs.forEach((paragraph) => {
-        const currentHeight = paragraph.offsetHeight;
-
+      } else {
         gsap.fromTo(
           paragraph,
           {
-            height: currentHeight,
+            height: paragraph.offsetHeight,
             opacity: 1,
             overflow: 'hidden',
             visibility: 'visible',
@@ -176,14 +167,12 @@ export default function ServiceList() {
             duration: 0.45,
             ease: 'power2.inOut',
             onComplete: () => {
-              gsap.set(paragraph, {
-                visibility: 'hidden',
-              });
+              gsap.set(paragraph, { visibility: 'hidden' });
             },
           }
         );
-      });
-    }
+      }
+    });
 
     button.textContent = nextExpanded
       ? 'Read Less −'
@@ -200,46 +189,53 @@ export default function ServiceList() {
   return (
     <div ref={root}>
       {services.map((s, i) => {
+        const slug = slugifyService(s.title);
         const hasMobileExtra = s.paragraphs.length > 1;
         const hasDesktopExtra = s.paragraphs.length > 2;
 
         return (
           <Fragment key={s.title}>
-            <section
-              className={`svc ${i % 2 ? 'svc--reverse' : ''}`}
-            >
+            <section className={`svc ${i % 2 ? 'svc--reverse' : ''}`}>
               <div className="container svc__grid">
-                {/* Desktop video */}
                 <div className="svc__media">
-                  <LazyVideo
-                    src={s.video.preview}
-                    poster={s.video.poster}
-                  />
+                  <Link
+                    href={`/services/${slug}`}
+                    aria-label={`View ${s.title} service`}
+                  >
+                    <LazyVideo
+                      src={s.video.preview}
+                      poster={s.video.poster}
+                    />
+                  </Link>
                 </div>
 
                 <div
                   className={[
                     'svc__copy',
-                    hasMobileExtra
-                      ? 'svc__copy--has-mobile-extra'
-                      : '',
-                    hasDesktopExtra
-                      ? 'svc__copy--has-desktop-extra'
-                      : '',
+                    hasMobileExtra ? 'svc__copy--has-mobile-extra' : '',
+                    hasDesktopExtra ? 'svc__copy--has-desktop-extra' : '',
                     expandedItems[i] ? 'is-expanded' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
                 >
                   <p className="svc__num">
-                    {String(i + 1).padStart(2, '0')} / 04
+                    {String(i + 1).padStart(2, '0')} /{' '}
+                    {String(services.length).padStart(2, '0')}
                   </p>
 
-                  <h2 className="display h-md">{s.kicker}</h2>
+                  <h2 className="display h-md">
+                    <Link href={`/services/${slug}`}>
+                      {s.kicker}
+                    </Link>
+                  </h2>
 
-                  <h3>{s.title}</h3>
+                  <h3>
+                    <Link href={`/services/${slug}`}>
+                      {s.title}
+                    </Link>
+                  </h3>
 
-                  {/* Mobile video */}
                   <div className="svc__mobile-media">
                     <LazyVideo
                       src={s.video.preview}
@@ -247,8 +243,7 @@ export default function ServiceList() {
                     />
                   </div>
 
-                  {/* Service paragraphs */}
-                  {s.paragraphs.map((p, j) => (
+                  {s.paragraphs.map((paragraph, j) => (
                     <p
                       key={j}
                       className={
@@ -259,11 +254,10 @@ export default function ServiceList() {
                             : undefined
                       }
                     >
-                      {p}
+                      {paragraph}
                     </p>
                   ))}
 
-                  {/* Read More / Read Less */}
                   {s.paragraphs.length > 2 && (
                     <button
                       type="button"
@@ -277,18 +271,14 @@ export default function ServiceList() {
                         )
                       }
                     >
-                      {expandedItems[i]
-                        ? 'Read Less −'
-                        : 'Read More +'}
+                      {expandedItems[i] ? 'Read Less −' : 'Read More +'}
                     </button>
                   )}
                 </div>
               </div>
             </section>
 
-            {interludes[i] && (
-              <Banner {...interludes[i]} />
-            )}
+            {interludes[i] && <Banner {...interludes[i]} />}
           </Fragment>
         );
       })}

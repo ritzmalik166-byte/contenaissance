@@ -6,6 +6,7 @@ import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap';
 import { onSiteReady } from '@/lib/ready';
 import Split from '../Split';
 import { ArrowRight, ArrowUpRight } from '../Icons';
+import CompactEnquiryForm from '../CompactEnquiryForm';
 
 export default function Article({ post, next, related = [] }) {
   const root = useRef(null);
@@ -26,28 +27,28 @@ export default function Article({ post, next, related = [] }) {
           .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.2, stagger: 0.012 })
           .to('.art__fade', { y: 0, opacity: 1, duration: 1, stagger: 0.08 }, 0.3)
           .to('.art__cover', { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.6, ease: 'expo.inOut' }, 0.4)
-.to(
-  '.art__cover img',
-  {
-    scale: 1.02,
-    duration: 2,
-    ease: 'expo.out',
-  },
-  0.5
-);
+          .to(
+            '.art__cover img',
+            {
+              scale: 1.02,
+              duration: 2,
+              ease: 'expo.out',
+            },
+            0.5
+          );
       });
       const off = onSiteReady(intro);
 
-gsap.to('.art__cover img', {
-  yPercent: 1,
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '.art__cover',
-    start: 'top top',
-    end: 'bottom top',
-    scrub: true,
-  },
-});
+      gsap.to('.art__cover img', {
+        yPercent: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.art__cover',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
 
       gsap.fromTo(
         '.art__toc-progress i',
@@ -110,59 +111,55 @@ gsap.to('.art__cover img', {
 
   return (
     <article ref={root} className="art">
-      <header className="container art__head" style={{ perspective: 900 }}>
-        <Link href="/blog" className="art__back art__fade">
-          <ArrowRight /> Journal
-        </Link>
-        <p className="jmeta art__fade">
-          <span>{post.date}</span>
-          <span>By {post.author || 'Contenaissance Team'}</span>
-          <span>{post.readTime || '5 min'} read</span>
-        </p>
-        <Split as="h1" className="display art__title" by="words" text={post.title || ''} />
-        {post.excerpt && <p className="lead art__fade">{post.excerpt}</p>}
-      </header>
+      <div className="container art__layout">
+        <div className="art__main">
+          <header
+            className="art__head"
+            style={{ perspective: 900 }}
+          >
+            <Link href="/blog" className="art__back art__fade">
+              <ArrowRight /> Journal
+            </Link>
 
-      <div className="container">
-        <div className="art__cover">
-          <img src={post.image || '/images/logo.png'} alt={post.title || ''} />
-        </div>
-      </div>
+            <Split
+              as="h1"
+              className="display art__title"
+              by="words"
+              text={post.title || ''}
+            />
 
-      <div className="container art__body">
-        <aside className="art__aside">
-          {post.toc && post.toc.length > 0 && (
-            <nav className="art__toc" aria-label="In this article">
-              <p className="mono">In this article</p>
-              <div className="art__toc-wrap">
-                <span className="art__toc-progress">
-                  <i />
-                </span>
-                <ol>
-                  {post.toc.map((t, i) => (
-                    <li key={t.id}>
-                      <a href={`#${t.id}`} className={active === t.id ? 'is-active' : ''}>
-                        <span>{String(i + 1).padStart(2, '0')}</span>
-                        {t.label}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </nav>
-          )}
-          <div className="art__share">
-            <p className="mono">Share</p>
-            <div>
-              <button onClick={() => share('linkedin')} data-magnetic="0.4" aria-label="Share on LinkedIn">in</button>
-              <button onClick={() => share('x')} data-magnetic="0.4" aria-label="Share on X">X</button>
-              <button onClick={() => share('whatsapp')} data-magnetic="0.4" aria-label="Share on WhatsApp">wa</button>
-              <button onClick={() => share('copy')} data-magnetic="0.4" aria-label="Copy link">{copied ? '✓' : '⧉'}</button>
+            {post.excerpt && (
+              <p className="lead art__fade">{post.excerpt}</p>
+            )}
+
+            <div className="art__cover">
+              <img
+                src={post.image || '/images/logo.png'}
+                alt={post.title || ''}
+              />
             </div>
+            <p className="jmeta art__fade">
+              <span>{post.date}</span>
+              <span>
+                By {post.author || 'Contenaissance Team'}
+              </span>
+              <span>{post.readTime || '5 min'} read</span>
+            </p>
+          </header>
+
+          <div
+            className="prose"
+            dangerouslySetInnerHTML={{
+              __html: post.html || '',
+            }}
+          />
+        </div>
+
+        <aside className="art__contact">
+          <div className="art__contact-inner">
+            <CompactEnquiryForm variant="sidebar" />
           </div>
         </aside>
-
-        <div className="prose" dangerouslySetInnerHTML={{ __html: post.html || '' }} />
       </div>
 
       {next && next.slug && (
@@ -180,30 +177,45 @@ gsap.to('.art__cover img', {
         </section>
       )}
 
-      {related && related.length > 0 && (
-        <section className="container arel">
-          <div className="arel__head">
-            <p className="kicker">Keep exploring</p>
-            <Link href="/blog" className="btn btn--ghost">
-              All articles <ArrowUpRight />
-            </Link>
+    
+{related && related.length > 0 && (
+  <section className="container arel">
+    <div className="arel__head">
+      <p className="kicker">Keep exploring</p>
+
+      <Link href="/blog" className="btn btn--ghost">
+        All articles <ArrowUpRight />
+      </Link>
+    </div>
+
+    <div className="arel__grid" data-reveal="up">
+      {related.map((p) => (
+        <Link
+          key={p.slug}
+          href={`/blog/${p.slug}`}
+          className="arel__card"
+          data-cursor="Read"
+        >
+          <div className="arel__img">
+            <img
+              src={p.image || '/images/logo.png'}
+              alt={p.title || ''}
+              loading="lazy"
+            />
           </div>
-          <div className="arel__grid" data-reveal="up">
-            {related.map((p) => (
-              <Link key={p.slug} href={`/blog/${p.slug}`} className="jcard" data-tilt="7" data-cursor="Read">
-                <div className="jcard__img">
-                  <img src={p.image || '/images/logo.png'} alt={p.title || ''} loading="lazy" />
-                </div>
-                <p className="jmeta">
-                  <span>{p.date}</span>
-                  <span>{p.readTime}</span>
-                </p>
-                <h3>{p.title}</h3>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+
+          <p className="jmeta arel__meta">
+            <span>{p.date}</span>
+            <span className="arel__dot" />
+            <span>{p.readTime}</span>
+          </p>
+
+          <h3>{p.title}</h3>
+        </Link>
+      ))}
+    </div>
+  </section>
+)}
     </article>
   );
 }

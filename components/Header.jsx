@@ -42,6 +42,7 @@ export default function Header() {
           </Link>
 
           <nav className="nav" aria-label="Primary">
+            <Link href="/">Home</Link>
             {nav.map((item) => (
               <Link key={item.label} href={item.href} className="nav__link" data-cursor-hover>
                 <span>{item.label}</span>
@@ -49,7 +50,7 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/contact" className="nav__cta" data-cursor-hover>
-              Start a mission <ArrowUpRight />
+              Contact Us <ArrowUpRight />
             </Link>
           </nav>
 
@@ -73,7 +74,7 @@ export default function Header() {
           </Link>
         ))}
         <Link href="/contact" style={{ color: 'var(--gold)' }}>
-          Start a mission
+          Contact Us
         </Link>
       </div>
     </>
