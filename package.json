@@ -20,6 +20,9 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "puppeteer-core": "^25.16.0"
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "puppeteer-core": "^25.16.0",
+    "typescript": "7.0.2"
   }
 }
