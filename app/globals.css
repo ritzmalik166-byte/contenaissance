@@ -2153,7 +2153,8 @@ textarea {
 
 .voices {
   position: relative;
-  padding: clamp(100px, 11vw, 150px) 0;
+  padding-top: 150px;
+  padding-bottom: 100px;
   background: var(--bg);
   overflow: hidden;
 }
@@ -2393,7 +2394,8 @@ textarea {
 
 .cta {
   position: relative;
-  padding: clamp(110px, 12vw, 150px) 0;
+  padding-top: 100px;
+  padding-bottom: 100px;
   background: var(--bg);
   overflow: hidden;
 }
@@ -3715,7 +3717,9 @@ textarea {
 
 .journal {
   position: relative;
-  padding: clamp(60px, 7vw, 110px) 0 clamp(80px, 9vw, 140px);
+  /* padding: clamp(60px, 7vw, 110px) 0 clamp(80px, 9vw, 140px); */
+  padding-top: 100px;
+  padding-bottom: 50px;
 }
 
 .jfeat {
@@ -3725,10 +3729,11 @@ textarea {
   align-items: center;
 }
 
+
 .jfeat__media {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: 22px;
   background: var(--panel);
@@ -3739,7 +3744,7 @@ textarea {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   object-position: center;
   transition:
     transform 0.8s var(--ease),
@@ -3747,9 +3752,10 @@ textarea {
 }
 
 .jfeat:hover .jfeat__media img {
-  transform: scale(1.03);
+  transform: scale(1.02);
   filter: saturate(1.08) brightness(1.04);
 }
+
 .jfeat__copy {
   display: flex;
   flex-direction: column;
@@ -4074,10 +4080,11 @@ textarea {
 
 /* Image */
 
+
 .jcard__media {
   position: relative;
   width: 100%;
-  aspect-ratio: 1.58 / 1;
+  aspect-ratio: 16 / 9;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -4087,17 +4094,23 @@ textarea {
 }
 
 .jcard__media img {
+  position: absolute !important;
+  inset: 0 !important;
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+  object-position: center !important;
+  transform: none !important;
 }
 
+/* Disable image zoom */
 .jcard:hover .jcard__media img {
-  transform: scale(1.055);
+  transform: none !important;
 }
+
 
 .jcard__number {
   position: absolute;
@@ -4384,39 +4397,7 @@ textarea {
   }
 }
 
-/* home journal */
-
-.hjournal {
-  position: relative;
-  padding: clamp(90px, 10vw, 150px) 0;
-  overflow: hidden;
-}
-
-.hjournal__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 30px;
-  flex-wrap: wrap;
-  margin-bottom: clamp(40px, 5vw, 40px);
-}
-
-.hjournal__head h2 {
-  margin-top: 18px;
-}
-
-.hjournal__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  perspective: 1400px;
-  transform-style: preserve-3d;
-}
-
 /* article */
-
-
-/* Article layout */
 .art > .container.art__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
@@ -4521,11 +4502,12 @@ textarea {
   max-width: 760px;
 }
 
+
 .art__cover {
   position: relative;
   margin-top: 20px;
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16 / 9;
   height: auto;
   border-radius: 24px;
   overflow: hidden;
@@ -4535,8 +4517,8 @@ textarea {
 .art__cover img {
   display: block;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: fill;
   object-position: center;
 }
 
@@ -4774,6 +4756,7 @@ textarea {
   padding: clamp(40px, 5vw, 70px) 0;
 }
 
+
 .anext__img {
   width: min(100%, 900px);
   aspect-ratio: 16 / 9;
@@ -4782,9 +4765,11 @@ textarea {
 }
 
 .anext__img img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
+  object-position: center;
 }
 
 .anext h2 {
@@ -4815,7 +4800,7 @@ textarea {
 /* Related articles */
 .arel {
   padding-top: clamp(40px, 5vw, 70px);
-  padding-bottom: clamp(80px, 9vw, 140px);
+  padding-bottom: clamp(80px, 9vw, 50px);
   border-top: 1px solid var(--line);
 }
 
@@ -4863,6 +4848,7 @@ textarea {
   transform: translateY(-5px);
 }
 
+
 .arel__img {
   position: relative;
   width: 100%;
@@ -4877,13 +4863,13 @@ textarea {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   object-position: center;
   transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .arel__card:hover .arel__img img {
-  transform: scale(1.045);
+  transform: none;
 }
 
 .arel__meta {

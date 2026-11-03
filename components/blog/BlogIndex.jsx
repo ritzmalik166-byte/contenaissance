@@ -230,9 +230,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
                     alt={p.title || ''}
                     loading="lazy"
                   />
-                  <span className="jcard__number">
-                    {String((currentPage - 1) * PAGE_SIZE + i + 2).padStart(2, '0')}
-                  </span>
                 </div>
 
                 <div className="jcard__body">
