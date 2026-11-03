@@ -2142,7 +2142,7 @@ textarea {
 
   .bwin__screen {
     min-height: 0;
-  } 
+  }
 
   .web3d__caption {
     bottom: 5vh;
@@ -3211,7 +3211,7 @@ textarea {
     gap: 30px;
   }
 
-  .hgallery__head > div {
+  .hgallery__head>div {
     flex: 0 0 40%;
   }
 
@@ -3272,7 +3272,7 @@ textarea {
     margin-top: 10px !important;
   }
 
-  .hgallery__head > p {
+  .hgallery__head>p {
     max-width: none;
     font-size: 12px;
     line-height: 1.55;
@@ -3416,11 +3416,9 @@ textarea {
   min-height: 0;
   padding: 150px 7% 55px;
   background:
-    radial-gradient(
-      ellipse at top left,
+    radial-gradient(ellipse at top left,
       rgba(125, 76, 20, 0.32),
-      transparent 55%
-    ),
+      transparent 55%),
     #090807;
   color: #f5f0e8;
   display: flex;
@@ -3464,7 +3462,7 @@ textarea {
 /* Laptop and tablet */
 @media (max-width: 1024px) {
   .contact-hero {
-    padding: 80px 6% 45px;
+    padding: 120px 6% 45px;
   }
 
   .contact-hero h1 {
@@ -3476,7 +3474,7 @@ textarea {
 /* Mobile */
 @media (max-width: 600px) {
   .contact-hero {
-    padding: 65px 6% 35px;
+    padding: 95px 6% 35px;
   }
 
   .contact-eyebrow {
@@ -3765,6 +3763,7 @@ textarea {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -3840,7 +3839,7 @@ textarea {
   font-weight: 650;
 }
 
-.journal__hero h1 span{
+.journal__hero h1 span {
   color: #d9a928;
 }
 
@@ -3857,9 +3856,15 @@ textarea {
   margin-top: 0;
 }
 
+@media (max-width: 1000px) {
+  .journal__hero {
+    padding: 31px 0 30px;
+  }
+}
+
 @media (max-width: 768px) {
   .journal__hero {
-    padding: 50px 0 30px;
+    padding: 1px 0 30px;
   }
 
   .journal__hero h1 {
@@ -4540,7 +4545,7 @@ textarea {
 }
 
 /* article */
-.art > .container.art__layout {
+.art>.container.art__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
   gap: clamp(32px, 4vw, 60px);
@@ -4580,13 +4585,13 @@ textarea {
 
 /* Tablet */
 @media (max-width: 1100px) {
-  .art > .container.art__layout {
-    grid-template-columns: minmax(0, 1fr) minmax(290px, 330px);
+  .art>.container.art__layout {
+    grid-template-columns: minmax(0, 1fr);
     gap: 26px;
   }
 
   .art__contact {
-    margin-top: 120px;
+    margin-top: 0;
   }
 
   .art__contact-inner {
@@ -4596,7 +4601,7 @@ textarea {
 
 /* Mobile */
 @media (max-width: 760px) {
-  .art > .container.art__layout {
+  .art>.container.art__layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -5131,6 +5136,7 @@ textarea {
 /* ---------- responsive ---------- */
 
 @media (max-width: 1024px) {
+
   .about__grid,
   .quote__grid,
   .cta__grid,
@@ -5164,7 +5170,7 @@ textarea {
     --w: min(52vw, 520px);
   }
 
-    .ring {
+  .ring {
     aspect-ratio: 4 / 5;
   }
 

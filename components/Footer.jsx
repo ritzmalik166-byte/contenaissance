@@ -53,7 +53,7 @@ export default function Footer() {
               <Link href="/home">Home</Link>
               <Link href="/portfolio">Portfolio</Link>
               <Link href="/services">Services</Link>
-              <Link href="/blog">Journal</Link>
+              <Link href="/blog">Blog</Link>
             </div>
             <div className="footer__col">
               <h5>Connect</h5>
