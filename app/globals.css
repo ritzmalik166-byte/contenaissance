@@ -2153,7 +2153,8 @@ textarea {
 
 .voices {
   position: relative;
-  padding: clamp(100px, 11vw, 150px) 0;
+  padding-top: 150px;
+  padding-bottom: 100px;
   background: var(--bg);
   overflow: hidden;
 }
@@ -2393,7 +2394,8 @@ textarea {
 
 .cta {
   position: relative;
-  padding: clamp(110px, 12vw, 150px) 0;
+  padding-top: 100px;
+  padding-bottom: 100px;
   background: var(--bg);
   overflow: hidden;
 }
@@ -3715,7 +3717,9 @@ textarea {
 
 .journal {
   position: relative;
-  padding: clamp(60px, 7vw, 110px) 0 clamp(80px, 9vw, 140px);
+  /* padding: clamp(60px, 7vw, 110px) 0 clamp(80px, 9vw, 140px); */
+  padding-top: 100px;
+  padding-bottom: 50px;
 }
 
 .jfeat {
@@ -4796,7 +4800,7 @@ textarea {
 /* Related articles */
 .arel {
   padding-top: clamp(40px, 5vw, 70px);
-  padding-bottom: clamp(80px, 9vw, 140px);
+  padding-bottom: clamp(80px, 9vw, 50px);
   border-top: 1px solid var(--line);
 }
 

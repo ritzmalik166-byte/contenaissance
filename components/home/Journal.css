@@ -74,7 +74,7 @@
 
   color: #171936;
   background: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* border: 1px solid rgba(255, 255, 255, 0.18); */
 
   text-decoration: none;
   transform-style: preserve-3d;

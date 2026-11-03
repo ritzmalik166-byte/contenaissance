@@ -90,9 +90,9 @@ export default function Testimonials() {
       </div>
 
       <div className="container tools">
-<p className="tools__heading">
-  Powered by the tools shaping the future
-</p>
+        <p className="tools__heading">
+          Powered by the tools shaping the future
+        </p>
         <div className="tools__row">
           {aiTools.map((name) => (
             <img key={name} src={`/images/${name}.png`} alt={name} loading="lazy" />

@@ -135,7 +135,7 @@ export default function Article({ post, next, related = [] }) {
             <div className="art__cover">
               <img
                 src={post.image || '/images/logo.png'}
-                alt={post.title || ''}x
+                alt={post.title || ''} x
               />
             </div>
             <p className="jmeta art__fade">
@@ -177,45 +177,45 @@ export default function Article({ post, next, related = [] }) {
         </section>
       )}
 
-    
-{related && related.length > 0 && (
-  <section className="container arel">
-    <div className="arel__head">
-      <p className="kicker">Keep exploring</p>
 
-      <Link href="/blog" className="btn btn--ghost">
-        All articles <ArrowUpRight />
-      </Link>
-    </div>
+      {related && related.length > 0 && (
+        <section className="container arel">
+          <div className="arel__head">
+            <p className="kicker">Keep exploring</p>
 
-    <div className="arel__grid" data-reveal="up">
-      {related.map((p) => (
-        <Link
-          key={p.slug}
-          href={`/blog/${p.slug}`}
-          className="arel__card"
-          data-cursor="Read"
-        >
-          <div className="arel__img">
-            <img
-              src={p.image || '/images/logo.png'}
-              alt={p.title || ''}
-              loading="lazy"
-            />
+            <Link href="/blog" className="btn btn--ghost">
+              All articles <ArrowUpRight />
+            </Link>
           </div>
 
-          <p className="jmeta arel__meta">
-            <span>{p.date}</span>
-            <span className="arel__dot" />
-            <span>{p.readTime}</span>
-          </p>
+          <div className="arel__grid" data-reveal="up">
+            {related.map((p) => (
+              <Link
+                key={p.slug}
+                href={`/blog/${p.slug}`}
+                className="arel__card"
+                data-cursor="Read"
+              >
+                <div className="arel__img">
+                  <img
+                    src={p.image || '/images/logo.png'}
+                    alt={p.title || ''}
+                    loading="lazy"
+                  />
+                </div>
 
-          <h3>{p.title}</h3>
-        </Link>
-      ))}
-    </div>
-  </section>
-)}
+                <p className="jmeta arel__meta">
+                  <span>{p.date}</span>
+                  <span className="arel__dot" />
+                  <span>{p.readTime}</span>
+                </p>
+
+                <h3>{p.title}</h3>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   );
 }
