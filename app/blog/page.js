@@ -5,9 +5,9 @@ import { getPosts, topics } from '@/lib/blog';
 import { v } from '@/lib/content';
 
 export const metadata = {
-  title: 'Creative Agency Blogs, Branding & Marketing | Contenaissance',
-  description:
-    'Contenaissance Journal — where AI, creativity, and cinematic storytelling shape the future of digital innovation.',
+  title: "Creative Agency Blogs, Branding & Marketing | Contenaissance",
+  description: "Read practical blogs on creative advertising, branding, AI video production and digital marketing. Discover ideas to strengthen your brand with Contenaissance.",
+  alternates: { canonical: "/blog" },
 };
 
 export const revalidate = 3600;

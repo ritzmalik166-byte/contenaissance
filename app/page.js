@@ -13,6 +13,27 @@ import { getPosts } from '@/lib/blog';
 
 export const revalidate = 3600;
 
+export const metadata = {
+  title: "AI Creative Agency & Digital Marketing Co. | Contenaissance",
+  description:
+    "Contenaissance helps brands stand out with AI-powered brand films, creative campaigns, branding, web design, SEO and digital marketing built around your goals.",
+  keywords: [
+    "AI Video Production Agency",
+    "AI Content Creation",
+    "Brand Storytelling",
+    "Creative Agency",
+    "AI Marketing Agency",
+    "Commercial Video Production",
+    "Digital Content Creation",
+    "Social Media Content Production",
+    "Branded Content Agency",
+    "AI Creative Services",
+  ],
+  alternates: {
+    canonical: "https://www.contenaissance.com/",
+  },
+};
+
 export default async function Home() {
   const posts = await getPosts();
   const latest = (posts || [])

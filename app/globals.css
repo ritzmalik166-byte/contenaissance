@@ -3411,13 +3411,99 @@ textarea {
 
 /* contact */
 
+/* Compact Get in Touch Hero */
+.contact-hero {
+  min-height: 0;
+  padding: 150px 7% 55px;
+  background:
+    radial-gradient(
+      ellipse at top left,
+      rgba(125, 76, 20, 0.32),
+      transparent 55%
+    ),
+    #090807;
+  color: #f5f0e8;
+  display: flex;
+  align-items: center;
+}
+
+.contact-hero-content {
+  width: 100%;
+  max-width: 850px;
+}
+
+.contact-eyebrow {
+  display: block;
+  margin-bottom: 24px;
+  color: #d9a928;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+}
+
+.contact-hero h1 {
+  margin: 0 0 24px;
+  font-size: clamp(48px, 6vw, 88px);
+  line-height: 0.98;
+  letter-spacing: -3px;
+  font-weight: 650;
+}
+
+.contact-hero h1 span {
+  color: #d9a928;
+}
+
+.contact-hero p {
+  max-width: 620px;
+  margin: 0;
+  color: #aaa49a;
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.7;
+}
+
+/* Laptop and tablet */
+@media (max-width: 1024px) {
+  .contact-hero {
+    padding: 80px 6% 45px;
+  }
+
+  .contact-hero h1 {
+    font-size: clamp(48px, 7vw, 72px);
+    letter-spacing: -2px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .contact-hero {
+    padding: 65px 6% 35px;
+  }
+
+  .contact-eyebrow {
+    margin-bottom: 18px;
+    font-size: 11px;
+  }
+
+  .contact-hero h1 {
+    font-size: clamp(42px, 11vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+  }
+
+  .contact-hero p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
+
 .contact {
   padding: 0 0 clamp(90px, 10vw, 150px);
 }
 
 .contact__grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1.3fr;
   gap: clamp(30px, 5vw, 80px);
   align-items: start;
 }

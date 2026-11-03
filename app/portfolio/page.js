@@ -5,9 +5,12 @@ import Cta from '@/components/Cta';
 import { v } from '@/lib/content';
 
 export const metadata = {
-  title: 'Creative Portfolio | Contenaissance AI Studio',
+  title: "Creative Portfolio | Contenaissance AI Studio",
   description:
-    'Explore AI-generated campaigns, digital content, visual storytelling, and creative experiences built for modern brands.',
+    "Explore Contenaissance's creative portfolio featuring AI brand films, commercials, social media content, and digital experiences designed for modern brands.",
+  alternates: {
+    canonical: "https://www.contenaissance.com/portfolio",
+  },
 };
 
 export default function PortfolioPage() {

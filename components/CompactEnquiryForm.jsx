@@ -351,9 +351,6 @@ export default function CompactEnquiryForm({
           </>
         ) : (
           <div className="compact-enquiry__verification">
-            <p className="compact-enquiry__eyebrow">
-              VERIFICATION REQUIRED
-            </p>
 
             <h2 className="compact-enquiry__title" id={`${id}-title`}>
               Verify your number
