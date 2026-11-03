@@ -135,7 +135,7 @@ export default function Article({ post, next, related = [] }) {
             <div className="art__cover">
               <img
                 src={post.image || '/images/logo.png'}
-                alt={post.title || ''}
+                alt={post.title || ''}x
               />
             </div>
             <p className="jmeta art__fade">

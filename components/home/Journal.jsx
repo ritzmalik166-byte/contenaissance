@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/gsap';
 import Split from '../Split';
 import { ArrowUpRight } from '../Icons';
+import "./Journal.css";
 
 export default function Journal({ posts = [] }) {
   const root = useRef(null);
@@ -25,15 +26,16 @@ export default function Journal({ posts = [] }) {
       mm.add('(min-width: 900px)', () => {
         const cards = gsap.utils.toArray('.hjournal__card');
         if (cards.length > 0) {
+
           gsap.fromTo(
             cards,
             {
-              xPercent: (i) => (1 - i) * 100,
-              yPercent: 30,
-              rotate: (i) => (i - 1) * 9,
-              rotateY: (i) => (i - 1) * -25,
-              z: (i) => -Math.abs(i - 1) * 120,
-              scale: 0.82,
+              xPercent: (i) => (i - 1) * 12,
+              yPercent: 18,
+              rotate: (i) => (i - 1) * 4,
+              rotateY: (i) => (i - 1) * -8,
+              z: (i) => -Math.abs(i - 1) * 50,
+              scale: 0.94,
             },
             {
               xPercent: 0,
@@ -43,7 +45,12 @@ export default function Journal({ posts = [] }) {
               z: 0,
               scale: 1,
               ease: 'power2.out',
-              scrollTrigger: { trigger: '.hjournal__grid', start: 'top 95%', end: 'center 55%', scrub: 1 },
+              scrollTrigger: {
+                trigger: '.hjournal__grid',
+                start: 'top 90%',
+                end: 'center 55%',
+                scrub: 1,
+              },
             }
           );
         }
