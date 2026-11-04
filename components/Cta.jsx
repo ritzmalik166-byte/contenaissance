@@ -68,7 +68,7 @@ export default function Cta() {
       <div className="container cta__grid">
         <div>
           <p className="kicker">10 / Open a new flight plan</p>
-          <Split as="h2" className="display cta__title" lines={['What’s your', 'next big story?']} />
+          <Split as="h2" className="display cta__title" lines={['What’s your ', 'next big story?']} />
           <div className="cta__row">
             <Link href="/contact" className="btn btn--gold cta__btn">
               Let’s make it happen <ArrowUpRight />

@@ -61,7 +61,7 @@ export default function Gallery() {
         <div>
           <p className="kicker">Featured Productions</p>
           <h2 className="display h-md" style={{ marginTop: 14 }}>
-            Brand Films
+            Explore Our Creative Work
           </h2>
         </div>
         <p>Hover any card to preview the reel. Click to open the cinematic player.</p>
@@ -84,7 +84,7 @@ export default function Gallery() {
             <video poster={item.video.poster} muted loop playsInline preload="none" />
             <div className="hcard__info">
               <span>{String(i + 1).padStart(2, '0')}</span>
-              <h3>{item.title}</h3>
+              <h2>{item.title}</h2>
               <p>{item.sub}</p>
             </div>
           </article>

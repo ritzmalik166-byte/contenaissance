@@ -1,12 +1,33 @@
-import { Montserrat, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import 'lenis/dist/lenis.css';
 import './globals.css';
 import Shell from '@/components/Shell';
 import Script from 'next/script';
+import {
+  Plus_Jakarta_Sans,
+  Roboto,
+  JetBrains_Mono,
+} from 'next/font/google';
 
-const display = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-display' });
-const body = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-body' });
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono' });
+const heading = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-heading',
+  display: 'swap',
+});
+
+const body = Roboto({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-body',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   metadataBase: new URL("https://www.contenaissance.com"),
@@ -111,8 +132,11 @@ export const viewport = { themeColor: '#0a0908' };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <head>
+<html
+  lang="en"
+  className={`${heading.variable} ${body.variable} ${mono.variable}`}
+>
+        <head>
         <link rel="dns-prefetch" href="https://contenaissance.blob.core.windows.net" />
         <link rel="preconnect" href="https://contenaissance.blob.core.windows.net" crossOrigin="anonymous" />
         <script

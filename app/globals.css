@@ -132,14 +132,21 @@ textarea {
 }
 
 .display {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.04;
 }
 
 .h-xl {
-  font-size: clamp(44px, 7.4vw, 112px);
+  font-size: clamp(40px, 6vw, 88px);
+  line-height: 1.02;
+}
+
+.page-hero .page-hero__inner h1.display.h-xl {
+  font-size: clamp(40px, 6vw, 88px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.03em;
 }
 
 .h-lg {

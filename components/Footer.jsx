@@ -49,14 +49,14 @@ export default function Footer() {
 
           <div className="footer__cols">
             <div className="footer__col">
-              <h5>Explore</h5>
+              <p>Explore</p>
               <Link href="/home">Home</Link>
               <Link href="/portfolio">Portfolio</Link>
               <Link href="/services">Services</Link>
               <Link href="/blog">Blog</Link>
             </div>
             <div className="footer__col">
-              <h5>Connect</h5>
+              <p>Connect</p>
               <Link href="/contact">Contact Us</Link>
               <a href={site.social.instagram} target="_blank" rel="noreferrer">
                 Instagram
@@ -72,7 +72,7 @@ export default function Footer() {
               </a> */}
             </div>
             <div className="footer__col">
-              <h5>Reach</h5>
+              <p>Reach</p>
               <a href={`mailto:${site.email}`}>{site.email}</a>
               <a href={site.phoneHref}>{site.phone}</a>
             </div>

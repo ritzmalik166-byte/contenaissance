@@ -14,20 +14,11 @@ import { getPosts } from '@/lib/blog';
 export const revalidate = 3600;
 
 export const metadata = {
-  title: "AI Creative Agency & Digital Marketing Co. | Contenaissance",
+  title: "AI Creative Agency in India | Contenaissance",
   description:
-    "Contenaissance helps brands stand out with AI-powered brand films, creative campaigns, branding, web design, SEO and digital marketing built around your goals.",
+    "Contenaissance is an AI creative agency in India specialising in AI video production, brand films and digital campaigns.",
   keywords: [
-    "AI Video Production Agency",
-    "AI Content Creation",
-    "Brand Storytelling",
-    "Creative Agency",
-    "AI Marketing Agency",
-    "Commercial Video Production",
-    "Digital Content Creation",
-    "Social Media Content Production",
-    "Branded Content Agency",
-    "AI Creative Services",
+    "AI Creative Agency in India", "AI Video Production Agency", "AI Creative Studio", "AI Advertising Agency", "AI Brand Film Production", "AI Commercial Production", "Generative AI Advertising", "AI Digital Content Creation", "Creative Production Agency", "Brand Film Production Company", "AI-Powered Video Production", "Digital Creative Agency in India", "AI Marketing Campaigns", "AI Video Creation Services", "Creative AI Solutions for Brands"
   ],
   alternates: {
     canonical: "https://www.contenaissance.com/",
