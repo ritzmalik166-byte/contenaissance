@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { nav } from '@/lib/content';
 import { ArrowUpRight } from './Icons';
+import DiwaliStrip from './diwali/DiwaliStrip';
 
 export default function Header() {
   const [hidden, setHidden] = useState(false);
@@ -36,13 +37,13 @@ export default function Header() {
   return (
     <>
       <header className={`header${hidden && !open ? ' is-hidden' : ''}${solid ? ' is-solid' : ''}`}>
+        <DiwaliStrip />
         <div className="container header__inner">
           <Link href="/" className="logo" aria-label="Contenaissance home">
             <img src="/images/logo.png" alt="Contenaissance — Ritz GenAI Storytelling Studios" />
           </Link>
 
           <nav className="nav" aria-label="Primary">
-            <Link href="/">Home</Link>
             {nav.map((item) => (
               <Link key={item.label} href={item.href} className="nav__link" data-cursor-hover>
                 <span>{item.label}</span>
@@ -67,7 +68,6 @@ export default function Header() {
       </header>
 
       <div className={`mobile-menu${open ? ' is-open' : ''}`} aria-hidden={!open}>
-        <Link href="/">Home</Link>
         {nav.map((item) => (
           <Link key={item.label} href={item.href}>
             {item.label}

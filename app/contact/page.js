@@ -2,9 +2,12 @@ import PageHero from '@/components/PageHero';
 import ContactForm from '@/components/contact/ContactForm';
 
 export const metadata = {
-  title: "Contact Contenaissance | Creative Agency in Noida",
+  title: "Contact Contenaissance | Start Your Creative Project",
   description:
-    "Contact Contenaissance, a creative agency in Noida, to discuss AI video production, branding, digital marketing and creative solutions for your business.",
+    "Get in touch with Contenaissance for AI video production, creative services, branding, digital content and marketing projects. Let's build something extraordinary.",
+    keywords: [
+      "contact Contenaissance", " AI creative agency", " AI video production", " creative agency India", " AI content creation", " branding services", " digital marketing agency", " creative production agency", " brand films", " creative collaboration"
+    ],
   alternates: {
     canonical: "https://www.contenaissance.com/contact",
   },
