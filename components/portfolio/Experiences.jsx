@@ -10,11 +10,11 @@ const items = [
   { title: 'Brand Film', name: '01' },
   { title: 'Commercial', name: '03' },
   { title: 'Social Reel', name: '09' },
-  { title: 'Documentary', name: '10' },
+  { title: 'Documentary Films', name: '10' },
   { title: '3D Website', name: '12' },
   { title: 'Product Flow', name: '13' },
   { title: 'Landing Page', name: '14' },
-  { title: 'WebGL Interface', name: '15' },
+  { title: 'WebGL Experiences', name: '15' },
   { title: 'Automotive', name: 'auto' },
 ];
 
@@ -55,13 +55,12 @@ export default function Experiences() {
       <section className="masonry">
         <div className="container">
           <div className="masonry__head">
-            <p className="kicker">Visual Systems</p>
+            <p className="kicker">SELECTED CREATIVE WORK</p>
             <h2 className="display h-lg" style={{ marginTop: 16 }}>
-              AI Creative Experiences
+              Creative Work Across Every Medium
             </h2>
             <p className="lead">
-              A selection of AI-powered visuals, campaigns, and digital experiences crafted for modern brands.
-            </p>
+              A collection of creative projects spanning brand films, video commercials, product photography, advertising campaigns, and digital experiences. Each project reflects our passion for visual storytelling, creative direction, and innovative production.</p>
           </div>
 
           <div className="masonry__grid" data-skew>
@@ -89,8 +88,8 @@ export default function Experiences() {
             </div>
           ))}
           <div className="stats__copy">
-            <h3>Built to perform. Designed to impress.</h3>
-            <p>We craft refined digital experiences where creative vision meets strategic execution.</p>
+            <h2>Have a Vision? Let's Make It Happen.</h2>
+            <p>Partner with Contenaissance to create powerful brand films, engaging campaigns, and unforgettable digital experiences that move your brand forward.</p>
           </div>
         </div>
       </section>

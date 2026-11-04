@@ -17,9 +17,8 @@ export default function ServicesPage() {
   return (
     <>
       <PageHero
-        kicker="Our approach / Services"
-        lines={['AI Content Creation', '& Video Production']}
-        text="Brand films, platform-first content, AI-powered campaigns and visual identity systems, crafted in India for brands everywhere."
+        lines={['AI Creative, Content Production', '& Digital Experiences']}
+        text="We bring together human creativity, AI technology and strategic storytelling to create compelling brand films, digital content, advertising campaigns and visual experiences. From the first idea to the final execution, we help brands turn ambitious ideas into meaningful creative work."
         video={v('15')}
       />
 

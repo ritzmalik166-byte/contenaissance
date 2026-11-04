@@ -75,13 +75,13 @@ export default function Hero() {
       <div className="hero__vignette" />
 
       <div className="hero__content">
-        <h1 className="hero__eyebrow hero__fade">
+        <p className="hero__eyebrow hero__fade">
           <i /> AI Story Telling Agency &amp; AI Creative Studio
-        </h1>
-        <Split as="h2" className="display hero__title" lines={['Our AI Stages.', 'One Launch.']} />
-        <p className="hero__sub hero__fade">
-          AI Creative Agency in India for Brand Films, Advertising & Digital Experiences
         </p>
+        <Split as="p" className="display hero__title" lines={['Our AI Stages.', 'One Launch.']} />
+        <h1 className="hero__sub hero__fade">
+          AI Creative Agency in India for Brand Films, Advertising & Digital Experiences
+        </h1>
         <div className="hero__actions hero__fade">
           <Link href="/portfolio" className="btn btn--light">
             Explore The Work <ArrowRight />
