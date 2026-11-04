@@ -17,8 +17,8 @@
   --paper: #f7f5f0;
   --ink: #121110;
 
-  --font-display: 'Montserrat', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Roboto', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --pad: clamp(20px, 4.4vw, 64px);
@@ -48,6 +48,29 @@ body {
   line-height: 1.6;
   background: var(--bg);
   overflow-x: hidden;
+}
+
+/* All headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* Other elements */
+p,
+span,
+a,
+button,
+input,
+select,
+textarea,
+label,
+li {
+  font-family: var(--font-body);
 }
 
 img,
@@ -4160,7 +4183,7 @@ textarea {
 
 .jcard__img {
   aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  /* border-radius: 12px; */
   overflow: hidden;
   background: #000;
 }
@@ -4945,9 +4968,14 @@ textarea {
 }
 
 /* Related articles */
+
+/* =========================================
+   Related Articles - Normal Card Layout
+========================================= */
+
 .arel {
   padding-top: clamp(40px, 5vw, 70px);
-  padding-bottom: clamp(80px, 9vw, 50px);
+  padding-bottom: clamp(80px, 9vw, 100px);
   border-top: 1px solid var(--line);
 }
 
@@ -4956,6 +4984,7 @@ textarea {
   justify-content: space-between;
   align-items: center;
   gap: 24px;
+  margin-bottom: 55px;
 }
 
 .arel__head .kicker {
@@ -4965,44 +4994,63 @@ textarea {
   letter-spacing: 0.06em;
 }
 
+/* Grid */
 .arel__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 24px;
   align-items: stretch;
+  perspective: none;
 }
 
+/* Normal rectangular card */
 .arel__card {
   display: flex;
   flex-direction: column;
+  width: 100%;
   min-width: 0;
-  padding: 17px;
+  height: 100%;
+  padding: 16px;
+
   overflow: hidden;
+  position: relative;
+
   color: var(--text);
   background: #151411;
+
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  border-radius: 20px;
+
+  transform: none !important;
+  rotate: none !important;
+  skew: none !important;
+  clip-path: none !important;
+  perspective: none;
+
   text-decoration: none;
+
   transition:
-    border-color 0.35s ease,
-    background 0.35s ease,
-    transform 0.4s ease;
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .arel__card:hover {
-  border-color: rgba(211, 180, 119, 0.5);
+  transform: translateY(-5px) !important;
+  border-color: rgba(233, 185, 73, 0.4);
   background: #191713;
-  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
-
+/* Image */
 .arel__img {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  overflow: hidden;
   flex-shrink: 0;
-  border-radius: 16px;
+  overflow: hidden;
+
+  border-radius: 13px;
   background: var(--panel);
 }
 
@@ -5010,24 +5058,29 @@ textarea {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: cover;
   object-position: center;
-  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  transform: none;
+  transition: transform 0.6s ease;
 }
 
 .arel__card:hover .arel__img img {
-  transform: none;
+  transform: scale(1.035);
 }
 
+/* Meta */
 .arel__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  margin: 24px 7px 18px;
+  gap: 14px;
+
+  margin: 23px 5px 16px;
+
   color: var(--dim);
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -5039,13 +5092,16 @@ textarea {
   background: var(--gold);
 }
 
+/* Card heading */
 .arel__card h3 {
-  margin: 0 7px 12px;
-  font-family: var(--font-display);
-  font-size: clamp(19px, 1.65vw, 27px);
+  margin: 0 5px 12px;
+
+  font-family: var(--font-heading);
+  font-size: clamp(19px, 1.65vw, 26px);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.025em;
+
   color: var(--text);
 }
 
@@ -5053,11 +5109,7 @@ textarea {
 @media (max-width: 1024px) {
   .arel__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
-  }
-
-  .arel__card h3 {
-    font-size: 22px;
+    gap: 20px;
   }
 }
 
@@ -5069,32 +5121,31 @@ textarea {
   }
 
   .arel__head {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     align-items: center;
   }
 
   .arel__grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
+    gap: 18px;
   }
 
   .arel__card {
     padding: 12px;
-    border-radius: 19px;
+    border-radius: 17px;
   }
 
   .arel__img {
-    border-radius: 12px;
+    border-radius: 11px;
   }
 
   .arel__meta {
     gap: 11px;
-    margin: 18px 5px 12px;
+    margin: 17px 5px 12px;
     font-size: 10px;
   }
 
   .arel__card h3 {
-    margin: 0 5px 8px;
     font-size: 21px;
   }
 }

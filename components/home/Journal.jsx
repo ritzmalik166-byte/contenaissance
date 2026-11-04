@@ -94,7 +94,7 @@ export default function Journal({ posts = [] }) {
               </div>
               <p className="jmeta">
                 <span>{p.date}</span>
-                <span>{p.readTime}</span>
+                {/* <span>{p.readTime}</span> */}
               </p>
               <h3>{p.title}</h3>
             </Link>

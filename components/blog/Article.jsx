@@ -206,8 +206,8 @@ export default function Article({ post, next, related = [] }) {
 
                 <p className="jmeta arel__meta">
                   <span>{p.date}</span>
-                  <span className="arel__dot" />
-                  <span>{p.readTime}</span>
+                  {/* <span className="arel__dot" />
+                  <span>{p.readTime}</span> */}
                 </p>
 
                 <h3>{p.title}</h3>
