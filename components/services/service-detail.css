@@ -1,13 +1,11 @@
 
 /* =========================================
-   Service Detail Page — Dark Theme
-   Matches site-wide dark palette from globals.css
+   SERVICE DETAIL PAGE
 ========================================= */
 
 .sd-page {
   --sd-muted: var(--muted, #9b968c);
-  --sd-border: var(--line, rgba(255, 255, 255, 0.09));
-  --sd-border-hover: var(--line-2, rgba(255, 255, 255, 0.16));
+  --sd-border: var(--line, rgba(255,255,255,.09));
 
   background: var(--bg, #0a0908);
   color: var(--text, #f4f1ea);
@@ -19,9 +17,7 @@
   margin-inline: auto;
 }
 
-/* =========================================
-   Hero Layout
-========================================= */
+/* HERO */
 
 .sd-hero-layout {
   display: grid;
@@ -30,17 +26,10 @@
   gap: clamp(32px, 4vw, 60px);
 }
 
-.sd-hero-main {
-  min-width: 0;
-}
-
-/* =========================================
-   Header
-========================================= */
+.sd-hero-main { min-width: 0; }
 
 .sd-header {
-  padding-top: clamp(140px, 14vw, 150px);
-  padding-bottom: 45px;
+  padding: clamp(140px, 14vw, 150px) 0 45px;
 }
 
 .sd-back {
@@ -48,37 +37,23 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 25px;
-  color: var(--muted, #9b968c);
+  color: var(--sd-muted);
   font-size: 13px;
-  letter-spacing: 0.04em;
   text-decoration: none;
-  transition: color 0.25s ease;
-}
-
-.sd-back:hover {
-  color: var(--text, #f4f1ea);
 }
 
 .sd-back svg {
   width: 16px;
-  height: 16px;
   transform: rotate(180deg);
-  transition: transform 0.3s ease;
 }
 
-.sd-back:hover svg {
-  transform: rotate(180deg) translateX(4px);
-}
-
-.sd-title {
-  max-width: 950px;
-}
+.sd-title { max-width: 950px; }
 
 .sd-label {
   margin: 0 0 14px;
-  color: var(--gold, #e9b949);
+  color: var(--gold);
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: .12em;
   line-height: 1.6;
   text-transform: uppercase;
 }
@@ -87,9 +62,8 @@
   margin: 0;
   font-size: clamp(42px, 6.5vw, 88px);
   line-height: 1.05;
-  letter-spacing: -0.045em;
+  letter-spacing: -.045em;
   font-weight: 600;
-  color: var(--text, #f4f1ea);
   overflow-wrap: anywhere;
 }
 
@@ -98,26 +72,22 @@
   margin: 24px 0 18px;
   font-size: clamp(16px, 1.5vw, 19px);
   line-height: 1.8;
-  color: var(--muted, #9b968c);
+  color: var(--sd-muted);
 }
 
-/* =========================================
-   Links
-========================================= */
+/* LINKS */
 
 .sd-link {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: var(--gold, #e9b949);
+  color: var(--gold);
   font-size: 13px;
   text-decoration: none;
-  transition: opacity 0.25s ease;
+  transition: opacity .25s;
 }
 
-.sd-link:hover {
-  opacity: 0.75;
-}
+.sd-link:hover { opacity: .75; }
 
 .sd-link svg,
 .sd-card-top svg,
@@ -125,7 +95,7 @@
   width: 17px;
   height: 17px;
   flex-shrink: 0;
-  transition: transform 0.25s ease;
+  transition: transform .25s;
 }
 
 .sd-link:hover svg,
@@ -133,16 +103,13 @@
   transform: translate(3px, -3px);
 }
 
-/* =========================================
-   Service Video
-========================================= */
+/* VIDEO */
 
 .sd-video {
   width: 100%;
-  min-width: 0;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--sd-border);
 }
 
 .sd-video video {
@@ -152,16 +119,14 @@
   object-fit: cover;
 }
 
-/* =========================================
-   Enquiry Form Sidebar
-========================================= */
+/* DESKTOP ENQUIRY */
 
 .sd-enquiry {
   position: relative;
   align-self: stretch;
   width: 100%;
   min-width: 0;
-  padding-top: clamp(140px, 14vw, 150px);
+  padding-top: 150px;
   z-index: 5;
 }
 
@@ -169,27 +134,12 @@
   position: sticky;
   top: 24px;
   width: 100%;
-  height: fit-content;
-  max-height: calc(100vh - 48px);
   max-height: calc(100dvh - 48px);
+  height: fit-content;
   overflow-x: hidden;
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: var(--line-2, rgba(255, 255, 255, 0.16)) transparent;
-}
-
-.sd-enquiry-inner::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sd-enquiry-inner::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sd-enquiry-inner::-webkit-scrollbar-thumb {
-  background: var(--line-2, rgba(255, 255, 255, 0.16));
-  border-radius: 10px;
 }
 
 .sd-enquiry .compact-enquiry,
@@ -208,12 +158,6 @@
   line-height: 1.2;
 }
 
-.sd-enquiry .compact-enquiry__intro {
-  line-height: 1.6;
-}
-
-/* Prevent form fields from overflowing */
-
 .sd-enquiry .compact-enquiry__field,
 .sd-enquiry .compact-enquiry__field input,
 .sd-enquiry .compact-enquiry__field select,
@@ -225,17 +169,19 @@
   box-sizing: border-box;
 }
 
-/* =========================================
-   Overview
-========================================= */
+.sd-enquiry-trigger,
+.sd-enquiry-close {
+  display: none;
+}
+
+/* OVERVIEW */
 
 .sd-overview {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
   gap: clamp(35px, 8vw, 110px);
-  padding-top: clamp(75px, 10vw, 125px);
-  padding-bottom: clamp(75px, 10vw, 125px);
-  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.09));
+  padding: clamp(75px, 10vw, 125px) 0;
+  border-bottom: 1px solid var(--sd-border);
 }
 
 .sd-section-heading h2,
@@ -243,9 +189,8 @@
   margin: 0;
   font-size: clamp(32px, 4vw, 52px);
   line-height: 1.12;
-  letter-spacing: -0.04em;
+  letter-spacing: -.04em;
   font-weight: 600;
-  color: var(--text, #f4f1ea);
 }
 
 .sd-copy {
@@ -255,22 +200,17 @@
 
 .sd-copy p {
   margin: 0 0 22px;
-  color: var(--muted, #9b968c);
+  color: var(--sd-muted);
   font-size: 15px;
   line-height: 1.9;
 }
 
-.sd-copy p:last-child {
-  margin-bottom: 0;
-}
+.sd-copy p:last-child { margin-bottom: 0; }
 
-/* =========================================
-   Related Services
-========================================= */
+/* RELATED SERVICES */
 
 .sd-related {
-  padding-top: clamp(70px, 9vw, 110px);
-  padding-bottom: clamp(75px, 10vw, 125px);
+  padding: clamp(70px, 9vw, 110px) 0 clamp(75px, 10vw, 125px);
 }
 
 .sd-related-heading {
@@ -298,128 +238,286 @@
   min-width: 0;
   padding: 24px;
   background: var(--panel, #161411);
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--sd-border);
   border-radius: 8px;
-  color: var(--text, #f4f1ea);
+  color: var(--text);
   text-decoration: none;
-  transition:
-    border-color 0.25s ease,
-    background 0.25s ease;
+  transition: border-color .25s, background .25s;
 }
 
 .sd-card:hover {
-  border-color: var(--line-2, rgba(255, 255, 255, 0.16));
-  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--line-2);
+  background: rgba(255,255,255,.04);
 }
 
 .sd-card-top {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
 }
 
-.sd-card-top .sd-label {
-  margin: 0;
-}
+.sd-card-top .sd-label { margin: 0; }
 
 .sd-card h3 {
   margin: 38px 0 14px;
   font-size: clamp(21px, 2.1vw, 28px);
   line-height: 1.2;
-  letter-spacing: -0.025em;
+  letter-spacing: -.025em;
   font-weight: 600;
-  color: var(--text, #f4f1ea);
 }
 
+/* Description limited to 3 lines */
+
 .sd-card > p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   margin: 0 0 28px;
-  color: var(--muted, #9b968c);
+  color: var(--sd-muted);
   font-size: 13px;
   line-height: 1.8;
 }
 
 .sd-card-bottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
   margin-top: auto;
   padding-top: 18px;
-  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.09));
+  border-top: 1px solid var(--sd-border);
   font-size: 12px;
-  color: var(--gold, #e9b949);
+  color: var(--gold);
 }
 
 .sd-card:hover .sd-card-bottom svg {
   transform: translateX(4px);
 }
 
-/* =========================================
-   CTA
-========================================= */
-
-.sd-cta {
-  padding-bottom: 20px;
-}
+.sd-cta { padding-bottom: 20px; }
 
 /* =========================================
-   Tablet
+   TABLET
 ========================================= */
 
 @media (max-width: 1100px) {
+
+  .sd-page .container {
+    width: calc(100% - 48px);
+  }
+
+  /* Full width hero */
+
   .sd-hero-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(290px, 330px);
-    gap: 26px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
   }
 
-  .sd-enquiry .compact-enquiry__panel {
-    padding: 17px;
+  .sd-header {
+    padding: 125px 0 30px;
   }
 
-  .sd-enquiry .compact-enquiry__title {
-    font-size: 22px;
-  }
+  .sd-title { max-width: 100%; }
 
   .sd-title h1 {
-    font-size: clamp(40px, 5.5vw, 68px);
+    font-size: clamp(40px, 6vw, 68px);
   }
+
+  .sd-description {
+    max-width: 900px;
+    font-size: 16px;
+  }
+
+  /* Hide desktop form */
+
+  .sd-enquiry {
+    display: none;
+    padding: 0;
+  }
+
+  /* Floating enquiry button */
+
+  .sd-enquiry-trigger {
+    position: fixed;
+    z-index: 9990;
+    right: 24px;
+    bottom: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 14px 20px;
+    border: 1px solid rgba(239,185,67,.5);
+    border-radius: 50px;
+
+    background: #d8b46e;
+    color: #100d08;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    transition: .3s ease;
+  }
+
+  .sd-enquiry-trigger:hover {
+    background: #efc77f;
+    transform: translateY(-3px);
+  }
+
+  .sd-enquiry-trigger svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  /* Larger video */
+
+  .sd-video {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .sd-video video {
+    aspect-ratio: 16 / 9;
+    min-height: 340px;
+    max-height: 560px;
+  }
+
+  /* Overview in one column */
 
   .sd-overview {
-    gap: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 75px 0;
   }
 
+  .sd-section-heading h2 {
+    font-size: clamp(34px, 5vw, 48px);
+  }
+
+  .sd-copy {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .sd-copy p {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+
+  /* Related cards */
+
   .sd-related-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
 
-  .sd-card {
+  .sd-card { padding: 18px; }
+
+  .sd-card h3 {
+    font-size: clamp(17px, 2vw, 23px);
+    margin: 28px 0 12px;
+  }
+
+  .sd-card > p {
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  /* Enquiry popup backdrop */
+
+  .sd-enquiry.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+
     padding: 20px;
+    background: rgba(0,0,0,.82);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    box-sizing: border-box;
+  }
+
+  .sd-enquiry.is-open .sd-enquiry-inner {
+    position: relative;
+    top: auto;
+
+    width: min(100%, 480px);
+    max-height: 88vh;
+    max-height: 88dvh;
+    height: auto;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background: #14120f;
+    border: 1px solid rgba(239,185,67,.2);
+    border-radius: 12px;
+  }
+
+  .sd-enquiry.is-open .compact-enquiry__panel {
+    padding: 28px 22px 22px;
+  }
+
+  /* Popup close */
+
+  .sd-enquiry-close {
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+
+    display: grid;
+    place-items: center;
+    float: right;
+
+    width: 34px;
+    height: 34px;
+    margin: 10px 10px -44px 0;
+
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 50%;
+    background: #211c15;
+    color: var(--gold);
+
+    font-size: 22px;
+    cursor: pointer;
   }
 }
 
 /* =========================================
-   Mobile and Small Tablets
+   MOBILE + SMALL TABLETS
 ========================================= */
 
 @media (max-width: 760px) {
+
   .sd-page .container {
-    width: min(100% - 40px, 1320px);
+    width: calc(100% - 40px);
   }
 
-  .sd-hero-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
+  .sd-hero-layout { gap: 28px; }
 
   .sd-header {
-    padding-top: 45px;
-    padding-bottom: 35px;
+    padding: 45px 0 28px;
   }
 
-  .sd-back {
-    margin-bottom: 48px;
-  }
+  .sd-back { margin-bottom: 30px; }
 
   .sd-title h1 {
     font-size: clamp(38px, 8vw, 58px);
@@ -428,53 +526,52 @@
   .sd-description {
     margin-top: 18px;
     font-size: 15px;
+    line-height: 1.8;
   }
+
+  /* Video */
 
   .sd-video {
-    border-radius: 6px;
+    width: 100%;
+    border-radius: 9px;
   }
 
-  .sd-enquiry {
-    position: static;
-    padding-top: 0;
+  .sd-video video {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 280px;
+    max-height: 480px;
+    object-fit: cover;
   }
 
-  .sd-enquiry-inner {
-    position: static;
-    top: auto;
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .sd-enquiry .compact-enquiry__panel {
-    padding: 22px;
-  }
-
-  .sd-enquiry .compact-enquiry__title {
-    font-size: 25px;
-  }
-
-  .sd-enquiry .compact-enquiry__intro {
-    font-size: 13px;
-  }
+  /* Overview */
 
   .sd-overview {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    padding-top: 65px;
-    padding-bottom: 65px;
+    gap: 20px;
+    padding: 60px 0;
   }
 
+  .sd-section-heading h2 {
+    font-size: clamp(34px, 8vw, 46px);
+  }
+
+  .sd-copy p {
+    font-size: 14px;
+    line-height: 1.85;
+    margin-bottom: 20px;
+  }
+
+  /* Related services */
+
   .sd-related {
-    padding-top: 65px;
-    padding-bottom: 75px;
+    padding: 60px 0 70px;
   }
 
   .sd-related-heading {
     align-items: flex-start;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
+    margin-bottom: 25px;
   }
 
   .sd-related-grid {
@@ -482,64 +579,110 @@
     gap: 14px;
   }
 
-  .sd-card {
-    padding: 21px;
-  }
+  .sd-card { padding: 18px; }
 
   .sd-card h3 {
-    margin-top: 28px;
+    font-size: 20px;
+    margin: 26px 0 12px;
+  }
+
+  .sd-card > p {
+    -webkit-line-clamp: 3;
+    font-size: 12px;
+    line-height: 1.75;
+  }
+
+  .sd-enquiry-trigger {
+    right: 18px;
+    bottom: 20px;
   }
 }
 
 /* =========================================
-   Small Phones
+   SMALL MOBILE
 ========================================= */
 
 @media (max-width: 480px) {
+
   .sd-page .container {
     width: calc(100% - 36px);
   }
 
-  .sd-header {
-    padding-top: 40px;
-  }
+  .sd-header { padding-top: 120px; }
 
   .sd-title h1 {
     font-size: clamp(36px, 10vw, 48px);
   }
 
-  .sd-back {
-    margin-bottom: 38px;
+  .sd-description { font-size: 14px; }
+
+  /* Video */
+
+  .sd-video video {
+    aspect-ratio: 16 / 10;
+    min-height: 230px;
+    max-height: 340px;
   }
 
-  .sd-enquiry .compact-enquiry__panel {
-    padding: 18px;
+  /* Overview */
+
+  .sd-overview {
+    padding: 55px 0;
+    gap: 20px;
   }
 
-  .sd-enquiry .compact-enquiry__title {
-    font-size: 23px;
+  .sd-copy p {
+    font-size: 14px;
+    line-height: 1.85;
   }
 
-  .sd-enquiry .compact-enquiry__form {
-    gap: 12px;
+  /* Related services */
+
+  .sd-related {
+    padding: 55px 0 65px;
   }
 
   .sd-related-grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    gap: 14px;
   }
 
-  .sd-card {
-    padding: 20px;
-  }
+  .sd-card { padding: 21px; }
 
   .sd-card h3 {
-    margin-top: 28px;
+    font-size: 22px;
+    margin-top: 30px;
+  }
+
+  .sd-card > p {
+    -webkit-line-clamp: 3;
+  }
+
+  /* Enquiry button */
+
+  .sd-enquiry-trigger {
+    right: 16px;
+    bottom: 18px;
+    padding: 13px 17px;
+    font-size: 12px;
+  }
+
+  /* Popup */
+
+  .sd-enquiry.is-open { padding: 14px; }
+
+  .sd-enquiry.is-open .sd-enquiry-inner {
+    width: 100%;
+    max-height: 90dvh;
+  }
+
+  .sd-enquiry.is-open .compact-enquiry__panel {
+    padding: 24px 17px 18px;
   }
 }
 
 /* =========================================
-   Reduced Motion
+   REDUCED MOTION
 ========================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -549,6 +692,6 @@
     transition: none !important;
     animation: none !important;
   }
+
+  .sd-enquiry-trigger { transform: none; }
 }
-
-
