@@ -5,8 +5,11 @@ import { getPosts, topics } from '@/lib/blog';
 import { v } from '@/lib/content';
 
 export const metadata = {
-  title: "Creative Agency Blogs, Branding & Marketing | Contenaissance",
-  description: "Read practical blogs on creative advertising, branding, AI video production and digital marketing. Discover ideas to strengthen your brand with Contenaissance.",
+  title: "Creative Agency Blog & AI Insights | Contenaissance",
+  description: "Read the latest insights on AI video production, creative agencies, branding, real estate marketing and digital strategy from Contenaissance, India.",
+  keywords: [
+    "creative agency blog" , " AI creative insights" , " AI video production" , " AI content creation" , " creative agency India" , " digital marketing insights" , " branding trends" , " AI filmmaking" , " brand storytelling" , " creative advertising" , " real estate marketing" , " digital marketing strategy" , " AI-powered creativity"
+  ],
   alternates: { canonical: "/blog" },
 };
 

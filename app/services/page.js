@@ -5,9 +5,12 @@ import Cta from '@/components/Cta';
 import { v } from '@/lib/content';
 
 export const metadata ={
-  title: "AI Content Creation & Video Production Services India",
+  title: "AI Creative & Video Production Agency | Contenaissance",
   description:
-    "Discover Contenaissance's AI-powered creative services, including brand films, digital content creation, marketing campaigns and visual identity design.",
+    "Contenaissance offers AI brand films, AI video production, digital content, creative campaigns, brand identity and digital marketing services in India.",
+    keywords: [
+      "AI creative agency", " AI video production", " AI brand films", " AI content creation", " AI advertising agency", " AI-powered creative services", " digital content creation", " creative campaign development", " brand identity design", " AI visual production", " digital marketing services", " AI storytelling", " creative production agency"
+    ],
   alternates: {
     canonical: "https://www.contenaissance.com/services",
   },
