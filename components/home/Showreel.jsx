@@ -81,7 +81,7 @@ export default function Showreel() {
       </p>
 
       <h2 className="reel__head" aria-label="Transmission incoming">
-        <span>Transmission</span>
+        <span>Transmission {" "}</span>
         <span>Incoming</span>
       </h2>
 

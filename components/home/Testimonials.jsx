@@ -13,14 +13,19 @@ const initials = (name) =>
     .map((w) => w[0])
     .join('');
 
-function Voice({ t }) {
+function Voice({ t, heading = false }) {
+  const CompanyTag = heading ? 'h3' : 'p';
+
   return (
     <figure className="voice">
       <blockquote>“{t.quote}”</blockquote>
+
       <figcaption className="voice__who">
         <span className="voice__avatar">{initials(t.company)}</span>
         <span>
-          <h4>{t.company}</h4>
+          <CompanyTag className="voice__company">
+            {t.company}
+          </CompanyTag>
           <span>{t.role}</span>
         </span>
       </figcaption>
@@ -76,36 +81,41 @@ export default function Testimonials() {
         <Split as="h2" className="display h-lg" lines={['AI Driven Creative Excellence']} />
       </div>
 
-      <div className="voices__rows">
-        <div ref={rowA} className="voices__row">
-          {loop.map((t, i) => (
-            <Voice t={t} key={`a${i}`} />
-          ))}
-        </div>
-        <div ref={rowB} className="voices__row">
-          {[...loopB, ...loopB].map((t, i) => (
-            <Voice t={t} key={`b${i}`} />
-          ))}
-        </div>
-      </div>
+<div className="voices__rows">
+  <div ref={rowA} className="voices__row">
+    {loop.map((t, i) => (
+      <Voice
+        key={`a${i}`}
+        t={t}
+        heading={i < testimonials.length}
+      />
+    ))}
+  </div>
 
-<div className="container tools">
-  <p className="tools__heading">
-    Powered by the tools shaping the future
-  </p>
-
-  <div className="tools__row">
-    {aiTools.map((name) => (
-      <div className="tools__item" key={name}>
-        <img
-          src={`/images/${name}.png`}
-          alt={name}
-          loading="eager"
-        />
-      </div>
+  <div ref={rowB} className="voices__row" aria-hidden="true">
+    {[...loopB, ...loopB].map((t, i) => (
+      <Voice t={t} key={`b${i}`} />
     ))}
   </div>
 </div>
+
+      <div className="container tools">
+        <p className="tools__heading">
+          Powered by the tools shaping the future
+        </p>
+
+        <div className="tools__row">
+          {aiTools.map((name) => (
+            <div className="tools__item" key={name}>
+              <img
+                src={`/images/${name}.png`}
+                alt={name}
+                loading="eager"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

@@ -59,7 +59,7 @@ export default function Gallery() {
     <section ref={root} className="hgallery">
       <div className="hgallery__head">
         <div>
-          <p className="kicker">Featured Productions</p>
+          <h2 className="kicker">Featured Productions</h2>
           <h2 className="display h-md" style={{ marginTop: 14 }}>
             Explore Our Creative Work
           </h2>
@@ -84,7 +84,7 @@ export default function Gallery() {
             <video poster={item.video.poster} muted loop playsInline preload="none" />
             <div className="hcard__info">
               <span>{String(i + 1).padStart(2, '0')}</span>
-              <h2>{item.title}</h2>
+              <h3>{item.title}</h3>
               <p>{item.sub}</p>
             </div>
           </article>

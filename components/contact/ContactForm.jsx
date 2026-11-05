@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { gsap, useGSAP } from '@/lib/gsap';
 import { site } from '@/lib/content';
 import { ArrowUpRight, Mail, Phone, Pin } from '../Icons';
+import SEOHeading from '../SEOHeading';
 
 const serviceOptions = [
   'AI Brand Films',
@@ -182,7 +183,7 @@ export default function ContactForm() {
           <a className="info__card" href={`mailto:${site.email}`}>
             <span className="info__icon"><Mail /></span>
             <span>
-              <small>Email</small>
+              <h3>Email</h3>
               <p>{site.email}</p>
             </span>
           </a>
@@ -190,7 +191,7 @@ export default function ContactForm() {
           <a className="info__card" href={site.phoneHref}>
             <span className="info__icon"><Phone /></span>
             <span>
-              <small>Phone</small>
+              <h3>Phone</h3>
               <p>{site.phone}</p>
             </span>
           </a>
@@ -198,7 +199,7 @@ export default function ContactForm() {
           <div className="info__card">
             <span className="info__icon"><Pin /></span>
             <span>
-              <small>Location</small>
+              <h3>Location</h3>
               <p>{site.address}</p>
             </span>
           </div>
@@ -217,7 +218,7 @@ export default function ContactForm() {
           onSubmit={submit}
         >
           <div className="form__head">
-            <h2>Start Your Project</h2>
+            <h2>Submit Your Enquiry</h2>
             <span className="mono">All fields required</span>
           </div>
 

@@ -138,7 +138,7 @@ export default function Rocket() {
           <div className="rocket-copy__head">
             <p className="kicker">01 / Our AI Stages</p>
             <h2 className="display h-md">
-              Not more content.
+              Not more content.{" "}
               <br />
               More possibility.
             </h2>

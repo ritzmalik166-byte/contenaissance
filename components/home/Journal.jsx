@@ -79,7 +79,7 @@ export default function Journal({ posts = [] }) {
         <div className="hjournal__head">
           <div>
             <p className="kicker">08 / Field notes</p>
-            <Split as="h2" className="display h-lg hjournal__title" lines={['From the', 'Journal']} />
+            <Split as="h2" className="display h-lg hjournal__title" lines={['From the ', 'Journal']} />
           </div>
           <Link href="/blog" className="btn btn--ghost">
             Read the Blog <ArrowUpRight />
