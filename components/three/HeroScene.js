@@ -216,14 +216,25 @@ export function createHeroScene(container) {
   };
   render();
 
-  const onResize = () => {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  };
-  window.addEventListener('resize', onResize);
+const onResize = () => {
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+
+  if (!w || !h) return;
+
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(w, h, false);
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75)
+  );
+};
+const resizeObserver = new ResizeObserver(() => {
+  onResize();
+});
+
+resizeObserver.observe(container);
 
   const io = new IntersectionObserver(([e]) => (state.visible = e.isIntersecting));
   io.observe(container);
@@ -236,6 +247,7 @@ export function createHeroScene(container) {
     },
     destroy() {
       cancelAnimationFrame(raf);
+      resizeObserver.disconnect();
       io.disconnect();
       window.removeEventListener('resize', onResize);
       scene.traverse((o) => {
