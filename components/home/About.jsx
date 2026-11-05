@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { capabilities } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { capabilities } from '@/lib/user/content';
 import Split from '../Split';
 import { useVelocityMarquee } from '../useVelocityMarquee';
 

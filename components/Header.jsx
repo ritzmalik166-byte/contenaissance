@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ScrollTrigger } from '@/lib/gsap';
-import { nav } from '@/lib/content';
+import { ScrollTrigger } from '@/lib/user/gsap';
+import { nav } from '@/lib/user/content';
 import { ArrowUpRight } from './Icons';
 import DiwaliStrip from './diwali/DiwaliStrip';
 

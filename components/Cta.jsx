@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
 import Split from './Split';
 import { ArrowUpRight } from './Icons';
 

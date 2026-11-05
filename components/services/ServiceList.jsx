@@ -3,8 +3,8 @@
 
 import { Fragment, useRef, useState } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { services } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { services } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
 import Banner from '../Banner';
 

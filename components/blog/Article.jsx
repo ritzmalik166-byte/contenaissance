@@ -2,8 +2,8 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap';
-import { onSiteReady } from '@/lib/ready';
+import { gsap, ScrollTrigger, useGSAP } from '@/lib/user/gsap';
+import { onSiteReady } from '@/lib/user/ready';
 import Split from '../Split';
 import { ArrowRight, ArrowUpRight } from '../Icons';
 import CompactEnquiryForm from '../CompactEnquiryForm';
@@ -140,7 +140,7 @@ export default function Article({ post, next, related = [] }) {
                 alt={post.title || ''} x
               />
             </div>
-                        {post.excerpt && (
+            {post.excerpt && (
               <p className="lead art__fade">{post.excerpt}</p>
             )}
           </header>

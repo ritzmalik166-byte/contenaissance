@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
+import { gsap, useGSAP } from '@/lib/user/gsap';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
