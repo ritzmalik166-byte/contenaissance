@@ -97,6 +97,11 @@ export default function Journal({ posts = [] }) {
                 {/* <span>{p.readTime}</span> */}
               </p>
               <h3>{p.title}</h3>
+              {p.excerpt && (
+                <p className="jcard__description">
+                  {p.excerpt}, 
+                </p>
+              )}
             </Link>
           ))}
         </div>
@@ -104,3 +109,4 @@ export default function Journal({ posts = [] }) {
     </section>
   );
 }
+

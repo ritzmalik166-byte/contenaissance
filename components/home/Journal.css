@@ -14,6 +14,7 @@
 .hjournal .container {
   width: min(100% - 64px, 1580px);
   margin-inline: auto;
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -255,16 +256,18 @@
 
 @media (max-width: 560px) {
   .hjournal {
-    padding: 64px 0;
+    padding: 55px 0 65px;
   }
 
   .hjournal .container {
-    width: calc(100% - 32px);
+    width: calc(100% - 24px);
+    max-width: none;
+    padding: 0;
   }
 
   .hjournal__head {
-    gap: 22px;
-    margin-bottom: 28px;
+    gap: 20px;
+    margin-bottom: 26px;
   }
 
   .hjournal__head h2 {
@@ -273,27 +276,53 @@
 
   .hjournal__grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
+    gap: 18px;
+    width: 100%;
   }
 
   .hjournal__card {
-    border-radius: 16px;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    border-radius: 15px;
   }
 
   .hjournal__card .jcard__img {
     aspect-ratio: 1.55 / 1;
   }
 
+  .hjournal__card .jcard__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+
   .hjournal__card .jmeta {
-    padding: 18px 14px 10px;
-    font-size: 10px;
-    gap: 12px;
+    padding: 15px 14px 8px;
+    font-size: 9px;
+    gap: 10px;
   }
 
   .hjournal__card h3 {
-    padding: 5px 14px 20px;
-    font-size: clamp(20px, 5.5vw, 25px);
+    padding: 1px 14px 0;
+    font-size: 21px;
     line-height: 1.3;
+  }
+
+  .hjournal__card .jcard__description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    margin: 9px 0 0;
+    padding: 0 14px 17px;
+
+    color: #777773;
+    font-size: 13px;
+    line-height: 1.55;
   }
 }
 
@@ -305,3 +334,46 @@
     transition: none;
   }
 }
+
+/* Blog Description */
+
+.hjournal__card h3 {
+  padding-bottom: 0;
+}
+
+.hjournal__card .jcard__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  margin: 12px 0 0;
+  padding: 0 14px 22px;
+
+  color: #777773;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Mobile */
+@media (max-width: 899px) {
+  .hjournal__card .jcard__description {
+    padding: 0 12px 18px;
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+}
+
+/* @media (max-width: 560px) {
+  .hjournal__card h3 {
+    padding-bottom: 0;
+  }
+
+  .hjournal__card .jcard__description {
+    padding: 0 14px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+} */

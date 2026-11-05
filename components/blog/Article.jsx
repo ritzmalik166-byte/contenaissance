@@ -127,17 +127,6 @@ export default function Article({ post, next, related = [] }) {
               by="words"
               text={post.title || ''}
             />
-
-            {post.excerpt && (
-              <p className="lead art__fade">{post.excerpt}</p>
-            )}
-
-            <div className="art__cover">
-              <img
-                src={post.image || '/images/logo.png'}
-                alt={post.title || ''} x
-              />
-            </div>
             <p className="jmeta art__fade">
               <span>{post.date}</span>
               <span>
@@ -145,6 +134,15 @@ export default function Article({ post, next, related = [] }) {
               </span>
               <span>{post.readTime || '5 min'} read</span>
             </p>
+            <div className="art__cover">
+              <img
+                src={post.image || '/images/logo.png'}
+                alt={post.title || ''} x
+              />
+            </div>
+                        {post.excerpt && (
+              <p className="lead art__fade">{post.excerpt}</p>
+            )}
           </header>
 
           <div
