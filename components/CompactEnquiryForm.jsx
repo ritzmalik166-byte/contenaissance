@@ -88,6 +88,14 @@ export default function CompactEnquiryForm({
           action: 'send',
           phone: data.phone,
           country: data.country,
+          // Enquiry details (used for email OTP on international numbers)
+          fullName: data.name,
+          email: data.email,
+          contactNumber: data.phone,
+          subject: data.service,
+          message: `Country: ${data.country}
+
+${data.message}`,
         }),
       });
 
@@ -357,7 +365,11 @@ export default function CompactEnquiryForm({
             </h2>
 
             <p className="compact-enquiry__intro">
-              Enter the 4-digit OTP sent to {formData?.phone}.
+              Enter the 4-digit OTP sent to{' '}
+              {formData?.country && formData.country !== 'India'
+                ? formData?.email
+                : formData?.phone}
+              .
             </p>
 
             <div className="compact-enquiry__field">

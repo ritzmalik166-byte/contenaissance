@@ -1,87 +1,93 @@
+"use client";
 
-'use client';
-
-import { useRef, useState } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { site } from '@/lib/content';
-import { ArrowUpRight, Mail, Phone, Pin } from '../Icons';
-import SEOHeading from '../SEOHeading';
+import { useRef, useState } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { site } from "@/lib/content";
+import { ArrowUpRight, Mail, Phone, Pin } from "../Icons";
+import SEOHeading from "../SEOHeading";
 
 const serviceOptions = [
-  'AI Brand Films',
-  'Digital-First Content',
-  'AI-Powered Campaigns',
-  'Visual Identity Systems',
-  '3D Websites',
+  "AI Brand Films",
+  "Digital-First Content",
+  "AI-Powered Campaigns",
+  "Visual Identity Systems",
+  "3D Websites",
 ];
 
-const countries = ['India', 'UAE', 'UK', 'Singapore', 'USA'];
+const countries = ["India", "UAE", "UK", "Singapore", "USA"];
 
 export default function ContactForm() {
   const root = useRef(null);
   const formRef = useRef(null);
 
   const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
-  useGSAP(() => {
-    gsap.from('.form, .info > *', {
-      y: 60,
-      opacity: 0,
-      rotateX: 12,
-      transformPerspective: 1000,
-      stagger: 0.1,
-      duration: 1.1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: root.current,
-        start: 'top 85%',
-      },
-    });
-  }, { scope: root });
+  useGSAP(
+    () => {
+      gsap.from(".form, .info > *", {
+        y: 60,
+        opacity: 0,
+        rotateX: 12,
+        transformPerspective: 1000,
+        stagger: 0.1,
+        duration: 1.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: root.current,
+          start: "top 85%",
+        },
+      });
+    },
+    { scope: root },
+  );
 
   const submit = async (e) => {
     e.preventDefault();
 
     if (loading) return;
 
-    const data = Object.fromEntries(
-      new FormData(e.currentTarget)
-    );
+    const data = Object.fromEntries(new FormData(e.currentTarget));
 
     setFormData(data);
-    setError('');
+    setError("");
     setSent(false);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/otp-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/otp-proxy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'send',
+          action: "send",
           phone: data.phone,
           country: data.country,
+          // Complete user enquiry
+          fullName: data.name,
+          email: data.email,
+          contactNumber: data.phone,
+          subject: data.service,
+          message: `Country: ${data.country}\n\n${data.message}`,
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Unable to send OTP.');
+        throw new Error(result.error || "Unable to send OTP.");
       }
 
-      setOtp('');
+      setOtp("");
       setOtpSent(true);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Unable to send OTP. Please try again.'
+          : "Unable to send OTP. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -91,15 +97,15 @@ export default function ContactForm() {
   const verifyAndSubmit = async () => {
     if (!formData || otp.length !== 4 || loading) return;
 
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const verifyResponse = await fetch('/api/otp-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const verifyResponse = await fetch("/api/otp-proxy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'verify',
+          action: "verify",
           phone: formData.phone,
           country: formData.country,
           otp,
@@ -109,14 +115,12 @@ export default function ContactForm() {
       const verifyResult = await verifyResponse.json();
 
       if (!verifyResponse.ok) {
-        throw new Error(
-          verifyResult.error || 'OTP verification failed.'
-        );
+        throw new Error(verifyResult.error || "OTP verification failed.");
       }
 
-      const enquiryResponse = await fetch('/api/enquiry-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const enquiryResponse = await fetch("/api/enquiry-proxy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fullName: formData.name,
           email: formData.email,
@@ -130,22 +134,22 @@ export default function ContactForm() {
 
       if (!enquiryResponse.ok) {
         throw new Error(
-          enquiryResult.error || 'Unable to submit your enquiry.'
+          enquiryResult.error || "Unable to submit your enquiry.",
         );
       }
 
       // Close the OTP popup and clear every form field.
       formRef.current?.reset();
       setOtpSent(false);
-      setOtp('');
+      setOtp("");
       setFormData(null);
-      setError('');
+      setError("");
       setSent(true);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Something went wrong. Please try again.'
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -155,23 +159,24 @@ export default function ContactForm() {
   const closeOtpPopup = () => {
     if (loading) return;
     setOtpSent(false);
-    setOtp('');
+    setOtp("");
     setFormData(null);
-    setError('');
+    setError("");
   };
 
   return (
     <section ref={root} className="contact">
-
       <section class="contact-hero">
         <div class="contact-hero-content">
           <span class="contact-eyebrow">GET IN TOUCH</span>
 
-          <h1>Let’s Build  <span>Together</span></h1>
+          <h1>
+            Let’s Build <span>Together</span>
+          </h1>
 
           <p>
-            Tell us about your project — we respond within 24 hours.
-            Let’s create something extraordinary.
+            Tell us about your project — we respond within 24 hours. Let’s
+            create something extraordinary.
           </p>
         </div>
       </section>
@@ -181,7 +186,9 @@ export default function ContactForm() {
           <p className="mono">24h response</p>
 
           <a className="info__card" href={`mailto:${site.email}`}>
-            <span className="info__icon"><Mail /></span>
+            <span className="info__icon">
+              <Mail />
+            </span>
             <span>
               <h3>Email</h3>
               <p>{site.email}</p>
@@ -189,7 +196,9 @@ export default function ContactForm() {
           </a>
 
           <a className="info__card" href={site.phoneHref}>
-            <span className="info__icon"><Phone /></span>
+            <span className="info__icon">
+              <Phone />
+            </span>
             <span>
               <h3>Phone</h3>
               <p>{site.phone}</p>
@@ -197,7 +206,9 @@ export default function ContactForm() {
           </a>
 
           <div className="info__card">
-            <span className="info__icon"><Pin /></span>
+            <span className="info__icon">
+              <Pin />
+            </span>
             <span>
               <h3>Location</h3>
               <p>{site.address}</p>
@@ -206,17 +217,13 @@ export default function ContactForm() {
 
           <figure className="info__quote">
             <blockquote>
-              “Where human creativity meets artificial precision,
-              we craft experiences that define the future.”
+              “Where human creativity meets artificial precision, we craft
+              experiences that define the future.”
             </blockquote>
             <cite>Contenaissance Studio</cite>
           </figure>
         </aside>
-        <form
-          ref={formRef}
-          className="form"
-          onSubmit={submit}
-        >
+        <form ref={formRef} className="form" onSubmit={submit}>
           <div className="form__head">
             <h2>Submit Your Enquiry</h2>
             <span className="mono">All fields required</span>
@@ -309,9 +316,7 @@ export default function ContactForm() {
           </div>
 
           <div className="field">
-            <label htmlFor="message">
-              Tell us about your project
-            </label>
+            <label htmlFor="message">Tell us about your project</label>
             <textarea
               id="message"
               name="message"
@@ -326,7 +331,7 @@ export default function ContactForm() {
               type="submit"
               disabled={loading || otpSent}
             >
-              {loading ? 'Sending OTP...' : 'Send transmission'}
+              {loading ? "Sending OTP..." : "Send transmission"}
               {!loading && <ArrowUpRight />}
             </button>
           )}
@@ -339,8 +344,8 @@ export default function ContactForm() {
 
           {sent && (
             <p className="form__ok" role="status">
-              Your enquiry has been submitted successfully.
-              We will respond within 24 hours.
+              Your enquiry has been submitted successfully. We will respond
+              within 24 hours.
             </p>
           )}
         </form>
@@ -376,7 +381,11 @@ export default function ContactForm() {
             <h2 id="otp-title">Verify your number</h2>
 
             <p className="otp-description">
-              Enter the 4-digit OTP sent to {formData?.phone}.
+              Enter the 4-digit OTP sent to{" "}
+              {formData?.country && formData.country !== "India"
+                ? formData?.email
+                : formData?.phone}
+              .
             </p>
 
             <div className="field otp-field">
@@ -391,12 +400,10 @@ export default function ContactForm() {
                 maxLength={4}
                 value={otp}
                 onChange={(e) =>
-                  setOtp(
-                    e.target.value.replace(/\D/g, '').slice(0, 4)
-                  )
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
                 }
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     e.preventDefault();
                     verifyAndSubmit();
                   }
@@ -418,7 +425,7 @@ export default function ContactForm() {
               onClick={verifyAndSubmit}
               disabled={loading || otp.length !== 4}
             >
-              {loading ? 'Please wait...' : 'Verify & Submit'}
+              {loading ? "Please wait..." : "Verify & Submit"}
               {!loading && <ArrowUpRight />}
             </button>
 
