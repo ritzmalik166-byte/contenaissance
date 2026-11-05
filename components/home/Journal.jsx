@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
+import { gsap, useGSAP } from '@/lib/user/gsap';
 import Split from '../Split';
 import { ArrowUpRight } from '../Icons';
 import "./Journal.css";
@@ -99,7 +99,7 @@ export default function Journal({ posts = [] }) {
               <h3>{p.title}</h3>
               {p.excerpt && (
                 <p className="jcard__description">
-                  {p.excerpt}, 
+                  {p.excerpt},
                 </p>
               )}
             </Link>

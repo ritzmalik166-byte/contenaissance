@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { formats } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { formats } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
 
 export default function Solutions() {

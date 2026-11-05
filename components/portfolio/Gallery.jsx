@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { formats, webExperiences } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { formats, webExperiences } from '@/lib/user/content';
 import { openVideo } from '../VideoModal';
 
 const reel = [
@@ -76,7 +76,7 @@ export default function Gallery() {
             onPointerEnter={(e) => {
               const el = e.currentTarget.querySelector('video');
               if (!el.src) el.src = item.video.preview;
-              el.play().catch(() => {});
+              el.play().catch(() => { });
             }}
             onPointerLeave={(e) => e.currentTarget.querySelector('video').pause()}
             data-cursor="Play"

@@ -2,8 +2,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { site } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { site } from '@/lib/user/content';
 import { ArrowUpRight, Mail, Phone, Pin } from '../Icons';
 import SEOHeading from '../SEOHeading';
 

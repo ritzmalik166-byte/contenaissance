@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
-import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/gsap';
-import { announceReady } from '@/lib/ready';
+import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/user/gsap';
+import { announceReady } from '@/lib/user/ready';
 import Header from './Header';
 import Footer from './Footer';
 import Cursor from './Cursor';

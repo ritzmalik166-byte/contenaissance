@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { gsap, Flip, useGSAP } from '@/lib/gsap';
+import { gsap, Flip, useGSAP } from '@/lib/user/gsap';
 import { ArrowUpRight } from '../Icons';
 
 export default function BlogIndex({ posts = [], topics = [] }) {

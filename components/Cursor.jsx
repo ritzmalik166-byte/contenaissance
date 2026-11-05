@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap, isTouch } from '@/lib/gsap';
+import { gsap, isTouch } from '@/lib/user/gsap';
 
 export default function Cursor() {
   const root = useRef(null);

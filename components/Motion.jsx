@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { gsap, ScrollTrigger, isTouch, prefersReducedMotion } from '@/lib/gsap';
+import { gsap, ScrollTrigger, isTouch, prefersReducedMotion } from '@/lib/user/gsap';
 
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/+*<>';
 

@@ -2,8 +2,8 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
-import { archive } from '@/lib/content';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
+import { archive } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';

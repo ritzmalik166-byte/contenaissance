@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/gsap';
-import { announceReady } from '@/lib/ready';
+import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/user/gsap';
+import { announceReady } from '@/lib/user/ready';
 
 const COLS = 5;
 

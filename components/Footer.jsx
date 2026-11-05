@@ -3,8 +3,8 @@
 import { useRef, useState } from 'react';
 import { LegalPolicyModal } from './LegalPolicyModal';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { site } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { site } from '@/lib/user/content';
 import FooterWord from './FooterWord';
 
 export default function Footer() {
