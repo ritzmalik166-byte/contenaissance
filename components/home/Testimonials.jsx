@@ -89,16 +89,23 @@ export default function Testimonials() {
         </div>
       </div>
 
-      <div className="container tools">
-        <p className="tools__heading">
-          Powered by the tools shaping the future
-        </p>
-        <div className="tools__row">
-          {aiTools.map((name) => (
-            <img key={name} src={`/images/${name}.png`} alt={name} loading="lazy" />
-          ))}
-        </div>
+<div className="container tools">
+  <p className="tools__heading">
+    Powered by the tools shaping the future
+  </p>
+
+  <div className="tools__row">
+    {aiTools.map((name) => (
+      <div className="tools__item" key={name}>
+        <img
+          src={`/images/${name}.png`}
+          alt={name}
+          loading="eager"
+        />
       </div>
+    ))}
+  </div>
+</div>
     </section>
   );
 }

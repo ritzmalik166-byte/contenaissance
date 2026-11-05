@@ -28,10 +28,17 @@ export const metadata = {
 
 export default async function Home() {
   const posts = await getPosts();
-  const latest = (posts || [])
-    .slice(0, 3)
-    .map(({ slug, title, image, date, readTime }) => ({ slug, title, image, date, readTime }));
-
+const latest = (posts || [])
+  .slice(0, 3)
+  .map(({ slug, title, image, date, readTime, excerpt, description }) => ({
+    slug,
+    title,
+    image,
+    date,
+    readTime,
+    excerpt: excerpt || description || '',
+  }));
+  
   return (
     <>
       <Hero />

@@ -106,7 +106,7 @@ export default function Solutions() {
       </ul>
 
       <p className="solutions__desc">
-        AI-powered creative solutions for campaigns, content, branding, &amp; digital experiences.
+        AI-powered creative solutions for brands that think beyond the ordinary.
       </p>
     </section>
   );

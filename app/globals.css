@@ -2287,24 +2287,90 @@ textarea {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: clamp(22px, 4vw, 56px);
-  margin-top: 26px;
+  gap: 35px 55px;
+  margin-top: 10px;
+  width: 100%;
 }
 
-.tools__row img {
+.tools__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+}
+
+.tools__item img {
   display: block;
-  height: 34px;
   width: auto;
-  max-width: 100px;
+  height: 38px;
+  max-width: 115px;
   object-fit: contain;
-  filter: grayscale(1) brightness(2.9);
-  opacity: 0.8;
+
+  /* Make dark PNG logos clearly visible */
+  filter:
+    brightness(0)
+    invert(0.88)
+    sepia(0.18);
+
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  transition: all 0.35s ease;
 }
 
-.tools__row img:hover {
-  filter: none;
-  opacity: 1;
-  transform: translateY(-4px);
+/* Golden glow on hover */
+.tools__item:hover img {
+  transform: translateY(-5px);
+  filter:
+    brightness(0)
+    invert(0.85)
+    sepia(0.5)
+    saturate(2)
+    drop-shadow(0 0 7px rgba(230, 180, 65, 0.7))
+    drop-shadow(0 0 16px rgba(230, 180, 65, 0.3));
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .tools {
+    margin-top: 45px;
+    padding: 0 18px;
+  }
+
+  .tools__heading {
+    max-width: 300px;
+    font-size: 10px;
+    line-height: 2;
+    letter-spacing: 0.14em;
+  }
+
+  .tools__row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 12px;
+    margin-top: 10px;
+    padding: 0 5px;
+  }
+
+  .tools__item {
+    min-width: 0;
+    min-height: 45px;
+  }
+
+  .tools__item img {
+    max-width: 90px;
+    max-height: 34px;
+    height: auto;
+
+    /* Always visible on mobile */
+    filter:
+      brightness(0)
+      invert(0.88)
+      sepia(0.18)
+      drop-shadow(0 0 5px rgba(230, 180, 65, 0.25));
+
+    opacity: 1 !important;
+  }
 }
 
 /* ---------- quote ---------- */
@@ -2383,11 +2449,11 @@ textarea {
 
   .quote__grid {
     grid-template-columns: 1fr;
-    gap: 1px;
+    gap: 0;
   }
 
   .quote__mark {
-    margin-top: 20px;
+    margin-top: 25px;
     font-size: 64px;
     line-height: 0.65;
   }
@@ -5307,7 +5373,7 @@ textarea {
 @media (max-width: 640px) {
   .arel {
     padding-top: 40px;
-    padding-bottom: 70px;
+    padding-bottom: 20px;
   }
 
   .arel__head {
@@ -5539,7 +5605,7 @@ textarea {
   }
 
   .art__cover {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
   }
 
   .prose {

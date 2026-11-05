@@ -47,7 +47,7 @@ export default function Quote() {
             as="p"
             by="words"
             className="quote__text"
-            text="The most interesting thing about AI isn’t what it can generate. It’s what it allows us to imagine together."
+            text="At Contenaissance, we blend human creativity and AI innovation to create extraordinary brand films, campaigns and digital experiences."
           />
           <div className="quote__sign">
             <i />
