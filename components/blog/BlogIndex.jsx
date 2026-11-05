@@ -177,13 +177,13 @@ export default function BlogIndex({ posts = [], topics = [] }) {
             <img src={featured.image || '/images/logo.png'} alt={featured.title || ''} data-parallax="6" />
           </div>
           <div className="jfeat__copy">
-            <p className="kicker">Latest Article</p>
+            <h2 className="kicker">Latest Article</h2>
             <p className="jmeta">
               <span>{featured.date}</span>
               <span>{featured.author || 'Contenaissance Team'}</span>
               <span>{featured.readTime || '5 min'} read</span>
             </p>
-            <h2 className="display h-md">{featured.title}</h2>
+            <h3 className="display h-md">{featured.title}</h3>
             <p className="lead">{featured.excerpt}</p>
             <span className="btn btn--light">
               Read article <ArrowUpRight />
@@ -250,7 +250,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
                     <span className="jcard__date">{p.date}</span>
                   </div>
 
-                  <h2 className="jcard__title">{p.title}</h2>
+                  <h3 className="jcard__title">{p.title}</h3>
 
                   <p className="jcard__excerpt">
                     {p.excerpt || 'Explore this article for insights, ideas, and practical guidance.'}

@@ -59,7 +59,7 @@ export default function About() {
           </ul>
         </div>
         <div>
-          <Split as="h2" className="display about__title" lines={['Turning Vision ', 'Into Reality.']} />
+          <Split as="p" className="display about__title" lines={['Turning Vision ', 'Into Reality.']} />
           <Split as="p" by="words" className="about__body" text={body} />
         </div>
       </div>

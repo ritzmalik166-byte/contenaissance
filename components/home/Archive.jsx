@@ -28,7 +28,7 @@ function Work({ item }) {
         </span>
       </div>
       <div className="work__foot">
-        <h3>{item.title}</h3>
+        <p>{item.title}</p>
         <span className="mono">Visual exploration</span>
       </div>
     </a>
@@ -108,7 +108,7 @@ export default function Archive() {
         <div className="archive__head">
           <div>
             <p className="kicker">06 / Mission archive</p>
-            <Split as="h2" className="display h-lg archive__title" lines={['Stories beyond the ordinary.']} style={{ marginTop: 18 }} />
+            <Split as="h2" className="display h-lg archive__title" lines={['Stories beyond the ordinary']} style={{ marginTop: 18 }} />
           </div>
           <p>A window into our creative universe. Film, form and feeling — explored through AI.</p>
         </div>

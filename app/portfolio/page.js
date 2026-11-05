@@ -20,7 +20,7 @@ export default function PortfolioPage() {
   return (
     <>
       <PageHero
-        lines={['AI Creative', 'Portfolio']}
+        lines={['AI Creative ', 'Portfolio']}
         text="Explore Contenaissance’s creative world, where cinematic storytelling, AI-powered visuals, and immersive digital experiences bring brands to life."
         video={v('mzha')}
       />

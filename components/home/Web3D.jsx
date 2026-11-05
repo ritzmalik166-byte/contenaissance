@@ -89,7 +89,7 @@ export default function Web3D() {
           </span>
         </span>
         <span className="split-line" aria-hidden="true">
-          <span>Websites</span>
+          <span>{" "}Websites</span>
         </span>
       </h2>
 
@@ -157,9 +157,9 @@ export default function Web3D() {
       </div>
 
       <div className="web3d__note">
-        <h3>
+        <p>
           Next Gen Stories <em>AI × 3D × CGI</em>
-        </h3>
+        </p>
         <p>
           Crafting immersive visual experiences powered by AI, CGI, and 3D. Stories that engage audiences, inspire
           trust, and drive action.
