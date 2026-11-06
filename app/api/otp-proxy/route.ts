@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-const LIVE_OTP_API = 'https://www.contenaissance.com/api/otp';
+const LIVE_OTP_API =
+  process.env.OTP_API_URL || 'http://localhost:3000/api/otp';
 
 export async function POST(request: NextRequest) {
   try {
