@@ -11,7 +11,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
   const pendingScroll = useRef(false);
   const preview = useRef(null);
   const flipState = useRef(null);
-  const [topic, setTopic] = useState('all');
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
   const [page, setPage] = useState(1);
@@ -22,17 +21,21 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
+
     return new Set(
       rest
         .filter((p) => {
-          const pTopics = p.topics || [];
-          const matchTopic = topic === 'all' || pTopics.includes(topic);
-          const matchQuery = !q || `${p.title || ''} ${p.excerpt || ''}`.toLowerCase().includes(q);
-          return matchTopic && matchQuery;
+          const matchQuery =
+            !q ||
+            `${p.title || ''} ${p.excerpt || ''}`
+              .toLowerCase()
+              .includes(q);
+
+          return matchQuery;
         })
         .map((p) => p.slug)
     );
-  }, [rest, topic, query]);
+  }, [rest, query]);
 
   const filteredPosts = useMemo(
     () => rest.filter((p) => visible.has(p.slug)),
@@ -67,7 +70,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
   useEffect(() => {
     setPage(1);
-  }, [topic, query]);
+  }, [query]);
 
   const update = (fn) => {
     if (!root.current) {
@@ -165,19 +168,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         </Link>
 
         <div className="jbar">
-          <div className="jchips" role="tablist" aria-label="Filter articles">
-            {[{ id: 'all', label: 'All' }, ...(topics || [])].map((t) => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={topic === t.id}
-                className={`jchip${topic === t.id ? ' is-active' : ''}`}
-                onClick={() => update(() => setTopic(t.id))}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <h2 className="jbar__title">
+            Our Latest Stories
+          </h2>
           <label className="jsearch">
             <span className="mono">Search</span>
             <input
@@ -189,7 +182,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
                 update(() => setQuery(val));
               }}
             />
-            <span className="jcount">{String(visible.size).padStart(2, '0')}</span>
+            <span className="jcount">
+              {String(visible.size).padStart(2, '0')}
+            </span>
           </label>
         </div>
 
@@ -219,7 +214,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
                 <div className="jcard__body">
                   <div className="jcard__meta">
-                    <span className="jcard__category">{category}</span>
                     <span className="jcard__date">{p.date}</span>
                   </div>
 
@@ -298,18 +292,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         )}
 
       </div>
-
-      {/* <div ref={preview} className="jpreview" aria-hidden="true">
-        {rest.map((p, i) => (
-          <img
-            key={p.slug}
-            src={p.image || '/images/logo.png'}
-            alt=""
-            loading="lazy"
-            className={i === hovered ? 'is-on' : ''}
-          />
-        ))}
-      </div> */}
     </section>
   );
 }
