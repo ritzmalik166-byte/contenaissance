@@ -1710,6 +1710,14 @@ textarea {
 .work {
   display: block;
   transform-style: preserve-3d;
+    width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
 }
 
 .work__media {
@@ -2919,26 +2927,47 @@ textarea {
 .vmodal {
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 99999;
+
   display: grid;
   place-items: center;
   padding: 4vw;
-  background: rgba(5, 4, 3, 0.92);
+
+  background: rgba(5, 4, 3, 0.96);
   backdrop-filter: blur(10px);
+
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.5s var(--ease);
+
+  transition:
+    opacity 0.5s var(--ease),
+    visibility 0.5s var(--ease);
 }
 
 .vmodal.is-open {
   opacity: 1;
+  visibility: visible;
   pointer-events: all;
 }
 
+.vmodal__content {
+  width: min(100%, 1100px);
+  max-height: 86vh;
+
+  display: grid;
+  place-items: center;
+}
+
 .vmodal video {
+  display: block;
+  width: auto;
   max-width: 100%;
   max-height: 86vh;
+
   border-radius: 10px;
+  background: #000;
+
   transform: scale(0.94);
   transition: transform 0.7s var(--ease);
 }
@@ -2951,19 +2980,55 @@ textarea {
   position: absolute;
   top: 24px;
   right: 24px;
+  z-index: 2;
+
   width: 52px;
   height: 52px;
+
   border-radius: 50%;
   border: 1px solid var(--line-2);
+
   display: grid;
   place-items: center;
-  transition: background 0.3s, transform 0.5s var(--ease);
+
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+
+  cursor: pointer;
+
+  transition:
+    background 0.3s,
+    transform 0.5s var(--ease);
 }
 
 .vmodal__close:hover {
   background: var(--gold);
   color: var(--ink);
   transform: rotate(90deg);
+}
+
+@media (max-width: 767px) {
+  .vmodal {
+    padding: 16px;
+  }
+
+  .vmodal__content {
+    width: 100%;
+    max-height: 80vh;
+  }
+
+  .vmodal video {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 6px;
+  }
+
+  .vmodal__close {
+    top: 14px;
+    right: 14px;
+    width: 42px;
+    height: 42px;
+  }
 }
 
 /* ---------- inner pages ---------- */

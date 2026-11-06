@@ -39,7 +39,7 @@ export default function Quote() {
     <section ref={root} className="quote">
       <div className="container quote__grid">
         <div>
-          <h2 className="kicker">09 / A note from the studio</h2>
+          <h2 className="kicker">08 / A note from the studio</h2>
           <div className="quote__mark">“</div>
         </div>
         <div>

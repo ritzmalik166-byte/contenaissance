@@ -77,7 +77,7 @@ export default function Testimonials() {
   return (
     <section ref={root} className="voices" id="testimonials">
       <div className="container voices__head">
-        <p className="kicker">07 / Client Stories</p>
+        <p className="kicker">06 / Client Stories</p>
         <Split as="h2" className="display h-lg" lines={['AI Driven Creative Excellence']} />
       </div>
 

@@ -114,36 +114,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
           scrollTrigger: { trigger: '.jlist', start: 'top 85%' },
         });
       }
-
-      // if (isTouch() || !preview.current) return;
-      // const el = preview.current;
-      // const xTo = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3.out' });
-      // const yTo = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3.out' });
-      // const rTo = gsap.quickTo(el, 'rotate', { duration: 0.9, ease: 'power3.out' });
-      // let lastX = 0;
-      // const move = contextSafe((e) => {
-      //   xTo(e.clientX);
-      //   yTo(e.clientY);
-      //   rTo(gsap.utils.clamp(-14, 14, (e.clientX - lastX) * 0.6));
-      //   lastX = e.clientX;
-      // });
-      // window.addEventListener('pointermove', move);
-      // return () => window.removeEventListener('pointermove', move);
     },
     { scope: root }
   );
-
-  // useGSAP(() => {
-  //   if (isTouch() || !preview.current) return;
-  //   gsap.to(preview.current, {
-  //     scale: hovered >= 0 ? 1 : 0,
-  //     opacity: hovered >= 0 ? 1 : 0,
-  //     duration: 0.5,
-  //     ease: hovered >= 0 ? 'back.out(1.6)' : 'power3.out',
-  //     overwrite: 'auto',
-  //   });
-  // }, [hovered]);
-
   if (!featured) {
     return (
       <section ref={root} className="journal">
@@ -181,7 +154,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
             <p className="jmeta">
               <span>{featured.date}</span>
               <span>{featured.author || 'Contenaissance Team'}</span>
-              <span>{featured.readTime || '5 min'} read</span>
+              {/* <span>{featured.readTime || '5 min'} read</span> */}
             </p>
             <h3 className="display h-md">{featured.title}</h3>
             <p className="lead">{featured.excerpt}</p>
