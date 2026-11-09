@@ -156,15 +156,15 @@ export default function Web3D() {
         </span>
       </div>
 
-      <div className="web3d__note">
+      {/* <div className="web3d__note">
         <p>
           Next Gen Stories <em>AI × 3D × CGI</em>
         </p>
-        <p>
+        <span>
           Crafting immersive visual experiences powered by AI, CGI, and 3D. Stories that engage audiences, inspire
           trust, and drive action.
-        </p>
-      </div>
+        </span>
+      </div> */}
     </section>
   );
 }

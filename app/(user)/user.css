@@ -1904,10 +1904,15 @@ textarea {
 
 .web3d__stage {
   position: absolute;
-  inset: 0;
+  top: 18vh;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
   display: grid;
   place-items: center;
-  padding-top: 8vh;
+
+  padding-top: 0;
   transform-style: preserve-3d;
 }
 
@@ -2142,6 +2147,11 @@ textarea {
 }
 
 .web3d__note p {
+  font-size: 13px;
+  /* color: var(--muted); */
+}
+
+.web3d__note span {
   font-size: 13px;
   color: var(--muted);
 }

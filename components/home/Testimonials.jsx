@@ -92,11 +92,11 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <div ref={rowB} className="voices__row" aria-hidden="true">
+        {/* <div ref={rowB} className="voices__row" aria-hidden="true">
           {[...loopB, ...loopB].map((t, i) => (
             <Voice t={t} key={`b${i}`} />
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div className="container tools">
