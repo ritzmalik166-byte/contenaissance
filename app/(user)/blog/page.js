@@ -3,6 +3,7 @@ import BlogIndex from '@/components/blog/BlogIndex';
 import Cta from '@/components/Cta';
 import { getPosts, topics } from '@/lib/user/blog';
 import { v } from '@/lib/user/content';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: "Creative Agency Blog & AI Insights | Contenaissance",
@@ -27,7 +28,9 @@ export default async function BlogPage() {
         text="Where AI, creativity, and cinematic storytelling shape the future of digital innovation."
         video={v('13')}
       /> */}
-      <BlogIndex posts={list} topics={topics} />
+      <Suspense fallback={<div className="journal" />}>
+  <BlogIndex posts={posts} topics={topics} />
+</Suspense>
       <Cta />
     </>
   );

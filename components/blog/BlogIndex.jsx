@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function BlogIndex({ posts = [], topics = [] }) {
   const root = useRef(null);
-  const gridRef = useRef(null);
+  const barRef = useRef(null);
   const pendingScroll = useRef(false);
   const preview = useRef(null);
   const flipState = useRef(null);
@@ -58,22 +58,26 @@ const page = Math.max(
     currentPage * PAGE_SIZE
   );
 
-  useEffect(() => {
-    if (!pendingScroll.current) return;
+useEffect(() => {
+  if (!pendingScroll.current) return;
 
-    pendingScroll.current = false;
+  pendingScroll.current = false;
 
-    const grid = gridRef.current;
-    if (!grid) return;
+  requestAnimationFrame(() => {
+    const target = barRef.current;
+    if (!target) return;
 
     const top =
-      grid.getBoundingClientRect().top + window.scrollY - 24;
+      target.getBoundingClientRect().top +
+      window.scrollY -
+      120;
 
     window.scrollTo({
       top,
       behavior: 'smooth',
     });
-  }, [page]);
+  });
+}, [page]);
 
 useEffect(() => {
   if (!query.trim()) return;
@@ -182,7 +186,7 @@ useEffect(() => {
           </div>
         </Link>
 
-        <div className="jbar">
+        <div className="jbar" ref={barRef}>
           <h2 className="jbar__title">
             Our Latest Stories
           </h2>
@@ -205,7 +209,7 @@ useEffect(() => {
 
         {/* <div className="jlist" onPointerLeave={() => setHovered(-1)}> */}
 
-        <div className="jgrid" ref={gridRef}>
+        <div className="jgrid">
           {paginatedPosts.map((p, i) => {
             const categoryId = p.topics?.[0];
             const category =
