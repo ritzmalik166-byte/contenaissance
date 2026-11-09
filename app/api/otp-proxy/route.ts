@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-const LIVE_OTP_API = 'https://www.contenaissance.com/api/otp';
+const LIVE_OTP_API =
+  process.env.OTP_API_URL || 'http://localhost:3000/api/otp';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,12 +18,18 @@ export async function POST(request: NextRequest) {
     }
 
     const cookie = request.headers.get('cookie');
+    const forwardedFor =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip');
+    const userAgent = request.headers.get('user-agent');
 
     const upstream = await fetch(LIVE_OTP_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(cookie ? { Cookie: cookie } : {}),
+        ...(forwardedFor ? { 'X-Forwarded-For': forwardedFor } : {}),
+        ...(userAgent ? { 'User-Agent': userAgent } : {}),
       },
       body: JSON.stringify(body),
       cache: 'no-store',
@@ -37,8 +44,6 @@ export async function POST(request: NextRequest) {
       status: upstream.status,
     });
 
-    // Keep the live OTP cookie on this website so it can be
-    // forwarded to the live server during verification.
     const setCookies = upstream.headers.getSetCookie();
 
     for (const originalCookie of setCookies) {
