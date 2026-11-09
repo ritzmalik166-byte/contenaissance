@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
 
 const WORD = 'CONTENAISSANCE';
 

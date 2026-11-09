@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { formats } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { formats } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
 
 export default function Solutions() {
@@ -63,7 +63,7 @@ export default function Solutions() {
   return (
     <section ref={root} className="solutions" id="solutions">
       <div className="solutions__noise" />
-      <p className="solutions__label">AI services</p>
+      <p className="solutions__label">04 / AI services</p>
       <p className="solutions__count">
         {String(active + 1).padStart(2, '0')} / {String(formats.length).padStart(2, '0')}
       </p>

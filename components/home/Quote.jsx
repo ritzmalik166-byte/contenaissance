@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
+import { gsap, useGSAP } from '@/lib/user/gsap';
 import Split from '../Split';
 
 export default function Quote() {
@@ -39,7 +39,7 @@ export default function Quote() {
     <section ref={root} className="quote">
       <div className="container quote__grid">
         <div>
-          <h2 className="kicker">09 / A note from the studio</h2>
+          <h2 className="kicker">08 / A note from the studio</h2>
           <div className="quote__mark">“</div>
         </div>
         <div>

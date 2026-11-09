@@ -2,8 +2,8 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
-import { onSiteReady } from '@/lib/ready';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
+import { onSiteReady } from '@/lib/user/ready';
 import { ArrowRight } from './Icons';
 
 export default function NotFound() {

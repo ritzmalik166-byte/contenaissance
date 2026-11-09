@@ -3,8 +3,8 @@
 import { useRef, useState } from 'react';
 import { LegalPolicyModal } from './LegalPolicyModal';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { site } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { site } from '@/lib/user/content';
 import FooterWord from './FooterWord';
 
 export default function Footer() {
@@ -45,14 +45,16 @@ export default function Footer() {
         <div className="container footer__inner">
           <div className="footer__top">
             <div className="footer__brand">
-              <img src="/images/logo.png" alt="Contenaissance" />
+              <Link href="/" className="footer__logo-link" aria-label="Go to homepage">
+                <img src="/images/logo.png" alt="Contenaissance" />
+              </Link>
               <p>Human stories. Uncharted possibilities.</p>
             </div>
 
             <div className="footer__cols">
               <div className="footer__col">
                 <p>Explore</p>
-                <Link href="/home">Home</Link>
+                <Link href="/">Home</Link>
                 <Link href="/portfolio">Portfolio</Link>
                 <Link href="/services">Services</Link>
                 <Link href="/blog">Blog</Link>

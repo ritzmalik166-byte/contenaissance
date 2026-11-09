@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { gsap, Flip, useGSAP } from '@/lib/gsap';
+import { gsap, Flip, useGSAP } from '@/lib/user/gsap';
 import { ArrowUpRight } from '../Icons';
 
 export default function BlogIndex({ posts = [], topics = [] }) {
@@ -11,7 +11,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
   const pendingScroll = useRef(false);
   const preview = useRef(null);
   const flipState = useRef(null);
-  const [topic, setTopic] = useState('all');
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
   const [page, setPage] = useState(1);
@@ -22,17 +21,21 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
+
     return new Set(
       rest
         .filter((p) => {
-          const pTopics = p.topics || [];
-          const matchTopic = topic === 'all' || pTopics.includes(topic);
-          const matchQuery = !q || `${p.title || ''} ${p.excerpt || ''}`.toLowerCase().includes(q);
-          return matchTopic && matchQuery;
+          const matchQuery =
+            !q ||
+            `${p.title || ''} ${p.excerpt || ''}`
+              .toLowerCase()
+              .includes(q);
+
+          return matchQuery;
         })
         .map((p) => p.slug)
     );
-  }, [rest, topic, query]);
+  }, [rest, query]);
 
   const filteredPosts = useMemo(
     () => rest.filter((p) => visible.has(p.slug)),
@@ -67,7 +70,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
   useEffect(() => {
     setPage(1);
-  }, [topic, query]);
+  }, [query]);
 
   const update = (fn) => {
     if (!root.current) {
@@ -114,36 +117,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
           scrollTrigger: { trigger: '.jlist', start: 'top 85%' },
         });
       }
-
-      // if (isTouch() || !preview.current) return;
-      // const el = preview.current;
-      // const xTo = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3.out' });
-      // const yTo = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3.out' });
-      // const rTo = gsap.quickTo(el, 'rotate', { duration: 0.9, ease: 'power3.out' });
-      // let lastX = 0;
-      // const move = contextSafe((e) => {
-      //   xTo(e.clientX);
-      //   yTo(e.clientY);
-      //   rTo(gsap.utils.clamp(-14, 14, (e.clientX - lastX) * 0.6));
-      //   lastX = e.clientX;
-      // });
-      // window.addEventListener('pointermove', move);
-      // return () => window.removeEventListener('pointermove', move);
     },
     { scope: root }
   );
-
-  // useGSAP(() => {
-  //   if (isTouch() || !preview.current) return;
-  //   gsap.to(preview.current, {
-  //     scale: hovered >= 0 ? 1 : 0,
-  //     opacity: hovered >= 0 ? 1 : 0,
-  //     duration: 0.5,
-  //     ease: hovered >= 0 ? 'back.out(1.6)' : 'power3.out',
-  //     overwrite: 'auto',
-  //   });
-  // }, [hovered]);
-
   if (!featured) {
     return (
       <section ref={root} className="journal">
@@ -181,7 +157,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
             <p className="jmeta">
               <span>{featured.date}</span>
               <span>{featured.author || 'Contenaissance Team'}</span>
-              <span>{featured.readTime || '5 min'} read</span>
+              {/* <span>{featured.readTime || '5 min'} read</span> */}
             </p>
             <h3 className="display h-md">{featured.title}</h3>
             <p className="lead">{featured.excerpt}</p>
@@ -192,19 +168,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         </Link>
 
         <div className="jbar">
-          <div className="jchips" role="tablist" aria-label="Filter articles">
-            {[{ id: 'all', label: 'All' }, ...(topics || [])].map((t) => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={topic === t.id}
-                className={`jchip${topic === t.id ? ' is-active' : ''}`}
-                onClick={() => update(() => setTopic(t.id))}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <h2 className="jbar__title">
+            Our Latest Stories
+          </h2>
           <label className="jsearch">
             <span className="mono">Search</span>
             <input
@@ -216,7 +182,9 @@ export default function BlogIndex({ posts = [], topics = [] }) {
                 update(() => setQuery(val));
               }}
             />
-            <span className="jcount">{String(visible.size).padStart(2, '0')}</span>
+            <span className="jcount">
+              {String(visible.size).padStart(2, '0')}
+            </span>
           </label>
         </div>
 
@@ -246,7 +214,6 @@ export default function BlogIndex({ posts = [], topics = [] }) {
 
                 <div className="jcard__body">
                   <div className="jcard__meta">
-                    <span className="jcard__category">{category}</span>
                     <span className="jcard__date">{p.date}</span>
                   </div>
 
@@ -325,18 +292,11 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         )}
 
       </div>
-
-      {/* <div ref={preview} className="jpreview" aria-hidden="true">
-        {rest.map((p, i) => (
-          <img
-            key={p.slug}
-            src={p.image || '/images/logo.png'}
-            alt=""
-            loading="lazy"
-            className={i === hovered ? 'is-on' : ''}
-          />
-        ))}
-      </div> */}
     </section>
   );
 }
+
+
+
+
+

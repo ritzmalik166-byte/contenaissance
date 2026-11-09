@@ -2,8 +2,8 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { onSiteReady } from '@/lib/ready';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { onSiteReady } from '@/lib/user/ready';
 import Split from '../Split';
 import { ArrowRight } from '../Icons';
 

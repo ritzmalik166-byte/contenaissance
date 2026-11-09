@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
+import { gsap, useGSAP } from '@/lib/user/gsap';
 import Split from '../Split';
 import { ArrowUpRight } from '../Icons';
 import "./Journal.css";
@@ -78,7 +78,7 @@ export default function Journal({ posts = [] }) {
       <div className="container">
         <div className="hjournal__head">
           <div>
-            <p className="kicker">08 / Field notes</p>
+            <p className="kicker">07 / Field notes</p>
             <Split as="h2" className="display h-lg hjournal__title" lines={['From the ', 'Journal']} />
           </div>
           <Link href="/blog" className="btn btn--ghost">
@@ -99,7 +99,7 @@ export default function Journal({ posts = [] }) {
               <h3>{p.title}</h3>
               {p.excerpt && (
                 <p className="jcard__description">
-                  {p.excerpt}, 
+                  {p.excerpt},
                 </p>
               )}
             </Link>

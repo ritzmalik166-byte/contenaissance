@@ -36,7 +36,9 @@ function dotTexture() {
  * Gold constellation hero. `progress` (0..1) is driven by scroll, pointer by mouse.
  */
 export function createHeroScene(container) {
-  const mobile = window.innerWidth < 760;
+  const width = container.clientWidth;
+const mobile = width < 760;
+const smallMobile = width < 400;
   const renderer = new THREE.WebGLRenderer({ antialias: !mobile, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75));
   renderer.setSize(container.clientWidth, container.clientHeight);
@@ -166,9 +168,17 @@ export function createHeroScene(container) {
   halo.rotation.x = Math.PI / 2.3;
   infinityGroup.add(halo);
 
-  infinityGroup.position.set(0, 0.35, -1.5);
-  infinityGroup.scale.setScalar(mobile ? 0.75 : 1.15);
-  scene.add(infinityGroup);
+infinityGroup.position.set(0, 0.35, -1.5);
+
+const baseInfinityScale = smallMobile
+  ? 0.42
+  : mobile
+    ? 0.52
+    : 1.15;
+
+infinityGroup.scale.setScalar(baseInfinityScale);
+
+scene.add(infinityGroup);
 
   // --- state
   const state = { progress: 0, intro: 0, px: 0, py: 0, tx: 0, ty: 0, visible: true };
@@ -192,7 +202,13 @@ export function createHeroScene(container) {
     const intro = state.intro;
     infinity.rotation.y = t * 0.25 + state.px * 0.5 + p * Math.PI * 1.2;
     infinity.rotation.x = Math.sin(t * 0.4) * 0.15 + state.py * 0.3 + p * 0.8;
-    infinityGroup.scale.setScalar((mobile ? 0.75 : 1.15) * (0.6 + intro * 0.4) * (1 + p * 0.6));
+    const scrollScale = mobile ? 1 + p * 0.15 : 1 + p * 0.6;
+
+infinityGroup.scale.setScalar(
+  baseInfinityScale *
+  (0.6 + intro * 0.4) *
+  scrollScale
+);
     halo.rotation.z = t * 0.15;
     halo.material.opacity = 0.35 * intro * (1 - p);
 
@@ -216,14 +232,25 @@ export function createHeroScene(container) {
   };
   render();
 
-  const onResize = () => {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  };
-  window.addEventListener('resize', onResize);
+const onResize = () => {
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+
+  if (!w || !h) return;
+
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(w, h, false);
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75)
+  );
+};
+const resizeObserver = new ResizeObserver(() => {
+  onResize();
+});
+
+resizeObserver.observe(container);
 
   const io = new IntersectionObserver(([e]) => (state.visible = e.isIntersecting));
   io.observe(container);
@@ -236,6 +263,7 @@ export function createHeroScene(container) {
     },
     destroy() {
       cancelAnimationFrame(raf);
+      resizeObserver.disconnect();
       io.disconnect();
       window.removeEventListener('resize', onResize);
       scene.traverse((o) => {

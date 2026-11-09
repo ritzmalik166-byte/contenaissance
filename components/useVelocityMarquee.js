@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { gsap } from '@/lib/gsap';
+import { gsap } from '@/lib/user/gsap';
 
 /**
  * Infinite marquee whose speed and direction react to scroll velocity.

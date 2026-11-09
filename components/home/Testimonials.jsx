@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { testimonials, aiTools } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { testimonials, aiTools } from '@/lib/user/content';
 import { useVelocityMarquee } from '../useVelocityMarquee';
 import Split from '../Split';
 
@@ -77,27 +77,27 @@ export default function Testimonials() {
   return (
     <section ref={root} className="voices" id="testimonials">
       <div className="container voices__head">
-        <p className="kicker">07 / Client Stories</p>
+        <p className="kicker">06 / Client Stories</p>
         <Split as="h2" className="display h-lg" lines={['AI Driven Creative Excellence']} />
       </div>
 
-<div className="voices__rows">
-  <div ref={rowA} className="voices__row">
-    {loop.map((t, i) => (
-      <Voice
-        key={`a${i}`}
-        t={t}
-        heading={i < testimonials.length}
-      />
-    ))}
-  </div>
+      <div className="voices__rows">
+        <div ref={rowA} className="voices__row">
+          {loop.map((t, i) => (
+            <Voice
+              key={`a${i}`}
+              t={t}
+              heading={i < testimonials.length}
+            />
+          ))}
+        </div>
 
-  <div ref={rowB} className="voices__row" aria-hidden="true">
-    {[...loopB, ...loopB].map((t, i) => (
-      <Voice t={t} key={`b${i}`} />
-    ))}
-  </div>
-</div>
+        <div ref={rowB} className="voices__row" aria-hidden="true">
+          {[...loopB, ...loopB].map((t, i) => (
+            <Voice t={t} key={`b${i}`} />
+          ))}
+        </div>
+      </div>
 
       <div className="container tools">
         <p className="tools__heading">

@@ -2,36 +2,41 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
-import { archive } from '@/lib/content';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
+import { archive } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';
 import Split from '../Split';
 
+
 function Work({ item }) {
   return (
-    <a
-      href={item.video.src}
+    <button
+      type="button"
       className={`work work--${item.size}`}
-      onClick={(e) => {
-        e.preventDefault();
-        openVideo(item.video.src);
-      }}
+      onClick={() => openVideo(item.video.src)}
       data-cursor="Play"
+      aria-label={`Play ${item.title}`}
     >
       <div className="work__media">
         <span className="mono work__tag">{item.tag}</span>
-        <LazyVideo src={item.video.preview} poster={item.video.poster} />
+
+        <LazyVideo
+          src={item.video.preview}
+          poster={item.video.poster}
+        />
+
         <span className="work__arrow">
           <ArrowUpRight />
         </span>
       </div>
+
       <div className="work__foot">
         <p>{item.title}</p>
         <span className="mono">Visual exploration</span>
       </div>
-    </a>
+    </button>
   );
 }
 
@@ -107,7 +112,7 @@ export default function Archive() {
       <div className="container">
         <div className="archive__head">
           <div>
-            <p className="kicker">06 / Mission archive</p>
+            <p className="kicker">05 / Mission archive</p>
             <Split as="h2" className="display h-lg archive__title" lines={['Stories beyond the ordinary']} style={{ marginTop: 18 }} />
           </div>
           <p>A window into our creative universe. Film, form and feeling — explored through AI.</p>

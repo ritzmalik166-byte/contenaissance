@@ -2,8 +2,8 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { gsap, useGSAP } from '@/lib/gsap';
-import { stages } from '@/lib/content';
+import { gsap, useGSAP } from '@/lib/user/gsap';
+import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
 
 const finalPanel = {

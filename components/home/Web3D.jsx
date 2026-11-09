@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap, useGSAP, isTouch } from '@/lib/gsap';
-import { webExperiences } from '@/lib/content';
+import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
+import { webExperiences } from '@/lib/user/content';
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -63,7 +63,7 @@ export default function Web3D() {
       if (!el) return;
       if (i === active && live) {
         if (!el.src) el.src = webExperiences[i].video.preview;
-        el.play().catch(() => {});
+        el.play().catch(() => { });
       } else {
         el.pause();
       }
@@ -100,28 +100,28 @@ export default function Web3D() {
       <div className="web3d__viewport">
         <div className="web3d__stage">
           <div className="ring-pos">
-          <div className="ring" style={{ '--n': steps }}>
-            {webExperiences.map((w, i) => (
-              <article
-                key={w.title}
-                className={`bwin${i === active ? ' is-on' : ''}`}
-                style={{ '--i': i }}
-                onClick={() => goTo(i)}
-                data-cursor={i === active ? undefined : 'View'}
-              >
-                <div className="bwin__bar">
-                  <i />
-                  <i />
-                  <i />
-                  <span>contenaissance.com/work/{slug(w.title)}</span>
-                </div>
-                <div className="bwin__screen">
-                  <video ref={(el) => (videos.current[i] = el)} poster={w.video.poster} muted loop playsInline preload="none" />
-                  <span className="bwin__glare" />
-                </div>
-              </article>
-            ))}
-          </div>
+            <div className="ring" style={{ '--n': steps }}>
+              {webExperiences.map((w, i) => (
+                <article
+                  key={w.title}
+                  className={`bwin${i === active ? ' is-on' : ''}`}
+                  style={{ '--i': i }}
+                  onClick={() => goTo(i)}
+                  data-cursor={i === active ? undefined : 'View'}
+                >
+                  <div className="bwin__bar">
+                    <i />
+                    <i />
+                    <i />
+                    <span>contenaissance.com/work/{slug(w.title)}</span>
+                  </div>
+                  <div className="bwin__screen">
+                    <video ref={(el) => (videos.current[i] = el)} poster={w.video.poster} muted loop playsInline preload="none" />
+                    <span className="bwin__glare" />
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </div>
