@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap, Flip, useGSAP } from '@/lib/user/gsap';
 import { ArrowUpRight } from '../Icons';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function BlogIndex({ posts = [], topics = [] }) {
   const root = useRef(null);
@@ -13,7 +14,13 @@ export default function BlogIndex({ posts = [], topics = [] }) {
   const flipState = useRef(null);
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+const searchParams = useSearchParams();
+
+const page = Math.max(
+  1,
+  Number(searchParams.get('page')) || 1
+);
   const PAGE_SIZE = 9;
 
   const featured = posts?.[0] || null;
@@ -68,9 +75,17 @@ export default function BlogIndex({ posts = [], topics = [] }) {
     });
   }, [page]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [query]);
+useEffect(() => {
+  if (!query.trim()) return;
+
+  const params = new URLSearchParams(searchParams.toString());
+  params.delete('page');
+
+  router.replace(
+    params.toString() ? `?${params.toString()}` : window.location.pathname,
+    { scroll: false }
+  );
+}, [query]);
 
   const update = (fn) => {
     if (!root.current) {
@@ -248,11 +263,16 @@ export default function BlogIndex({ posts = [], topics = [] }) {
               type="button"
               className="jpagination__arrow"
               disabled={currentPage === 1}
-              onClick={() => {
-                if (currentPage === 1) return;
-                pendingScroll.current = true;
-                setPage(currentPage - 1);
-              }}
+onClick={() => {
+  if (currentPage === 1) return;
+
+  pendingScroll.current = true;
+
+  const params = new URLSearchParams(searchParams.toString());
+  params.set('page', String(currentPage - 1));
+
+  router.push(`?${params.toString()}`, { scroll: false });
+}}
             >
               ← Previous
             </button>
@@ -265,11 +285,16 @@ export default function BlogIndex({ posts = [], topics = [] }) {
                   className={`jpagination__number${currentPage === n ? ' is-active' : ''
                     }`}
                   aria-current={currentPage === n ? 'page' : undefined}
-                  onClick={() => {
-                    if (currentPage === n) return;
-                    pendingScroll.current = true;
-                    setPage(n);
-                  }}
+onClick={() => {
+  if (currentPage === n) return;
+
+  pendingScroll.current = true;
+
+  const params = new URLSearchParams(searchParams.toString());
+  params.set('page', String(n));
+
+  router.push(`?${params.toString()}`, { scroll: false });
+}}
                 >
                   {String(n).padStart(2, '0')}
                 </button>
@@ -280,11 +305,16 @@ export default function BlogIndex({ posts = [], topics = [] }) {
               type="button"
               className="jpagination__arrow"
               disabled={currentPage === totalPages}
-              onClick={() => {
-                if (currentPage === totalPages) return;
-                pendingScroll.current = true;
-                setPage(currentPage + 1);
-              }}
+onClick={() => {
+  if (currentPage === totalPages) return;
+
+  pendingScroll.current = true;
+
+  const params = new URLSearchParams(searchParams.toString());
+  params.set('page', String(currentPage + 1));
+
+  router.push(`?${params.toString()}`, { scroll: false });
+}}
             >
               Next →
             </button>

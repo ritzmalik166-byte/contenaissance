@@ -4816,7 +4816,22 @@ textarea {
     font-size: 14px;
   }
 }
+/* Force consistent blog card text alignment */
+.jcard__body .jcard__meta,
+.jcard__body .jcard__title,
+.jcard__body .jcard__excerpt {
+  position: relative !important;
+  left: 0 !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  text-align: left !important;
+  transform: none !important;
+}
 
+.jcard__body {
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+}
 
 /* Images fill the card edge-to-edge */
 .jcard {
