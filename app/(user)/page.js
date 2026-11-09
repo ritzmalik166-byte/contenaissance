@@ -10,8 +10,6 @@ import Journal from '@/components/home/Journal';
 import Quote from '@/components/home/Quote';
 import Cta from '@/components/Cta';
 import { getPosts } from '@/lib/user/blog';
-import DiwaliFooter from '@/components/diwali/DiwaliFooter';
-import DiwaliCharacter from '@/components/diwali/DiwaliCharacter';
 export const revalidate = 3600;
 
 export const metadata = {
@@ -51,9 +49,7 @@ export default async function Home() {
       <Testimonials />
       <Journal posts={latest} />
       <Quote />
-      {/* <DiwaliFooter /> */}
       <Cta />
-      <DiwaliCharacter />
     </>
   );
 }

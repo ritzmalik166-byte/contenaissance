@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { ScrollTrigger } from '@/lib/user/gsap';
 import { nav } from '@/lib/user/content';
 import { ArrowUpRight } from './Icons';
-import DiwaliStrip from './diwali/DiwaliStrip';
 
 export default function Header() {
   const [hidden, setHidden] = useState(false);
@@ -37,7 +36,6 @@ export default function Header() {
   return (
     <>
       <header className={`header${hidden && !open ? ' is-hidden' : ''}${solid ? ' is-solid' : ''}`}>
-        <DiwaliStrip />
         <div className="container header__inner">
           <Link href="/" className="logo" aria-label="Contenaissance home">
             <img src="/images/logo.png" alt="Contenaissance — Ritz GenAI Storytelling Studios" />
