@@ -2,7 +2,7 @@
 'use client';
 
 import { Fragment, useRef, useState } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { services } from '@/lib/user/content';
 import LazyVideo from '../LazyVideo';
@@ -198,15 +198,15 @@ export default function ServiceList() {
             <section className={`svc ${i % 2 ? 'svc--reverse' : ''}`}>
               <div className="container svc__grid">
                 <div className="svc__media">
-                  <Link
+                  {/* <Link
                     href={`/services/${slug}`}
                     aria-label={`View ${s.title} service`}
-                  >
+                  > */}
                     <LazyVideo
                       src={s.video.preview}
                       poster={s.video.poster}
                     />
-                  </Link>
+                  {/* </Link> */}
                 </div>
 
                 <div
@@ -225,15 +225,15 @@ export default function ServiceList() {
                   </p>
 
                   <h2 className="display h-md">
-                    <Link href={`/services/${slug}`}>
+                    {/* <Link href={`/services/${slug}`}> */}
                       {s.kicker}
-                    </Link>
+                    {/* </Link> */}
                   </h2>
 
                   <h3>
-                    <Link href={`/services/${slug}`}>
+                    {/* <Link href={`/services/${slug}`}> */}
                       {s.title}
-                    </Link>
+                    {/* </Link> */}
                   </h3>
 
                   <div className="svc__mobile-media">

@@ -39,8 +39,7 @@ export default function Testimonials() {
   const rowB = useRef(null);
 
   useVelocityMarquee(rowA, { speed: 0.5, direction: -1 });
-  useVelocityMarquee(rowB, { speed: 0.5, direction: 1 });
-
+  useVelocityMarquee(rowB, { speed: 0.5, direction: -1 });
   useGSAP(
     () => {
       gsap.from('.voices__head .split-char', {
@@ -99,23 +98,29 @@ export default function Testimonials() {
         </div> */}
       </div>
 
-      <div className="container tools">
-        <p className="tools__heading">
-          Powered by the tools shaping the future
-        </p>
+<div className="container tools">
+  <p className="tools__heading">
+    Powered by the tools shaping the future
+  </p>
 
-        <div className="tools__row">
-          {aiTools.map((name) => (
-            <div className="tools__item" key={name}>
-              <img
-                src={`/images/${name}.png`}
-                alt={name}
-                loading="eager"
-              />
+  <div className="tools__track">
+    <div className="tools__row">
+      {[0, 1].map((group) => (
+        <div
+          className="tools__group"
+          key={group}
+          aria-hidden={group === 1}
+        >
+          {aiTools.map((name, i) => (
+            <div className="tools__item" key={`${group}-${name}-${i}`}>
+              <img src={`/images/${name}.png`} alt={group === 0 ? name : ''} />
             </div>
           ))}
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
+</div>
     </section>
   );
 }

@@ -7,15 +7,15 @@ import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 
 const items = [
-  { title: 'Brand Film', name: '01' },
-  { title: 'Commercial', name: '03' },
-  { title: 'Social Reel', name: '09' },
-  { title: 'Documentary Films', name: '10' },
-  { title: '3D Website', name: '12' },
-  { title: 'Product Flow', name: '13' },
-  { title: 'Landing Page', name: '14' },
-  { title: 'WebGL Experiences', name: '15' },
-  { title: 'Automotive', name: 'auto' },
+  { title: 'Brand Film', name: 'brand-film' },
+  { title: 'Commercial', name: 'commercial' },
+  { title: 'Social Reel', name: 'social-reel' },
+  { title: 'Documentary Films', name: 'documentary-films' },
+  { title: '3D Website', name: '3d-website' },
+  { title: 'Product Flow', name: 'product-flow' },
+  { title: 'Landing Page', name: 'landing-page' },
+  { title: 'WebGL Experiences', name: 'webGL-experiences' },
+  { title: 'Automotive', name: 'automotive' },
 ];
 
 export default function Experiences() {

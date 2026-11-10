@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { services } from '@/lib/user/content';
 import ServiceDetail from '@/components/services/ServiceDetail';
 
-function slugifyService(title = '') {
-    return title
+function slugifyService(kicker = '') {
+    return kicker
         .toLowerCase()
         .trim()
         .replace(/&/g, 'and')
@@ -14,13 +14,13 @@ function slugifyService(title = '') {
 
 function findService(slug) {
     return services.find(
-        (service) => slugifyService(service.title) === slug
+        (service) => slugifyService(service.kicker) === slug
     );
 }
 
 export function generateStaticParams() {
     return services.map((service) => ({
-        slug: slugifyService(service.title),
+        slug: slugifyService(service.kicker),
     }));
 }
 

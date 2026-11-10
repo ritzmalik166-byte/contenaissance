@@ -7,6 +7,60 @@ import { gsap, useGSAP } from '@/lib/user/gsap';
 import { site } from '@/lib/user/content';
 import FooterWord from './FooterWord';
 
+
+const SocialIcon = ({ platform }) => {
+  const paths = {
+    instagram: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="18" cy="6" r="0.8" fill="currentColor" stroke="none" />
+      </>
+    ),
+
+    linkedin: (
+      <>
+        <path d="M5 9v10M5 5v.01M9 19v-6a3 3 0 0 1 6 0v6" />
+      </>
+    ),
+
+    youtube: (
+      <>
+        <path d="M22 12s0-4-1-5-2-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 2 1 9 1 8 0 9-1 1-5 1-5Z" />
+        <path d="m10 9 5 3-5 3z" />
+      </>
+    ),
+
+    facebook: (
+      <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8z" />
+    ),
+
+    twitter: (
+      <path
+        d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 14.6 5.5 22H2.3l7.3-8.4L1.8 2h6.5l4.5 6.8L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"
+        fill="currentColor"
+        stroke="none"
+      />
+    ),
+  };
+
+  return (
+    <svg
+      width="26"
+      height="26"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths[platform]}
+    </svg>
+  );
+};
+
 export default function Footer() {
   const root = useRef(null);
   const [activePolicy, setActivePolicy] = useState(null);
@@ -51,36 +105,46 @@ export default function Footer() {
               <p>Human stories. Uncharted possibilities.</p>
             </div>
 
-            <div className="footer__cols">
-              <div className="footer__col">
-                <p>Explore</p>
-                <Link href="/">Home</Link>
-                <Link href="/portfolio">Portfolio</Link>
-                <Link href="/services">Services</Link>
-                <Link href="/blog">Blog</Link>
-              </div>
-              <div className="footer__col">
-                <p>Connect</p>
-                <Link href="/contact">Contact Us</Link>
-                <a href={site.social.instagram} target="_blank" rel="noreferrer">
-                  Instagram
-                </a>
-                <a href={site.social.linkedin} target="_blank" rel="noreferrer">
-                  LinkedIn
-                </a>
-                <a href={site.social.youtube} target="_blank" rel="noreferrer">
-                  Youtube
-                </a>
-                {/* <a href={site.social.facebook} target="_blank" rel="noreferrer">
-                Facebook
-              </a> */}
-              </div>
-              <div className="footer__col">
-                <p>Reach</p>
-                <a href={`mailto:${site.email}`}>{site.email}</a>
-                <a href={site.phoneHref}>{site.phone}</a>
-              </div>
-            </div>
+<div className="footer__cols">
+
+  {/* Explore */}
+  <div className="footer__col">
+    <p>Explore</p>
+    <Link href="/">Home</Link>
+    <Link href="/portfolio">Portfolio</Link>
+    <Link href="/services">Services</Link>
+    <Link href="/blog">Blog</Link>
+  </div>
+
+  {/* Reach */}
+  <div className="footer__col">
+    <p>Reach</p>
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+    <a href={site.phoneHref}>{site.phone}</a>
+  </div>
+
+  {/* Follow Us */}
+  <div className="footer__col footer__social-col">
+    <p>Follow Us</p>
+
+    <div className="footer__social-links">
+      {Object.entries(site.social).map(([platform, url]) => (
+        <a
+          key={platform}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={platform}
+          title={platform}
+        >
+          <SocialIcon platform={platform} />
+        </a>
+      ))}
+    </div>
+  </div>
+
+</div>
+
           </div>
 
           <FooterWord />

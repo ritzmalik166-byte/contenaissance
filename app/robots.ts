@@ -1,3 +1,4 @@
+
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -8,43 +9,27 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/admin/"],
+        disallow: "/admin/",
       },
       {
-        userAgent: "Googlebot",
+        userAgent: "ChatGPT-User",
         allow: "/",
-        disallow: ["/admin", "/admin/"],
-      },
-      {
-        userAgent: "Bingbot",
-        allow: "/",
-        disallow: ["/admin", "/admin/"],
       },
       {
         userAgent: "OAI-SearchBot",
         allow: "/",
-        disallow: ["/admin", "/admin/"],
       },
       {
-        userAgent: "ClaudeBot",
+        userAgent: "GPTBot",
         allow: "/",
-        disallow: ["/admin", "/admin/"],
       },
       {
-        userAgent: "CCBot",
+        userAgent: "Google-Extended",
         allow: "/",
-        disallow: ["/admin", "/admin/"],
       },
       {
-        userAgent: "PerplexityBot",
+        userAgent: "Bingbot",
         allow: "/",
-        disallow: ["/admin", "/admin/"],
-      },
-      {
-        userAgent: "Applebot",
-        allow: "/",
-        disallow: ["/admin", "/admin/"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

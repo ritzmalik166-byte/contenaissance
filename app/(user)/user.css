@@ -2279,11 +2279,21 @@ textarea {
 
 .tools {
   position: relative;
-  display: block;
   width: 100%;
   margin-top: 70px;
   text-align: center;
+  overflow: hidden;
   z-index: 2;
+}
+
+.tools__track {
+  width: 100%;
+  overflow: hidden;
+  margin-top: 25px;
+}
+
+.tools__row:hover {
+  animation-play-state: paused;
 }
 
 .tools__heading {
@@ -2306,19 +2316,34 @@ textarea {
 
 .tools__row {
   display: flex;
-  flex-wrap: wrap;
+  width: max-content;
+  animation: infiniteTools 25s linear infinite;
+  will-change: transform;
+}
+
+.tools__group {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 35px 55px;
-  margin-top: 10px;
-  width: 100%;
+  justify-content: space-around;
+  flex-shrink: 0;
+  gap: 55px;
+  padding-right: 55px;
+}
+
+@keyframes toolsMarquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .tools__item {
+  flex: 0 0 115px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 90px;
 }
 
 .tools__item img {
@@ -2327,17 +2352,17 @@ textarea {
   height: 38px;
   max-width: 115px;
   object-fit: contain;
+  filter: brightness(0) invert(0.88) sepia(0.18);
+}
 
-  /* Make dark PNG logos clearly visible */
-  filter:
-    brightness(0)
-    invert(0.88)
-    sepia(0.18);
+@keyframes infiniteTools {
+  from {
+    transform: translateX(0);
+  }
 
-  opacity: 1 !important;
-  visibility: visible !important;
-
-  transition: all 0.35s ease;
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 /* Golden glow on hover */
@@ -2633,10 +2658,10 @@ textarea {
 }
 
 .footer__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 40px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 0.9fr 1.5fr;
+  gap: 60px;
+  align-items: start;
 }
 
 .footer__brand img {
@@ -2672,6 +2697,86 @@ textarea {
 
 .footer__col a:hover {
   color: var(--gold);
+}
+
+
+.footer__cols {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1fr;
+  gap: 35px;
+  align-items: start;
+  width: 100%;
+  max-width: 850px;
+  margin-left: auto;
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.footer__social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.footer__col > p {
+  margin-bottom: 2px;
+}
+
+.footer__social-links a {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.footer__social-links svg {
+  width: 22px;
+  height: 22px;
+}
+
+.footer__social-links a:hover {
+  color: #111;
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: translateY(-3px);
+}
+
+/* Tablet and mobile */
+@media (max-width: 768px) {
+  .footer__cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 35px 20px;
+  }
+
+  .footer__social-col {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__cols {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer__social-links {
+    gap: 8px;
+  }
+
+  .footer__social-links a {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .fword {
@@ -4148,6 +4253,46 @@ textarea {
   opacity: 0.85;
 }
 
+.info__social {
+  margin-top: 28px;
+}
+
+.info__social h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.info__social-links {
+  display: flex;
+  gap: 14px;
+}
+
+.info__social-links a {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.info__social-links a svg {
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+}
+
+.info__social-links a:hover {
+  color: #111;
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: translateY(-4px);
+}
 
 /* Country dropdown */
 .field select {
