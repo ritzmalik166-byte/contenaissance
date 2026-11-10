@@ -1609,14 +1609,18 @@ textarea {
   overflow: hidden;
   background: #0b0d18;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transform-origin: 50% 50%;
   box-shadow: 0 40px 80px -30px rgba(60, 20, 0, 0.7);
 }
 
 .flip__card video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .flip__card figcaption {
