@@ -42,7 +42,7 @@ export default function Cta() {
     <section ref={root} className="cta" id="contact">
       <div className="container cta__grid">
         <div>
-          <p className="kicker">9 / Open a new flight plan</p>
+          <p className="kicker">09 / Open a new flight plan</p>
           <Split as="h2" className="display cta__title" lines={['What’s your ', 'next big story?']} />
           <div className="cta__row">
             <Link href="/contact" className="btn btn--gold cta__btn">

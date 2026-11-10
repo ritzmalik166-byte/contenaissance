@@ -31,26 +31,43 @@ export default function Gallery() {
         },
       });
 
-      gsap.utils.toArray('.hcard', track).forEach((card) => {
-        gsap.fromTo(
-          card,
-          { rotateY: -28, z: -160, opacity: 0.4 },
-          {
-            rotateY: 0,
-            z: 0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: card, containerAnimation: scroll, start: 'left right', end: 'center center', scrub: true },
-          }
-        );
-        gsap.to(card, {
-          rotateY: 22,
-          z: -120,
-          ease: 'none',
-          immediateRender: false,
-          scrollTrigger: { trigger: card, containerAnimation: scroll, start: 'center center', end: 'right left', scrub: true },
-        });
-      });
+// gsap.utils.toArray('.hcard', track).forEach((card) => {
+//   gsap.fromTo(
+//     card,
+//     {
+//       rotateY: -12,
+//       z: -40,
+//       opacity: 0.5,
+//     },
+//     {
+//       rotateY: 0,
+//       z: 0,
+//       opacity: 1,
+//       ease: 'none',
+//       scrollTrigger: {
+//         trigger: card,
+//         containerAnimation: scroll,
+//         start: 'left right',
+//         end: 'center center',
+//         scrub: true,
+//       },
+//     }
+//   );
+
+//   gsap.to(card, {
+//     rotateY: 12,
+//     z: -40,
+//     ease: 'none',
+//     immediateRender: false,
+//     scrollTrigger: {
+//       trigger: card,
+//       containerAnimation: scroll,
+//       start: 'center center',
+//       end: 'right left',
+//       scrub: true,
+//     },
+//   });
+// });
     },
     { scope: root }
   );
