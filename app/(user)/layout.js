@@ -10,6 +10,7 @@ import {
   Roboto,
   JetBrains_Mono,
 } from "next/font/google";
+import FloatingContact from "@/components/common/FloatingContact";
 
 const heading = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -187,6 +188,7 @@ export default function UserLayout({ children }) {
       <Shell>
         {children}
         <VideoModal />
+        <FloatingContact />
         </Shell>
     </div>
   );

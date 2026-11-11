@@ -29,8 +29,8 @@ export default async function BlogPage() {
         video={v('13')}
       /> */}
       <Suspense fallback={<div className="journal" />}>
-  <BlogIndex posts={posts} topics={topics} />
-</Suspense>
+        <BlogIndex posts={posts} topics={topics} />
+      </Suspense>
       <Cta />
     </>
   );

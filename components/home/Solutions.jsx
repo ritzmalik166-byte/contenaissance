@@ -4,6 +4,7 @@
 import { useRef, useState } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { formats } from '@/lib/user/content';
+import { openVideo } from '../VideoModal';
 
 export default function Solutions() {
   const root = useRef(null);
@@ -11,8 +12,10 @@ export default function Solutions() {
 
   useGSAP(
     () => {
-      const cards = gsap.utils.toArray('.flip__card', root.current);
-
+const cards = gsap.utils.toArray(
+  '.flip > .flip__card',
+  root.current
+);
 const videos = cards.map((card) => card.querySelector('video'));
 
 
@@ -33,39 +36,29 @@ console.table(
       let currentIndex = -1;
 
       // Play only the active card's video
-      const activateVideo = (index) => {
-        index = Math.max(0, Math.min(index, videos.length - 1));
+const activateVideo = (index) => {
+  index = Math.max(0, Math.min(index, videos.length - 1));
 
-        if (currentIndex === index) return;
+  if (currentIndex === index) return;
 
-        currentIndex = index;
+  currentIndex = index;
 
-        videos.forEach((video, i) => {
-          if (!video) return;
+  videos.forEach((video, i) => {
+    if (!video) return;
 
-          if (i === index) {
-            video.muted = true;
-            video.loop = true;
-            video.playsInline = true;
+    if (i === index) {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
 
-            const playVideo = () => {
-              video.play().catch(() => {
-                video.addEventListener(
-                  'canplay',
-                  () => video.play().catch(() => {}),
-                  { once: true }
-                );
-              });
-            };
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  });
 
-            playVideo();
-          } else {
-            video.pause();
-          }
-        });
-
-        setActive(index);
-      };
+  setActive(index);
+};
 
       // Initial card setup
       gsap.set(cards, {
@@ -222,29 +215,57 @@ cards.forEach((card, i) => {
           <i />
           <i />
 
-          <div className="flip">
-            {formats.map((f) => (
-              <figure className="flip__card" key={f.title}>
-                <video
-                  src={f.video.preview}
-                  poster={f.video.poster}
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  disablePictureInPicture
-                />
+          <div
+  className="flip"
+  onClick={() => {
+    const currentFormat = formats[active];
+    const videoSrc =
+      currentFormat?.video?.full ||
+      currentFormat?.video?.preview;
 
-                <figcaption>
-                  <strong>{f.title}</strong>
-                  <span>{f.sub}</span>
-                </figcaption>
-              </figure>
-            ))}
+    if (videoSrc) {
+      openVideo(videoSrc);
+    }
+  }}
+  role="button"
+  tabIndex={0}
+  aria-label={`Watch ${formats[active]?.title || 'video'}`}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+
+      const currentFormat = formats[active];
+      const videoSrc =
+        currentFormat?.video?.full ||
+        currentFormat?.video?.preview;
+
+      if (videoSrc) openVideo(videoSrc);
+    }
+  }}
+>
+
+{formats.map((f) => (
+  <figure className="flip__card" key={f.title}>
+    <video
+      src={f.video.preview}
+      poster={f.video.poster}
+      muted
+      loop
+      playsInline
+      preload="auto"
+      disablePictureInPicture
+    />
+
+    <figcaption>
+      <strong>{f.title}</strong>
+      <span>{f.sub}</span>
+    </figcaption>
+  </figure>
+))}
           </div>
 
           <span className="sel-frame__size">
-            {formats[active].title} · 1080 × 1350
+            {formats[active]?.title || ''} · 1080 × 1350
           </span>
         </div>
       </div>

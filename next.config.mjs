@@ -8,4 +8,4 @@ const nextConfig = {
   },
 };
 
-export default {...nextConfig, images: {unoptimized: true}, fonts: {loader: 'custom'}};
+export default {...nextConfig, images: {unoptimized: true}};

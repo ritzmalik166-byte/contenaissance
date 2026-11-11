@@ -15,12 +15,12 @@ export default function BlogIndex({ posts = [], topics = [] }) {
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState(-1);
   const router = useRouter();
-const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-const page = Math.max(
-  1,
-  Number(searchParams.get('page')) || 1
-);
+  const page = Math.max(
+    1,
+    Number(searchParams.get('page')) || 1
+  );
   const PAGE_SIZE = 9;
 
   const featured = posts?.[0] || null;
@@ -58,38 +58,38 @@ const page = Math.max(
     currentPage * PAGE_SIZE
   );
 
-useEffect(() => {
-  if (!pendingScroll.current) return;
 
-  pendingScroll.current = false;
+  useEffect(() => {
+    if (!pendingScroll.current) return;
 
-  requestAnimationFrame(() => {
-    const target = barRef.current;
-    if (!target) return;
+    pendingScroll.current = false;
 
-    const top =
-      target.getBoundingClientRect().top +
-      window.scrollY -
-      120;
-
-    window.scrollTo({
-      top,
-      behavior: 'smooth',
+    requestAnimationFrame(() => {
+      if (window.__lenis) {
+        window.__lenis.scrollTo(0, {
+          duration: 1.2,
+          immediate: false,
+        });
+      } else {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
     });
-  });
-}, [page]);
+  }, [page]);
 
-useEffect(() => {
-  if (!query.trim()) return;
+  useEffect(() => {
+    if (!query.trim()) return;
 
-  const params = new URLSearchParams(searchParams.toString());
-  params.delete('page');
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('page');
 
-  router.replace(
-    params.toString() ? `?${params.toString()}` : window.location.pathname,
-    { scroll: false }
-  );
-}, [query]);
+    router.replace(
+      params.toString() ? `?${params.toString()}` : window.location.pathname,
+      { scroll: false }
+    );
+  }, [query]);
 
   const update = (fn) => {
     if (!root.current) {
@@ -150,6 +150,30 @@ useEffect(() => {
       </section>
     );
   }
+
+  const getPaginationPages = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, '...', totalPages - 1, totalPages];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [1, 2, '...', totalPages - 1, totalPages];
+    }
+
+    return [
+      1,
+      2,
+      '...',
+      currentPage,
+      '...',
+      totalPages - 1,
+      totalPages,
+    ];
+  };
 
   return (
     <section ref={root} className="journal">
@@ -267,58 +291,65 @@ useEffect(() => {
               type="button"
               className="jpagination__arrow"
               disabled={currentPage === 1}
-onClick={() => {
-  if (currentPage === 1) return;
+              onClick={() => {
+                if (currentPage === 1) return;
 
-  pendingScroll.current = true;
+                pendingScroll.current = true;
 
-  const params = new URLSearchParams(searchParams.toString());
-  params.set('page', String(currentPage - 1));
+                const params = new URLSearchParams(searchParams.toString());
+                params.set('page', String(currentPage - 1));
 
-  router.push(`?${params.toString()}`, { scroll: false });
-}}
+                router.push(`?${params.toString()}`, { scroll: false });
+              }}
             >
               ← Previous
             </button>
 
-            <div className="jpagination__pages">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button
-                  type="button"
-                  key={n}
-                  className={`jpagination__number${currentPage === n ? ' is-active' : ''
-                    }`}
-                  aria-current={currentPage === n ? 'page' : undefined}
-onClick={() => {
-  if (currentPage === n) return;
+<div className="jpagination__pages">
+  {getPaginationPages().map((n, i) =>
+    n === '...' ? (
+      <span key={`ellipsis-${i}`} className="jpagination__ellipsis">
+        ...
+      </span>
+    ) : (
+      <button
+        type="button"
+        key={n}
+        className={`jpagination__number${
+          currentPage === n ? ' is-active' : ''
+        }`}
+        aria-current={currentPage === n ? 'page' : undefined}
+        onClick={() => {
+          if (currentPage === n) return;
 
-  pendingScroll.current = true;
+          pendingScroll.current = true;
 
-  const params = new URLSearchParams(searchParams.toString());
-  params.set('page', String(n));
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('page', String(n));
 
-  router.push(`?${params.toString()}`, { scroll: false });
-}}
-                >
-                  {String(n).padStart(2, '0')}
-                </button>
-              ))}
-            </div>
+          router.push(`?${params.toString()}`, { scroll: false });
+        }}
+      >
+        {String(n).padStart(2, '0')}
+      </button>
+    )
+  )}
+</div>
 
             <button
               type="button"
               className="jpagination__arrow"
               disabled={currentPage === totalPages}
-onClick={() => {
-  if (currentPage === totalPages) return;
+              onClick={() => {
+                if (currentPage === totalPages) return;
 
-  pendingScroll.current = true;
+                pendingScroll.current = true;
 
-  const params = new URLSearchParams(searchParams.toString());
-  params.set('page', String(currentPage + 1));
+                const params = new URLSearchParams(searchParams.toString());
+                params.set('page', String(currentPage + 1));
 
-  router.push(`?${params.toString()}`, { scroll: false });
-}}
+                router.push(`?${params.toString()}`, { scroll: false });
+              }}
             >
               Next →
             </button>
