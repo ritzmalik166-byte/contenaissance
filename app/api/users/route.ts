@@ -1,3 +1,4 @@
+
 import {
   jsonError,
   jsonForbidden,
@@ -5,7 +6,7 @@ import {
   jsonSuccess,
 } from "@/lib/api-response";
 import { AuthError, requireSession, requireSuperAdmin } from "@/lib/auth-guard";
-import { hashPassword, isSuperAdmin } from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
 import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import { listPanelUsers } from "@/lib/session";
@@ -18,8 +19,11 @@ export async function GET() {
     return jsonSuccess(users);
   } catch (error) {
     if (error instanceof AuthError) {
-      return error.status === 403 ? jsonForbidden(error.message) : jsonError(error.message, error.status);
+      return error.status === 403
+        ? jsonForbidden(error.message)
+        : jsonError(error.message, error.status);
     }
+
     console.error("List users error:", error);
     return jsonServerError();
   }
@@ -79,13 +83,20 @@ export async function POST(request: Request) {
     }
 
     await query(
-      `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets, can_manage_leads)
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO user_permissions (
+        user_id,
+        can_manage_blogs,
+        can_manage_assets,
+        can_manage_leads,
+        can_manage_careers
+      )
+      VALUES (?, ?, ?, ?, ?)`,
       [
         userId,
         Boolean(body.permissions?.can_manage_blogs),
         Boolean(body.permissions?.can_manage_assets),
         Boolean(body.permissions?.can_manage_leads),
+        Boolean(body.permissions?.can_manage_careers),
       ],
     );
 
@@ -107,8 +118,11 @@ export async function POST(request: Request) {
     return jsonSuccess(created, 201);
   } catch (error) {
     if (error instanceof AuthError) {
-      return error.status === 403 ? jsonForbidden(error.message) : jsonError(error.message, error.status);
+      return error.status === 403
+        ? jsonForbidden(error.message)
+        : jsonError(error.message, error.status);
     }
+
     console.error("Create user error:", error);
     return jsonServerError();
   }

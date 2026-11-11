@@ -1,3 +1,4 @@
+
 import { query, queryOne } from "@/lib/db";
 import {
   getAuthTokenPayload,
@@ -17,6 +18,7 @@ interface UserRow {
   can_manage_blogs?: 0 | 1 | boolean | null;
   can_manage_assets?: 0 | 1 | boolean | null;
   can_manage_leads?: 0 | 1 | boolean | null;
+  can_manage_careers?: 0 | 1 | boolean | null;
 }
 
 function mapPermissions(row: UserRow): UserPermissions {
@@ -24,12 +26,18 @@ function mapPermissions(row: UserRow): UserPermissions {
     can_manage_blogs: Boolean(row.can_manage_blogs),
     can_manage_assets: Boolean(row.can_manage_assets),
     can_manage_leads: Boolean(row.can_manage_leads),
+    can_manage_careers: Boolean(row.can_manage_careers),
   });
 }
 
 export async function getUserByEmail(email: string) {
   return queryOne<UserRow & { password_hash: string }>(
-    `SELECT u.*, p.can_manage_blogs, p.can_manage_assets, p.can_manage_leads
+    `SELECT
+       u.*,
+       p.can_manage_blogs,
+       p.can_manage_assets,
+       p.can_manage_leads,
+       p.can_manage_careers
      FROM users u
      LEFT JOIN user_permissions p ON p.user_id = u.id
      WHERE u.email = ?
@@ -40,7 +48,12 @@ export async function getUserByEmail(email: string) {
 
 export async function getUserById(id: number) {
   return queryOne<UserRow>(
-    `SELECT u.*, p.can_manage_blogs, p.can_manage_assets, p.can_manage_leads
+    `SELECT
+       u.*,
+       p.can_manage_blogs,
+       p.can_manage_assets,
+       p.can_manage_leads,
+       p.can_manage_careers
      FROM users u
      LEFT JOIN user_permissions p ON p.user_id = u.id
      WHERE u.id = ?
@@ -76,7 +89,12 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
 export async function listPanelUsers() {
   const rows = await query<UserRow>(
-    `SELECT u.*, p.can_manage_blogs, p.can_manage_assets, p.can_manage_leads
+    `SELECT
+       u.*,
+       p.can_manage_blogs,
+       p.can_manage_assets,
+       p.can_manage_leads,
+       p.can_manage_careers
      FROM users u
      LEFT JOIN user_permissions p ON p.user_id = u.id
      WHERE u.role IN ('superadmin', 'admin')

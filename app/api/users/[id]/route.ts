@@ -1,3 +1,4 @@
+
 import {
   jsonError,
   jsonForbidden,
@@ -22,7 +23,7 @@ export async function PUT(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const userId = Number(id);
 
-    if (!userId) {
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
       return jsonError("Invalid user id");
     }
 
@@ -34,7 +35,11 @@ export async function PUT(request: Request, context: RouteContext) {
       permissions?: Partial<UserPermissions>;
     };
 
-    const target = await queryOne<{ id: number; role: string; email: string }>(
+    const target = await queryOne<{
+      id: number;
+      role: string;
+      email: string;
+    }>(
       "SELECT id, role, email FROM users WHERE id = ? LIMIT 1",
       [userId],
     );
@@ -43,49 +48,64 @@ export async function PUT(request: Request, context: RouteContext) {
       return jsonNotFound("User not found");
     }
 
-    if (isSuperAdmin(target.role as "superadmin" | "admin") && target.id !== session.id) {
+    if (
+      isSuperAdmin(target.role as "superadmin" | "admin") &&
+      target.id !== session.id
+    ) {
       return jsonForbidden("Cannot modify another superadmin");
     }
 
     if (body.name) {
-      await query("UPDATE users SET name = ? WHERE id = ?", [body.name.trim(), userId]);
+      await query(
+        "UPDATE users SET name = ? WHERE id = ?",
+        [body.name.trim(), userId],
+      );
     }
 
     if (body.email) {
-      await query("UPDATE users SET email = ? WHERE id = ?", [
-        body.email.trim().toLowerCase(),
-        userId,
-      ]);
+      await query(
+        "UPDATE users SET email = ? WHERE id = ?",
+        [body.email.trim().toLowerCase(), userId],
+      );
     }
 
     if (body.password) {
       const passwordHash = await hashPassword(body.password);
-      await query("UPDATE users SET password_hash = ? WHERE id = ?", [
-        passwordHash,
-        userId,
-      ]);
+
+      await query(
+        "UPDATE users SET password_hash = ? WHERE id = ?",
+        [passwordHash, userId],
+      );
     }
 
     if (typeof body.is_active === "boolean" && target.role === "admin") {
-      await query("UPDATE users SET is_active = ? WHERE id = ?", [
-        body.is_active,
-        userId,
-      ]);
+      await query(
+        "UPDATE users SET is_active = ? WHERE id = ?",
+        [body.is_active, userId],
+      );
     }
 
     if (body.permissions && target.role === "admin") {
       await query(
-        `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets, can_manage_leads)
-         VALUES (?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           can_manage_blogs = VALUES(can_manage_blogs),
-           can_manage_assets = VALUES(can_manage_assets),
-           can_manage_leads = VALUES(can_manage_leads)`,
+        `INSERT INTO user_permissions (
+          user_id,
+          can_manage_blogs,
+          can_manage_assets,
+          can_manage_leads,
+          can_manage_careers
+        )
+        VALUES (?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+          can_manage_blogs = VALUES(can_manage_blogs),
+          can_manage_assets = VALUES(can_manage_assets),
+          can_manage_leads = VALUES(can_manage_leads),
+          can_manage_careers = VALUES(can_manage_careers)`,
         [
           userId,
           Boolean(body.permissions.can_manage_blogs),
           Boolean(body.permissions.can_manage_assets),
           Boolean(body.permissions.can_manage_leads),
+          Boolean(body.permissions.can_manage_careers),
         ],
       );
     }
@@ -94,11 +114,16 @@ export async function PUT(request: Request, context: RouteContext) {
     const updated = users.find((user) => user.id === userId);
 
     const changedFields: string[] = [];
+
     if (body.name) changedFields.push("name");
     if (body.email) changedFields.push("email");
     if (body.password) changedFields.push("password");
-    if (typeof body.is_active === "boolean") changedFields.push("is_active");
-    if (body.permissions) changedFields.push("permissions");
+    if (typeof body.is_active === "boolean") {
+      changedFields.push("is_active");
+    }
+    if (body.permissions) {
+      changedFields.push("permissions");
+    }
 
     await auditFromSession(session, {
       action: "update",
@@ -112,8 +137,11 @@ export async function PUT(request: Request, context: RouteContext) {
     return jsonSuccess(updated);
   } catch (error) {
     if (error instanceof AuthError) {
-      return error.status === 403 ? jsonForbidden(error.message) : jsonError(error.message, error.status);
+      return error.status === 403
+        ? jsonForbidden(error.message)
+        : jsonError(error.message, error.status);
     }
+
     console.error("Update user error:", error);
     return jsonServerError();
   }
@@ -125,7 +153,7 @@ export async function DELETE(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const userId = Number(id);
 
-    if (!userId) {
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
       return jsonError("Invalid user id");
     }
 
@@ -133,7 +161,12 @@ export async function DELETE(request: Request, context: RouteContext) {
       return jsonError("You cannot delete your own account");
     }
 
-    const target = await queryOne<{ id: number; role: string; email: string; name: string }>(
+    const target = await queryOne<{
+      id: number;
+      role: string;
+      email: string;
+      name: string;
+    }>(
       "SELECT id, role, email, name FROM users WHERE id = ? LIMIT 1",
       [userId],
     );
@@ -159,8 +192,11 @@ export async function DELETE(request: Request, context: RouteContext) {
     return jsonSuccess({ deleted: true });
   } catch (error) {
     if (error instanceof AuthError) {
-      return error.status === 403 ? jsonForbidden(error.message) : jsonError(error.message, error.status);
+      return error.status === 403
+        ? jsonForbidden(error.message)
+        : jsonError(error.message, error.status);
     }
+
     console.error("Delete user error:", error);
     return jsonServerError();
   }

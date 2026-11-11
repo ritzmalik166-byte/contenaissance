@@ -476,3 +476,132 @@
 .career-message.error {
   color: #ff6464;
 }
+
+
+/* CUSTOM POSITION DROPDOWN */
+
+.career-position-field {
+  min-width: 0;
+}
+
+.career-custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.career-select-trigger {
+  width: 100%;
+  height: 49px;
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #090909;
+  border: 1px solid rgba(213, 165, 44, 0.3);
+  border-radius: 8px;
+
+  color: var(--career-text);
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.career-select-trigger:hover,
+.career-select-trigger.active {
+  border-color: var(--career-gold);
+}
+
+.career-select-trigger.active {
+  box-shadow: 0 0 0 3px rgba(213, 165, 44, 0.08);
+}
+
+.career-select-arrow {
+  font-size: 22px;
+  transition: transform 0.2s ease;
+}
+
+.career-select-trigger.active .career-select-arrow {
+  transform: rotate(180deg);
+}
+
+/* DROPDOWN OPTIONS */
+
+.career-options-list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+
+  width: 100%;
+  height: 250px;
+  max-height: 250px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+
+  z-index: 9999;
+
+  padding: 8px;
+
+  background: #101010;
+  border: 1px solid var(--career-gold);
+  border-radius: 10px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* OPTION BUTTONS */
+
+.career-option {
+  display: block;
+  width: 100%;
+
+  padding: 12px 14px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.career-option:hover,
+.career-option.selected {
+  background: rgba(224, 174, 35, 0.18);
+}
+
+/* SCROLLBAR */
+
+.career-options-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.career-options-list::-webkit-scrollbar-thumb {
+  background: var(--career-gold);
+  border-radius: 10px;
+}
+
+.career-options-list::-webkit-scrollbar-track {
+  background: #222;
+}
+
+/* FIREFOX SCROLLBAR */
+
+.career-options-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--career-gold) #222;
+}

@@ -5,23 +5,49 @@ import { useState } from "react";
 import "./career.css";
 
 const jobs = [
-  "Lead Front-End Engineer",
-  "Machine Learning Researcher",
-  "Product Manager",
-  "AI Developer",
+  "Full Stack Developer",
+  "AI Video Generation Artist",
+  "Sales Executive - Media Agency",
+  "Media Sales Manager",
+  "Media Influencer Coordinator",
+  "SEO Executive",
+  "SEO Intern",
+  "Marketing Executive",
+  "Content Creator Lifestyle",
+  "Video Editor - CGI Specialist",
+  "Social Media Executive (SPOC)",
+  "Senior Video Editor",
   "UI/UX Designer",
-  "Video & Creative Producer",
-  "Marketing & Strategy",
-  "Other",
+  "Frontend Developer",
+  "Backend Developer",
 ];
 
 export default function CareerPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [positionOpen, setPositionOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState("");
 
-  const handleSubmit = async (event) => {
+  // Handle mouse wheel scrolling inside the dropdown
+const handleDropdownWheel = (event) => {
+  const dropdown = event.currentTarget;
+
+  dropdown.scrollTop += event.deltaY;
+
+  event.preventDefault();
+  event.stopPropagation();
+};
+
+  // Handle application submission
+const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!selectedJob) {
+      setMessage("Please choose a position.");
+      setMessageType("error");
+      return;
+    }
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -46,15 +72,22 @@ export default function CareerPage() {
       setMessage(
         "Thank you! Your application has been submitted successfully."
       );
+
       setMessageType("success");
+
       form.reset();
+      setSelectedJob("");
+      setPositionOpen(false);
+
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
           : "Something went wrong. Please try again."
       );
+
       setMessageType("error");
+
     } finally {
       setSubmitting(false);
     }
@@ -64,20 +97,21 @@ export default function CareerPage() {
     <main className="career-page">
       <div className="career-container">
 
+        {/* LEFT SECTION */}
+
         <section className="career-left">
           <span className="career-tag">CAREERS</span>
 
           <h1>
-            Create what’s
+            Create What's Next.
             <br />
-            <span>next with us.</span>
+            <span>Make an Impact.</span>
           </h1>
 
           <p className="career-intro">
-            At Contenaissance, creativity meets technology.
-            We bring ideas to life through AI, storytelling
-            and extraordinary digital experiences.
-            Join our team and help shape the future.
+            At Contenaissance, we bring creativity, technology, and
+            artificial intelligence together to build meaningful
+            digital experiences.
           </p>
 
           <div className="career-highlight">
@@ -88,9 +122,10 @@ export default function CareerPage() {
             <h2>Great ideas start with great people.</h2>
 
             <p>
-              We're always looking for passionate people
-              who think differently, experiment fearlessly
-              and love creating meaningful experiences.
+              We're looking for curious minds, creative thinkers,
+              and passionate professionals who want to challenge
+              conventions, explore new possibilities, and create
+              work that makes a difference.
             </p>
 
             <div className="career-tags">
@@ -98,20 +133,25 @@ export default function CareerPage() {
               <span>Creative & Design</span>
               <span>Marketing</span>
               <span>Video Production</span>
-              <span>Development</span>
+              <span>Design & Development</span>
             </div>
           </div>
 
           <div className="career-note">
             <span>HAVE A DIFFERENT SKILL SET?</span>
+
             <p>We would still love to hear from you.</p>
+
             <a href="mailto:hr@contenaissance.com">
               Connect with us ↗
             </a>
           </div>
         </section>
 
+        {/* RIGHT FORM SECTION */}
+
         <section className="career-form-wrapper">
+
           <div className="career-form-header">
             <div>
               <span>CAREER OPPORTUNITY</span>
@@ -129,10 +169,13 @@ export default function CareerPage() {
           >
             <div className="career-form-grid">
 
+              {/* FULL NAME */}
+
               <div className="career-field">
                 <label htmlFor="fullName">
                   FULL NAME <b>*</b>
                 </label>
+
                 <input
                   id="fullName"
                   type="text"
@@ -142,10 +185,13 @@ export default function CareerPage() {
                 />
               </div>
 
+              {/* EMAIL */}
+
               <div className="career-field">
                 <label htmlFor="email">
                   EMAIL ADDRESS <b>*</b>
                 </label>
+
                 <input
                   id="email"
                   type="email"
@@ -155,10 +201,13 @@ export default function CareerPage() {
                 />
               </div>
 
+              {/* PHONE */}
+
               <div className="career-field">
                 <label htmlFor="phone">
                   PHONE NUMBER <b>*</b>
                 </label>
+
                 <input
                   id="phone"
                   type="tel"
@@ -168,41 +217,99 @@ export default function CareerPage() {
                 />
               </div>
 
-              <div className="career-field">
+              {/* CUSTOM POSITION DROPDOWN */}
+
+              <div className="career-field career-position-field">
+
                 <label htmlFor="position">
                   APPLYING FOR <b>*</b>
                 </label>
-                <select
-                  id="position"
-                  name="jobId"
-                  defaultValue=""
-                  required
-                >
-                  <option value="" disabled>
-                    Choose a position
-                  </option>
 
-                  {jobs.map((job) => (
-                    <option key={job} value={job}>
-                      {job}
-                    </option>
-                  ))}
-                </select>
+                {/* Value submitted to API */}
+
+                <input
+                  type="hidden"
+                  name="jobId"
+                  value={selectedJob}
+                />
+
+                <div className="career-custom-select">
+
+                  <button
+                    type="button"
+                    id="position"
+                    className={`career-select-trigger ${
+                      positionOpen ? "active" : ""
+                    }`}
+                    onClick={() =>
+                      setPositionOpen((prev) => !prev)
+                    }
+                    aria-expanded={positionOpen}
+                    aria-haspopup="listbox"
+                  >
+                    <span>
+                      {selectedJob || "Choose a position"}
+                    </span>
+
+                    <span className="career-select-arrow">
+                      ⌄
+                    </span>
+                  </button>
+
+                  {positionOpen && (
+                    <div
+                      className="career-options-list"
+                      role="listbox"
+                      aria-label="Available positions"
+                      onWheel={handleDropdownWheel}
+                    >
+                      {jobs.map((job) => (
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={selectedJob === job}
+                          key={job}
+                          className={`career-option ${
+                            selectedJob === job ? "selected" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedJob(job);
+                            setPositionOpen(false);
+                          }}
+                        >
+                          {job}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                </div>
               </div>
 
             </div>
 
+            {/* RESUME UPLOAD */}
+
             <div className="career-field career-upload-field">
+
               <label htmlFor="resume">
                 UPLOAD RESUME <b>*</b>
               </label>
 
-              <label className="career-upload" htmlFor="resume">
-                <span className="career-upload-icon">↑</span>
+              <label
+                className="career-upload"
+                htmlFor="resume"
+              >
+                <span className="career-upload-icon">
+                  ↑
+                </span>
 
                 <span>
                   <strong>Upload your resume</strong>
-                  <small>PDF, DOC or DOCX · Maximum 10 MB</small>
+
+                  <small>
+                    PDF, DOC or DOCX · Maximum 10 MB
+                  </small>
                 </span>
               </label>
 
@@ -214,9 +321,13 @@ export default function CareerPage() {
                 accept=".pdf,.doc,.docx"
                 required
               />
+
             </div>
 
+            {/* COVER LETTER */}
+
             <div className="career-field">
+
               <label htmlFor="message">
                 TELL US ABOUT YOURSELF <b>*</b>
               </label>
@@ -228,11 +339,21 @@ export default function CareerPage() {
                 rows={4}
                 required
               />
+
             </div>
 
+            {/* SUBMIT */}
+
             <div className="career-submit">
-              <button type="submit" disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit Application"}
+
+              <button
+                type="submit"
+                disabled={submitting}
+              >
+                {submitting
+                  ? "Submitting..."
+                  : "Submit Application"}
+
                 {!submitting && <span>↗</span>}
               </button>
 
@@ -241,18 +362,22 @@ export default function CareerPage() {
                 with our hiring team.
               </p>
 
-              {message && (
-                <p
-                  className={`career-message ${messageType}`}
-                  role="status"
-                  aria-live="polite"
-                >
-                  {message}
-                </p>
-              )}
             </div>
 
+            {/* SUCCESS / ERROR MESSAGE */}
+
+            {message && (
+              <p
+                className={`career-message ${messageType}`}
+                role="status"
+                aria-live="polite"
+              >
+                {message}
+              </p>
+            )}
+
           </form>
+
         </section>
 
       </div>

@@ -2682,6 +2682,20 @@ textarea {
   color: #555;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .quote__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .quote__text {
+    margin: 0 !important;
+    font-size: clamp(25px, 3.5vw, 34px);
+    line-height: 1.16;
+    max-width: 100%;
+  }
+}
+
 /* ---------- quote mobile responsive ---------- */
 
 @media (max-width: 768px) {

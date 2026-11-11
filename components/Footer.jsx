@@ -10,6 +10,10 @@ import FooterWord from './FooterWord';
 
 const SocialIcon = ({ platform }) => {
   const paths = {
+    facebook: (
+      <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8z" />
+    ),
+
     instagram: (
       <>
         <rect x="3" y="3" width="18" height="18" rx="5" />
@@ -24,23 +28,19 @@ const SocialIcon = ({ platform }) => {
       </>
     ),
 
-    youtube: (
-      <>
-        <path d="M22 12s0-4-1-5-2-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 2 1 9 1 8 0 9-1 1-5 1-5Z" />
-        <path d="m10 9 5 3-5 3z" />
-      </>
-    ),
-
-    facebook: (
-      <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8z" />
-    ),
-
     twitter: (
       <path
         d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 14.6 5.5 22H2.3l7.3-8.4L1.8 2h6.5l4.5 6.8L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"
         fill="currentColor"
         stroke="none"
       />
+    ),
+
+    youtube: (
+      <>
+        <path d="M22 12s0-4-1-5-2-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 2 1 9 1 8 0 9-1 1-5 1-5Z" />
+        <path d="m10 9 5 3-5 3z" />
+      </>
     ),
   };
 

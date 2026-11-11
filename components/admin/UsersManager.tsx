@@ -122,6 +122,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
           can_manage_blogs: form.can_manage_blogs,
           can_manage_assets: form.can_manage_assets,
           can_manage_leads: form.can_manage_leads,
+          can_manage_careers: form.can_manage_careers,
         },
       });
       setForm(emptyForm);
@@ -156,6 +157,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
           can_manage_blogs: editForm.can_manage_blogs,
           can_manage_assets: editForm.can_manage_assets,
           can_manage_leads: editForm.can_manage_leads,
+          can_manage_careers: editForm.can_manage_careers,
         };
       }
 
@@ -229,7 +231,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
             <p className="admin-toolbar-eyebrow">Access Control</p>
             <h3 className="admin-toolbar-title">Create Admin User</h3>
             <p className="admin-toolbar-copy">
-              Superadmin assigns blog and asset permissions per admin.
+              Superadmin assigns permissions for blogs, assets, leads, and careers.
             </p>
           </div>
           <button type="submit" disabled={saving} className="admin-btn admin-btn-primary">
@@ -298,6 +300,20 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
             />
             Can manage leads
           </label>
+          <label className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    className="admin-checkbox"
+    checked={form.can_manage_careers}
+    onChange={(event) =>
+      setForm({
+        ...form,
+        can_manage_careers: event.target.checked,
+      })
+    }
+  />
+  Can manage careers
+</label>
         </div>
 
         {error ? <p className="admin-error rounded-xl px-3 py-2 text-sm">{error}</p> : null}
@@ -312,6 +328,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
               <th>Blog Access</th>
               <th>Asset Access</th>
               <th>Lead Access</th>
+              <th>Career Access</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -362,6 +379,17 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
                     {accessLabel(user, "can_manage_leads")}
                   </span>
                 </td>
+                <td>
+  <span
+    className={`admin-badge ${
+      user.role === "superadmin" || user.permissions.can_manage_careers
+        ? "admin-badge-green"
+        : "admin-badge-gray"
+    }`}
+  >
+    {accessLabel(user, "can_manage_careers")}
+  </span>
+</td>
                 <td>
                   <span
                     className={`admin-badge ${
@@ -501,6 +529,20 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
                       />
                       Can manage leads
                     </label>
+                    <label className="flex items-center gap-2">
+                      <input
+    type="checkbox"
+    className="admin-checkbox"
+    checked={editForm.can_manage_careers}
+    onChange={(event) =>
+      setEditForm({
+        ...editForm,
+        can_manage_careers: event.target.checked,
+      })
+    }
+  />
+  Can manage careers
+</label>
                   </div>
 
                   <label className="flex items-center gap-2 text-sm text-[var(--admin-text)]">
