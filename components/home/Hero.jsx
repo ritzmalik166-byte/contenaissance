@@ -35,19 +35,46 @@ export default function Hero() {
       });
       const off = onSiteReady(intro);
 
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top top',
-          end: '+=110%',
-          scrub: true,
-          pin: true,
-          onUpdate: (self) => scene && (scene.state.progress = self.progress),
-        },
-      })
-        .to('.hero__content', { scale: 1.45, opacity: 0, filter: 'blur(8px)', ease: 'power2.in' }, 0)
-        .to('.hero__foot', { opacity: 0, y: 40 }, 0)
-        .to('.hero__rays', { opacity: 0, scale: 1.3 }, 0);
+      const nextSection = root.current.nextElementSibling;
+
+gsap.set(nextSection, {
+  opacity: 0,
+});
+
+const heroTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: root.current,
+    start: 'top top',
+    end: '+=45%',
+    scrub: 1,
+    pin: true,
+    pinSpacing: false,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      if (scene) scene.state.progress = self.progress;
+    },
+  },
+});
+
+heroTl
+  .to('.hero__content', {
+    opacity: 0,
+    scale: 1.3,
+    filter: 'blur(8px)',
+    ease: 'none',
+  }, 0)
+  .to('.hero__foot', {
+    opacity: 0,
+    ease: 'none',
+  }, 0)
+  .to(root.current, {
+    opacity: 0,
+    ease: 'none',
+  }, 0.3)
+  .to(nextSection, {
+    opacity: 1,
+    ease: 'none',
+  }, 0.3);
 
       const move = (e) => {
         const x = (e.clientX / window.innerWidth) * 2 - 1;

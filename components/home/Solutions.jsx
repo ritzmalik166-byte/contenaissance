@@ -191,7 +191,11 @@ cards.forEach((card, i) => {
   const words = Array.from({ length: 4 });
 
   return (
-    <section ref={root} className="solutions" id="solutions">
+    <section
+  ref={root}
+  className={`solutions ${formats[active]?.title === 'Documentary' ? 'solutions--documentary' : ''}`}
+  id="solutions"
+>
       <div className="solutions__noise" />
 
       <p className="solutions__label">
@@ -245,16 +249,16 @@ cards.forEach((card, i) => {
         </div>
       </div>
 
-      <ul className="solutions__list">
-        {formats.map((f, i) => (
-          <li
-            key={f.title}
-            className={i === active ? 'is-on' : ''}
-          >
-            {f.title}
-          </li>
-        ))}
-      </ul>
+<ul className="solutions__list">
+  {formats.map((f, i) => (
+    <li
+      key={f.title}
+      className={i === active ? 'is-on' : ''}
+    >
+      {f.title}
+    </li>
+  ))}
+</ul>
 
       <p className="solutions__desc">
         AI-powered creative solutions for brands that

@@ -38,14 +38,14 @@ export default function Testimonials() {
   const rowA = useRef(null);
   const rowB = useRef(null);
 
-  useVelocityMarquee(rowA, { speed: 0.5, direction: -1 });
-  useVelocityMarquee(rowB, { speed: 0.5, direction: -1 });
+useVelocityMarquee(rowB, { speed: 1, direction: -1 });
+useVelocityMarquee(rowA, { speed: 1, direction: -1 });
   useGSAP(
     () => {
       gsap.from('.voices__head .split-char', {
         yPercent: 110,
         duration: 1,
-        stagger: 0.015,
+        stagger: 0.008,
         ease: 'power4.out',
         scrollTrigger: { trigger: '.voices__head', start: 'top 80%' },
       });
@@ -58,14 +58,14 @@ export default function Testimonials() {
         ease: 'power2.out',
         scrollTrigger: { trigger: '.voices__rows', start: 'top 95%', end: 'top 50%', scrub: 1 },
       });
-      gsap.from('.tools__row img', {
-        y: 30,
-        opacity: 0,
-        stagger: 0.07,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: '.tools', start: 'top 85%' },
-      });
+gsap.from('.tools__row img', {
+  y: 20,
+  opacity: 0,
+  stagger: 0.03,
+  duration: 0.5,
+  ease: 'power3.out',
+  scrollTrigger: { trigger: '.tools', start: 'top 85%' },
+});
     },
     { scope: root }
   );
@@ -98,29 +98,29 @@ export default function Testimonials() {
         </div> */}
       </div>
 
-<div className="container tools">
-  <p className="tools__heading">
-    Powered by the tools shaping the future
-  </p>
+      <div className="container tools">
+        <p className="tools__heading">
+          Powered by the tools shaping the future
+        </p>
 
-  <div className="tools__track">
-    <div className="tools__row">
-      {[0, 1].map((group) => (
-        <div
-          className="tools__group"
-          key={group}
-          aria-hidden={group === 1}
-        >
-          {aiTools.map((name, i) => (
-            <div className="tools__item" key={`${group}-${name}-${i}`}>
-              <img src={`/images/${name}.png`} alt={group === 0 ? name : ''} />
-            </div>
-          ))}
+        <div className="tools__track">
+          <div className="tools__row">
+            {[0, 1].map((group) => (
+              <div
+                className="tools__group"
+                key={group}
+                aria-hidden={group === 1}
+              >
+                {aiTools.map((name, i) => (
+                  <div className="tools__item" key={`${group}-${name}-${i}`}>
+                    <img src={`/images/${name}.png`} alt={group === 0 ? name : ''} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-</div>
+      </div>
     </section>
   );
 }
