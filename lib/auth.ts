@@ -17,12 +17,14 @@ const SUPERADMIN_PERMISSIONS: UserPermissions = {
   can_manage_blogs: true,
   can_manage_assets: true,
   can_manage_leads: true,
+  can_manage_careers: true,
 };
 
 const DEFAULT_ADMIN_PERMISSIONS: UserPermissions = {
   can_manage_blogs: false,
   can_manage_assets: false,
   can_manage_leads: false,
+  can_manage_careers: false,
 };
 
 function getJwtSecret(): string {
@@ -89,6 +91,7 @@ export function resolvePermissions(
     can_manage_blogs: Boolean(permissions?.can_manage_blogs),
     can_manage_assets: Boolean(permissions?.can_manage_assets),
     can_manage_leads: Boolean(permissions?.can_manage_leads),
+    can_manage_careers: Boolean(permissions?.can_manage_careers),    
   };
 }
 

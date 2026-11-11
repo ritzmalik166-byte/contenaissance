@@ -14,8 +14,10 @@ const emptyForm = {
   can_manage_blogs: false,
   can_manage_assets: false,
   can_manage_leads: false,
+  can_manage_careers: false,
 };
 
+// Add new permission to EditForm type
 type EditForm = {
   name: string;
   email: string;
@@ -23,6 +25,7 @@ type EditForm = {
   can_manage_blogs: boolean;
   can_manage_assets: boolean;
   can_manage_leads: boolean;
+  can_manage_careers: boolean;
   is_active: boolean;
 };
 
@@ -92,6 +95,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
       can_manage_blogs: user.permissions.can_manage_blogs,
       can_manage_assets: user.permissions.can_manage_assets,
       can_manage_leads: user.permissions.can_manage_leads,
+      can_manage_careers: user.permissions.can_manage_careers,
       is_active: user.is_active,
     });
     setEditError("");

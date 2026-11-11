@@ -105,45 +105,46 @@ export default function Footer() {
               <p>Human stories. Uncharted possibilities.</p>
             </div>
 
-<div className="footer__cols">
+            <div className="footer__cols">
 
-  {/* Explore */}
-  <div className="footer__col">
-    <p>Explore</p>
-    <Link href="/">Home</Link>
-    <Link href="/portfolio">Portfolio</Link>
-    <Link href="/services">Services</Link>
-    <Link href="/blog">Blog</Link>
-  </div>
+              {/* Explore */}
+              <div className="footer__col">
+                <p>Explore</p>
+                <Link href="/">Home</Link>
+                <Link href="/portfolio">Portfolio</Link>
+                <Link href="/services">Services</Link>
+                <Link href="/blog">Blog</Link>
+                <Link href="/career">Career</Link>
+              </div>
 
-  {/* Reach */}
-  <div className="footer__col">
-    <p>Reach</p>
-    <a href={`mailto:${site.email}`}>{site.email}</a>
-    <a href={site.phoneHref}>{site.phone}</a>
-  </div>
+              {/* Reach */}
+              <div className="footer__col">
+                <p>Reach</p>
+                <a href={`mailto:${site.email}`}>{site.email}</a>
+                <a href={site.phoneHref}>{site.phone}</a>
+              </div>
 
-  {/* Follow Us */}
-  <div className="footer__col footer__social-col">
-    <p>Follow Us</p>
+              {/* Follow Us */}
+              <div className="footer__col footer__social-col">
+                <p>Follow Us</p>
 
-    <div className="footer__social-links">
-      {Object.entries(site.social).map(([platform, url]) => (
-        <a
-          key={platform}
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={platform}
-          title={platform}
-        >
-          <SocialIcon platform={platform} />
-        </a>
-      ))}
-    </div>
-  </div>
+                <div className="footer__social-links">
+                  {Object.entries(site.social).map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={platform}
+                      title={platform}
+                    >
+                      <SocialIcon platform={platform} />
+                    </a>
+                  ))}
+                </div>
+              </div>
 
-</div>
+            </div>
 
           </div>
 

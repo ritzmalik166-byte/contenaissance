@@ -2887,7 +2887,7 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 5px;
   min-width: 0;
 }
 

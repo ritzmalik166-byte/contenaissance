@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Briefcase,
   FileText,
   ImageIcon,
   Inbox,
@@ -40,6 +41,20 @@ const groups = [
       },
     ],
   },
+  {
+  id: "careers",
+  label: "Careers",
+  icon: Briefcase,
+  items: [
+    {
+      href: "/admin/dashboard/careers",
+      label: "Career Management",
+      icon: Briefcase,
+      show: (user: SessionUser) =>
+        user.role === "superadmin" || user.permissions.can_manage_careers,
+    },
+  ],
+},
   {
     id: "content",
     label: "Content",

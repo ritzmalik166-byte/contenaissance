@@ -8,6 +8,7 @@ export interface UserPermissions {
   can_manage_blogs: boolean;
   can_manage_assets: boolean;
   can_manage_leads: boolean;
+  can_manage_careers: boolean;
 }
 
 export interface User {

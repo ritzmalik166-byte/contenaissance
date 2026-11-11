@@ -457,3 +457,22 @@
     width: 100%;
   }
 }
+
+.career-submit button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.career-message {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.career-message.success {
+  color: #35c979;
+}
+
+.career-message.error {
+  color: #ff6464;
+}

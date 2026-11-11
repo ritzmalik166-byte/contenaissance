@@ -1,5 +1,7 @@
 
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
 import "./career.css";
 
 const jobs = [
@@ -14,11 +16,54 @@ const jobs = [
 ];
 
 export default function CareerPage() {
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    setSubmitting(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/careers/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error || "Unable to submit your application."
+        );
+      }
+
+      setMessage(
+        "Thank you! Your application has been submitted successfully."
+      );
+      setMessageType("success");
+      form.reset();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
+      setMessageType("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <main className="career-page">
       <div className="career-container">
 
-        {/* LEFT CONTENT */}
         <section className="career-left">
           <span className="career-tag">CAREERS</span>
 
@@ -40,9 +85,7 @@ export default function CareerPage() {
               JOIN THE CREATIVE REVOLUTION
             </span>
 
-            <h2>
-              Great ideas start with great people.
-            </h2>
+            <h2>Great ideas start with great people.</h2>
 
             <p>
               We're always looking for passionate people
@@ -61,16 +104,13 @@ export default function CareerPage() {
 
           <div className="career-note">
             <span>HAVE A DIFFERENT SKILL SET?</span>
-            <p>
-              We would still love to hear from you.
-            </p>
+            <p>We would still love to hear from you.</p>
             <a href="mailto:hr@contenaissance.com">
               Connect with us ↗
             </a>
           </div>
         </section>
 
-        {/* RIGHT APPLICATION FORM */}
         <section className="career-form-wrapper">
           <div className="career-form-header">
             <div>
@@ -85,9 +125,7 @@ export default function CareerPage() {
 
           <form
             className="career-form"
-            action="/api/careers"
-            method="POST"
-            encType="multipart/form-data"
+            onSubmit={handleSubmit}
           >
             <div className="career-form-grid">
 
@@ -98,7 +136,7 @@ export default function CareerPage() {
                 <input
                   id="fullName"
                   type="text"
-                  name="fullName"
+                  name="name"
                   placeholder="Enter your full name"
                   required
                 />
@@ -136,7 +174,7 @@ export default function CareerPage() {
                 </label>
                 <select
                   id="position"
-                  name="position"
+                  name="jobId"
                   defaultValue=""
                   required
                 >
@@ -154,7 +192,6 @@ export default function CareerPage() {
 
             </div>
 
-            {/* RESUME */}
             <div className="career-field career-upload-field">
               <label htmlFor="resume">
                 UPLOAD RESUME <b>*</b>
@@ -165,7 +202,7 @@ export default function CareerPage() {
 
                 <span>
                   <strong>Upload your resume</strong>
-                  <small>PDF, DOC or DOCX · Maximum 5 MB</small>
+                  <small>PDF, DOC or DOCX · Maximum 10 MB</small>
                 </span>
               </label>
 
@@ -179,7 +216,6 @@ export default function CareerPage() {
               />
             </div>
 
-            {/* MESSAGE */}
             <div className="career-field">
               <label htmlFor="message">
                 TELL US ABOUT YOURSELF <b>*</b>
@@ -187,23 +223,33 @@ export default function CareerPage() {
 
               <textarea
                 id="message"
-                name="message"
+                name="coverLetter"
                 placeholder="Tell us about your experience, skills and what you bring to the team..."
                 rows={4}
                 required
               />
             </div>
 
-            {/* SUBMIT */}
             <div className="career-submit">
-              <button type="submit">
-                Submit Application <span>↗</span>
+              <button type="submit" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit Application"}
+                {!submitting && <span>↗</span>}
               </button>
 
               <p>
                 Your information will only be shared
                 with our hiring team.
               </p>
+
+              {message && (
+                <p
+                  className={`career-message ${messageType}`}
+                  role="status"
+                  aria-live="polite"
+                >
+                  {message}
+                </p>
+              )}
             </div>
 
           </form>
