@@ -6694,12 +6694,51 @@ textarea {
     aspect-ratio: 9 / 16;
   }
 
+  /* Web3D tablet layout */
   .web3d {
-    --w: min(52vw, 520px);
+    --w: clamp(300px, 46vw, 440px);
+    min-height: 720px;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .web3d__title {
+    top: 7vh;
+    font-size: clamp(30px, 4vw, 42px);
+  }
+
+  .web3d__stage {
+    top: 16vh;
+    bottom: 13vh;
+    padding: 0;
+    transform: none;
   }
 
   .ring {
-    aspect-ratio: 3 / 5;
+    width: var(--w);
+    aspect-ratio: 4 / 6;
+  }
+
+  .ring-pos {
+    transform: translateZ(calc(var(--w) * -1.05));
+  }
+
+  .bwin {
+    border-radius: 12px;
+  }
+
+  .bwin__bar {
+    height: 30px;
+    padding: 0 10px;
+  }
+
+  .bwin__bar i {
+    width: 8px;
+    height: 8px;
+  }
+
+  .bwin__bar span {
+    font-size: 9px;
   }
 
   .wchip,
@@ -6707,8 +6746,52 @@ textarea {
     display: none;
   }
 
+  .web3d__caption {
+    bottom: 3vh;
+    gap: 8px;
+  }
+
+  .web3d__name {
+    font-size: 20px;
+  }
+
+  .web3d__bar {
+    width: 140px;
+  }
+
+  .web3d__floor {
+    height: 35%;
+  }
+
+  .web3d__floor-grid {
+    background-size: 55px 55px;
+  }
+
   .solutions__desc {
     display: none;
+  }
+}
+
+
+/* Short-height tablet screens */
+@media (min-width: 769px) and (max-width: 1024px)
+  and (max-height: 800px) {
+
+  .web3d {
+    min-height: 680px;
+  }
+
+  .web3d__title {
+    top: 5vh;
+  }
+
+  .web3d__stage {
+    top: 14vh;
+    bottom: 15vh;
+  }
+
+  .web3d__caption {
+    bottom: 2vh;
   }
 }
 

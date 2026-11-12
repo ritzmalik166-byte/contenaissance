@@ -19,12 +19,14 @@ export default function Web3D() {
     (ctx, contextSafe) => {
       gsap.set('.ring', { rotateX: -6 });
       gsap
-        .timeline({ scrollTrigger: {
-  trigger: root.current,
-  start: 'top 90%',
-  toggleActions: 'play none none none',
-  once: true,
-}})
+        .timeline({
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
+          }
+        })
         .from('.web3d__title .split-line > span', { yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.1 })
         .from('.ring', { rotateX: 55, scale: 0.6, opacity: 0, duration: 1.6, ease: 'expo.out' }, 0.1)
         .from('.web3d__floor', { opacity: 0, duration: 1.4 }, 0.2)
@@ -37,13 +39,13 @@ export default function Web3D() {
           start: 'top top',
           end: () => `+=${window.innerHeight * (steps - 1) * 0.8}`,
           pin: true,
-scrub: 0.35,
-snap: {
-  snapTo: 1 / (steps - 1),
-  duration: { min: 0.2, max: 0.5 },
-  ease: 'power2.inOut',
-  delay: 0.01,
-},
+          scrub: 0.35,
+          snap: {
+            snapTo: 1 / (steps - 1),
+            duration: { min: 0.2, max: 0.5 },
+            ease: 'power2.inOut',
+            delay: 0.01,
+          },
           invalidateOnRefresh: true,
           onToggle: (self) => setLive(self.isActive),
         },
@@ -68,31 +70,31 @@ snap: {
     { scope: root }
   );
 
-useEffect(() => {
-  videos.current.forEach((el, i) => {
-    if (!el) return;
+  useEffect(() => {
+    videos.current.forEach((el, i) => {
+      if (!el) return;
 
-    if (i === active) {
-      const src = webExperiences[i].video.preview;
+      if (i === active) {
+        const src = webExperiences[i].video.preview;
 
-      // Load video as soon as it becomes active
-      if (el.dataset.loaded !== 'true') {
-        el.src = src;
-        el.dataset.loaded = 'true';
-        el.load();
-      }
+        // Load video as soon as it becomes active
+        if (el.dataset.loaded !== 'true') {
+          el.src = src;
+          el.dataset.loaded = 'true';
+          el.load();
+        }
 
-      // Play when the pinned section becomes active
-      if (live) {
-        el.play().catch(() => {});
+        // Play when the pinned section becomes active
+        if (live) {
+          el.play().catch(() => { });
+        } else {
+          el.pause();
+        }
       } else {
         el.pause();
       }
-    } else {
-      el.pause();
-    }
-  });
-}, [active, live]);
+    });
+  }, [active, live]);
 
   const goTo = (i) => {
     const st = trigger.current;
@@ -140,14 +142,14 @@ useEffect(() => {
                     <span>contenaissance.com/work/{slug(w.title)}</span>
                   </div>
                   <div className="bwin__screen">
-<video
-  ref={(el) => (videos.current[i] = el)}
-  poster={w.video.poster}
-  muted
-  loop
-  playsInline
-  preload="metadata"
-/>
+                    <video
+                      ref={(el) => (videos.current[i] = el)}
+                      poster={w.video.poster}
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
                     <span className="bwin__glare" />
                   </div>
                 </article>
