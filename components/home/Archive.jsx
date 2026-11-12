@@ -19,7 +19,7 @@ function Work({ item }) {
       data-cursor="Play"
       aria-label={`Play ${item.title}`}
     >
-      <div className="work__media">
+      <div className="work__media" style={{ aspectRatio: item.ratio }}>
         <span className="mono work__tag">{item.tag}</span>
 
         <LazyVideo
@@ -66,11 +66,11 @@ export default function Archive() {
             scrollTrigger: { trigger: card, start: 'top 105%', end: 'top 55%', scrub: 1 },
           }
         );
-        gsap.fromTo(
-          card.querySelector('video'),
-          { yPercent: -6 },
-          { yPercent: 6, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } }
-        );
+        // gsap.fromTo(
+        //   card.querySelector('video'),
+        //   { yPercent: -6 },
+        //   { yPercent: 6, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } }
+        // );
       });
 
       if (window.innerWidth > 760) {
@@ -122,6 +122,7 @@ export default function Archive() {
           <div className="archive__col">
             <Work item={archive[0]} />
             <Work item={archive[2]} />
+            <Work item={archive[4]} />
           </div>
           <div className="archive__col">
             <Work item={archive[1]} />
