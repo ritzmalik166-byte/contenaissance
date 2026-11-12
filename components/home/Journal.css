@@ -164,16 +164,20 @@
 
 /* Tablet */
 
+/* Tablet and Surface Pro responsiveness */
 @media (max-width: 1100px) {
   .hjournal .container {
     width: min(100% - 48px, 100%);
   }
 
   .hjournal__grid {
-    gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
   }
 
   .hjournal__card {
+    width: 100%;
+    min-width: 0;
     border-radius: 16px;
   }
 
@@ -184,12 +188,8 @@
     letter-spacing: 0.09em;
   }
 
-  .hjournal__card .jmeta span + span {
-    padding-left: 11px;
-  }
-
   .hjournal__card h3 {
-    padding: 6px 12px 18px;
+    padding: 6px 12px 0;
     font-size: clamp(17px, 1.8vw, 22px);
   }
 }
@@ -377,3 +377,33 @@
     line-height: 1.6;
   }
 } */
+
+/* Fix spacing at bottom of journal cards */
+.hjournal__card {
+  padding-bottom: 22px;
+  box-sizing: border-box;
+}
+
+.hjournal__card .jcard__description {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Tablet */
+@media (max-width: 899px) {
+  .hjournal__card {
+    padding-bottom: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+  .hjournal__card {
+    padding-bottom: 22px;
+  }
+
+  .hjournal__card .jcard__description {
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}

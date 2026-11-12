@@ -227,7 +227,7 @@ export default function ContactForm() {
         <form ref={formRef} className="form" onSubmit={submit}>
           <div className="form__head">
             <h2>Submit Your Enquiry</h2>
-            <span className="mono">All fields required</span>
+            <span className="mono">* Required fields</span>
           </div>
 
           <div className="form__row">
@@ -316,15 +316,14 @@ export default function ContactForm() {
             </select>
           </div>
 
-          <div className="field">
-            <label htmlFor="message">Tell us about your project</label>
-            <textarea
-              id="message"
-              name="message"
-              required
-              disabled={otpSent || loading}
-            />
-          </div>
+<div className="field">
+  <label htmlFor="message">Tell us about your project</label>
+  <textarea
+    id="message"
+    name="message"
+    disabled={otpSent || loading}
+  />
+</div>
 
           {!sent && (
             <button
