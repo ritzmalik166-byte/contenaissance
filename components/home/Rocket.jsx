@@ -106,7 +106,7 @@ export default function Rocket() {
             </svg>
 
             {stack.map((s, i) => (
-              <div className="rocket__module" key={s.id}>
+              <div className="rocket__module" key={s.id} data-stage={s.id}>
                 <small>{s.id}</small>
                 <StageIcon name={s.icon} />
                 <div className={`stage-label stage-label--${i % 2 === 0 ? 'right' : 'left'}`}>

@@ -2,12 +2,13 @@ import "./FloatingContact.css";
 
 export default function FloatingContact() {
   const phone = "919220516777";
+  const WhatsApp = "917290002168";
 
   return (
     <div className="floating-contact">
       {/* WhatsApp */}
       <a
-        href={`https://wa.me/${phone}`}
+        href={`https://wa.me/${WhatsApp}`}
         target="_blank"
         rel="noopener noreferrer"
         className="floating-contact__btn floating-contact__whatsapp"

@@ -142,7 +142,7 @@ const handleSubmit = async (event) => {
 
             <p>We would still love to hear from you.</p>
 
-            <a href="mailto:hr@contenaissance.com">
+            <a href="mailto:info@ritzmediaworld.com">
               Connect with us ↗
             </a>
           </div>

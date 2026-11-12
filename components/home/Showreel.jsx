@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
@@ -11,6 +11,17 @@ const videoUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}/Mzha%20Nhi%20Aaya-02.1.m
 export default function Showreel() {
   const root = useRef(null);
 
+    useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'video';
+    link.href = videoUrl;
+
+    document.head.appendChild(link);
+
+    return () => link.remove();
+  }, []);
+  
   useGSAP(
     () => {
       const mobile = window.innerWidth < 760;

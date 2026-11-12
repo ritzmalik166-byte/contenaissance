@@ -51,43 +51,12 @@ export default function Quote() {
           />
           <div className="quote__sign">
             <div className="quote__sign-mark">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <defs>
-                  <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#8F5B00" />
-                    <stop offset="25%" stopColor="#FFD966" />
-                    <stop offset="50%" stopColor="#FFF2B0" />
-                    <stop offset="75%" stopColor="#D49A22" />
-                    <stop offset="100%" stopColor="#8F5B00" />
-                  </linearGradient>
-
-                  <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="1.5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="22"
-                  stroke="url(#goldShine)"
-                  strokeWidth="1.5"
-                />
-
-                <path
-                  d="M24 24C19 18 14 15 10 20C6 25 11 32 16 30C19 29 21 26 24 24C27 22 29 19 32 18C37 16 42 23 38 28C34 33 29 30 24 24Z"
-                  stroke="url(#goldShine)"
-                  strokeWidth="2.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#goldGlow)"
-                />
-              </svg>
+              <img
+                src="/logo.webp"
+                alt="Contenaissance Logo"
+                width="48"
+                height="48"
+              />
             </div>
 
             <span>

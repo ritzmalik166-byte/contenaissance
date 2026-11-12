@@ -12,53 +12,53 @@ export default function Solutions() {
 
   useGSAP(
     () => {
-const cards = gsap.utils.toArray(
-  '.flip > .flip__card',
-  root.current
-);
-const videos = cards.map((card) => card.querySelector('video'));
+      const cards = gsap.utils.toArray(
+        '.flip > .flip__card',
+        root.current
+      );
+      const videos = cards.map((card) => card.querySelector('video'));
 
 
-console.table(
-  cards.map((card, i) => ({
-    card: i,
-    title: formats[i]?.title,
-    videoSrc: videos[i]?.currentSrc || videos[i]?.src,
-    readyState: videos[i]?.readyState,
-    paused: videos[i]?.paused,
-    opacity: getComputedStyle(card).opacity,
-    visibility: getComputedStyle(card).visibility,
-    width: videos[i]?.getBoundingClientRect().width,
-    height: videos[i]?.getBoundingClientRect().height,
-  }))
-);
+      console.table(
+        cards.map((card, i) => ({
+          card: i,
+          title: formats[i]?.title,
+          videoSrc: videos[i]?.currentSrc || videos[i]?.src,
+          readyState: videos[i]?.readyState,
+          paused: videos[i]?.paused,
+          opacity: getComputedStyle(card).opacity,
+          visibility: getComputedStyle(card).visibility,
+          width: videos[i]?.getBoundingClientRect().width,
+          height: videos[i]?.getBoundingClientRect().height,
+        }))
+      );
 
       let currentIndex = -1;
 
       // Play only the active card's video
-const activateVideo = (index) => {
-  index = Math.max(0, Math.min(index, videos.length - 1));
+      const activateVideo = (index) => {
+        index = Math.max(0, Math.min(index, videos.length - 1));
 
-  if (currentIndex === index) return;
+        if (currentIndex === index) return;
 
-  currentIndex = index;
+        currentIndex = index;
 
-  videos.forEach((video, i) => {
-    if (!video) return;
+        videos.forEach((video, i) => {
+          if (!video) return;
 
-    if (i === index) {
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
+          if (i === index) {
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
 
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  });
+            video.play().catch(() => { });
+          } else {
+            video.pause();
+          }
+        });
 
-  setActive(index);
-};
+        setActive(index);
+      };
 
       // Initial card setup
       gsap.set(cards, {
@@ -83,41 +83,41 @@ const activateVideo = (index) => {
         },
       });
 
-cards.forEach((card, i) => {
-  if (i === cards.length - 1) return;
+      cards.forEach((card, i) => {
+        if (i === cards.length - 1) return;
 
-  // Animate current card out
-  tl.to(
-    card,
-    {
-      rotateY: -90,
-      z: -160,
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.in',
-    },
-    i + 0.25
-  );
+        // Animate current card out
+        tl.to(
+          card,
+          {
+            rotateY: -90,
+            z: -160,
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.in',
+          },
+          i + 0.25
+        );
 
-  // Animate next card in
-  tl.fromTo(
-    cards[i + 1],
-    {
-      rotateY: 90,
-      z: -160,
-      opacity: 0,
-    },
-    {
-      rotateY: 0,
-      z: 0,
-      opacity: 1,
-      duration: 0.5,
-      ease: 'power2.out',
-      immediateRender: false,
-    },
-    i + 0.75
-  );
-});
+        // Animate next card in
+        tl.fromTo(
+          cards[i + 1],
+          {
+            rotateY: 90,
+            z: -160,
+            opacity: 0,
+          },
+          {
+            rotateY: 0,
+            z: 0,
+            opacity: 1,
+            duration: 0.5,
+            ease: 'power2.out',
+            immediateRender: false,
+          },
+          i + 0.75
+        );
+      });
 
       tl.to({}, { duration: 0.4 });
 
@@ -185,10 +185,10 @@ cards.forEach((card, i) => {
 
   return (
     <section
-  ref={root}
-  className={`solutions ${formats[active]?.title === 'Documentary' ? 'solutions--documentary' : ''}`}
-  id="solutions"
->
+      ref={root}
+      className={`solutions ${formats[active]?.title === 'Documentary' ? 'solutions--documentary' : ''}`}
+      id="solutions"
+    >
       <div className="solutions__noise" />
 
       <p className="solutions__label">
@@ -216,70 +216,70 @@ cards.forEach((card, i) => {
           <i />
 
           <div
-  className="flip"
-  onClick={() => {
-    const currentFormat = formats[active];
-    const videoSrc =
-      currentFormat?.video?.full ||
-      currentFormat?.video?.preview;
+            className="flip"
+            onClick={() => {
+              const currentFormat = formats[active];
+              const videoSrc =
+                currentFormat?.video?.full ||
+                currentFormat?.video?.preview;
 
-    if (videoSrc) {
-      openVideo(videoSrc);
-    }
-  }}
-  role="button"
-  tabIndex={0}
-  aria-label={`Watch ${formats[active]?.title || 'video'}`}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
+              if (videoSrc) {
+                openVideo(videoSrc);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`Watch ${formats[active]?.title || 'video'}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
 
-      const currentFormat = formats[active];
-      const videoSrc =
-        currentFormat?.video?.full ||
-        currentFormat?.video?.preview;
+                const currentFormat = formats[active];
+                const videoSrc =
+                  currentFormat?.video?.full ||
+                  currentFormat?.video?.preview;
 
-      if (videoSrc) openVideo(videoSrc);
-    }
-  }}
->
+                if (videoSrc) openVideo(videoSrc);
+              }
+            }}
+          >
 
-{formats.map((f) => (
-  <figure className="flip__card" key={f.title}>
-    <video
-      src={f.video.preview}
-      poster={f.video.poster}
-      muted
-      loop
-      playsInline
-      preload="auto"
-      disablePictureInPicture
-    />
+            {formats.map((f) => (
+              <figure className="flip__card" key={f.title}>
+                <video
+                  src={f.video.preview}
+                  poster={f.video.poster}
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  disablePictureInPicture
+                />
 
-    <figcaption>
-      <strong>{f.title}</strong>
-      <span>{f.sub}</span>
-    </figcaption>
-  </figure>
-))}
+                <figcaption>
+                  <strong>{f.title}</strong>
+                  <span>{f.sub}</span>
+                </figcaption>
+              </figure>
+            ))}
           </div>
 
-          <span className="sel-frame__size">
+          {/* <span className="sel-frame__size">
             {formats[active]?.title || ''} · 1080 × 1350
-          </span>
+          </span> */}
         </div>
       </div>
 
-<ul className="solutions__list">
-  {formats.map((f, i) => (
-    <li
-      key={f.title}
-      className={i === active ? 'is-on' : ''}
-    >
-      {f.title}
-    </li>
-  ))}
-</ul>
+      <ul className="solutions__list">
+        {formats.map((f, i) => (
+          <li
+            key={f.title}
+            className={i === active ? 'is-on' : ''}
+          >
+            {f.title}
+          </li>
+        ))}
+      </ul>
 
       <p className="solutions__desc">
         AI-powered creative solutions for brands that
