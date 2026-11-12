@@ -232,7 +232,7 @@ export default function ContactForm() {
 
           <div className="form__row">
             <div className="field">
-              <label htmlFor="name">Full name</label>
+              <label htmlFor="name">Full name <span className="required">*</span></label>
               <input
                 id="name"
                 name="name"
@@ -243,7 +243,7 @@ export default function ContactForm() {
             </div>
 
             <div className="field">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email <span className="required">*</span></label>
               <input
                 id="email"
                 name="email"
@@ -257,7 +257,7 @@ export default function ContactForm() {
 
           <div className="form__row">
             <div className="field">
-              <label htmlFor="phone">Phone</label>
+              <label htmlFor="phone">Phone <span className="required">*</span></label>
               <input
                 id="phone"
                 name="phone"
@@ -283,7 +283,7 @@ export default function ContactForm() {
                 disabled={otpSent || loading}
               >
                 <option value="" disabled>
-                  Select country
+                  Select country 
                 </option>
 
                 {countries.map((country) => (
@@ -296,7 +296,7 @@ export default function ContactForm() {
           </div>
 
           <div className="field">
-            <label htmlFor="service">What do you need?</label>
+            <label htmlFor="service">What do you need? <span className="required">*</span></label>
             <select
               id="service"
               name="service"

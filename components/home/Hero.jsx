@@ -103,7 +103,7 @@ heroTl
 
       <div className="hero__content">
         <p className="hero__eyebrow hero__fade">
-          <i /> AI Story-telling Agency &amp; AI Creative Studio
+          <i /> AI Storytelling Agency &amp; AI Creative Studio
         </p>
         <Split as="p" className="display hero__title" lines={['Our AI Stages.', 'One Launch.']} />
         <h1 className="hero__sub hero__fade">

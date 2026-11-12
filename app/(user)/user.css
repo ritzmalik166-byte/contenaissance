@@ -1563,6 +1563,214 @@ textarea {
   }
 
 }
+
+
+/* =====================================
+   MOBILE ROCKET — WIDTH & OVERFLOW FIX
+   Mobile only: max-width 480px
+===================================== */
+
+@media (max-width: 480px) {
+
+  .rocket-sec,
+  .rocket-sec * {
+    box-sizing: border-box;
+  }
+
+  .rocket-sec {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip !important;
+    height: auto !important;
+    min-height: 100svh;
+  }
+
+  .rocket-sec__inner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 100svh;
+
+    padding: 30px 16px 35px !important;
+    margin: 0 auto;
+    gap: 0 !important;
+  }
+
+  /* Rocket area */
+  .rocket-stage {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 380px;
+    position: relative;
+    overflow: visible !important;
+  }
+
+  .rocket {
+    max-width: 100%;
+  }
+
+  .orbit--1 {
+    width: min(90vw, 360px);
+  }
+
+  .orbit--2 {
+    width: min(78vw, 310px);
+  }
+
+  /* Content: proper two-column grid */
+  .rocket-copy {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    column-gap: 12px;
+    row-gap: 12px;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    position: relative;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .rocket-copy__head {
+    grid-column: 1;
+    grid-row: 1;
+
+    display: block !important;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    vertical-align: initial;
+  }
+
+  .rocket-copy__head .kicker {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+
+  .rocket-copy__head h2 {
+    font-size: clamp(21px, 6vw, 27px);
+    line-height: 1.15;
+    margin: 8px 0 0;
+    overflow-wrap: break-word;
+  }
+
+  /* Right-side content */
+  .rocket-panels {
+    grid-column: 2;
+    grid-row: 1;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 235px;
+    height: auto;
+
+    display: block;
+    position: relative;
+    overflow: visible;
+  }
+
+  .rocket-panel {
+    width: 100%;
+    min-width: 0;
+    inset: 0;
+  }
+
+  .rocket-panel__num {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .rocket-panel h3 {
+    font-size: clamp(17px, 4.8vw, 21px);
+    line-height: 1.2;
+    margin: 9px 0 12px;
+    overflow-wrap: break-word;
+  }
+
+  .rocket-panel p {
+    width: 100%;
+    max-width: 100%;
+    font-size: 10px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  /* Final stage button */
+  .rocket-panel__button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    max-width: 100%;
+    width: fit-content;
+
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+
+    transform: none !important;
+    margin: 16px 0 0 !important;
+    padding: 12px 15px;
+
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 20;
+  }
+
+  .rocket-panel--final {
+    padding-bottom: 15px;
+  }
+
+  /* Progress line across both columns */
+  .rocket-progress {
+    grid-column: 1 / -1;
+    grid-row: 2;
+
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
+
+    margin-top: 12px;
+    position: relative;
+  }
+
+  .rocket-progress span {
+    flex: 1;
+    min-width: 0;
+    height: 2px;
+  }
+
+  /* Keep alternating stage labels */
+  .stage-label {
+    max-width: 125px;
+    width: calc((100vw - 110px) / 2);
+    z-index: 20;
+  }
+
+  /* Prevent children from creating horizontal scroll */
+  .rocket-sec__inner > *,
+  .rocket-copy > * {
+    min-width: 0;
+  }
+}
+
 /* ---------- about ---------- */
 
 .about {
