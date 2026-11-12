@@ -520,9 +520,47 @@
   box-shadow: 0 0 0 3px rgba(213, 165, 44, 0.08);
 }
 
+
+/* Center dropdown arrow vertically */
+.career-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative;
+}
+
 .career-select-arrow {
-  font-size: 22px;
-  transition: transform 0.2s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 24px;
+  height: 100%;
+
+  font-size: 0 !important;
+  line-height: 1 !important;
+
+  flex-shrink: 0;
+  transform: none !important;
+  transition: transform 0.25s ease;
+}
+
+/* Draw a perfectly centered chevron */
+.career-select-arrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+
+  border-right: 2px solid #f5f1e9;
+  border-bottom: 2px solid #f5f1e9;
+
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+
+.career-select-trigger.active .career-select-arrow::before {
+  transform: rotate(225deg);
+  margin-top: 4px;
 }
 
 .career-select-trigger.active .career-select-arrow {

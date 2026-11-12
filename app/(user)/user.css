@@ -3655,6 +3655,63 @@ textarea {
   }
 }
 
+
+/* Mobile footer typography and Reach alignment */
+@media (max-width: 600px) {
+
+  .footer__cols {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 28px 12px;
+    width: 100%;
+  }
+
+  .footer__col {
+    min-width: 0;
+  }
+
+  .footer__col p {
+    font-size: 14px !important;
+    margin-bottom: 12px;
+  }
+
+  .footer__col a {
+    font-size: 12px !important;
+    line-height: 2.2;
+  }
+
+  /* Keep email on one line without tiny text */
+  .footer__col a[href^="mailto:"] {
+    font-size: 11px !important;
+    letter-spacing: -0.3px;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  /* Social links occupy full row */
+  .footer__social-col {
+    grid-column: 1 / -1;
+  }
+
+  .footer__social-links a {
+    width: 40px;
+    height: 40px;
+  }
+
+}
+
+/* Very small devices */
+@media (max-width: 380px) {
+  .footer__col a {
+    font-size: 11px !important;
+  }
+
+  .footer__col a[href^="mailto:"] {
+    font-size: 10.5px !important;
+  }
+}
+
 /* ---------- video modal ---------- */
 
 .vmodal {
