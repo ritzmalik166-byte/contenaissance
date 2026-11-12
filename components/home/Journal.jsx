@@ -99,7 +99,7 @@ export default function Journal({ posts = [] }) {
               <h3>{p.title}</h3>
               {p.excerpt && (
                 <p className="jcard__description">
-                  {p.excerpt},
+                  {p.excerpt}
                 </p>
               )}
             </Link>

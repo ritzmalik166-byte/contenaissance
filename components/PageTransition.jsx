@@ -10,7 +10,7 @@ const COLS = 5;
 const labelFor = (path) => {
   if (path === '/') return 'Home';
   if (path.startsWith('/blog/')) return 'Article';
-  const map = { '/services': 'Services', '/portfolio': 'Portfolio', '/blog': 'Journal', '/contact': 'Contact' };
+  const map = { '/services': 'Services', '/portfolio': 'Portfolio', '/blog': 'Journal', '/contact': 'Contact', '/career': 'Career' };
   return map[path] || 'Contenaissance';
 };
 
