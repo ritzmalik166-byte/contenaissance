@@ -342,7 +342,7 @@ export async function sendOtpSms(
 
   const template =
     process.env.SMS_OTP_TEMPLATE ||
-    "{#num#} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE";
+    "{otp} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE";
 
   if (!apiUrl || !apiKey) {
     throw new Error("SMS is not configured.");
@@ -352,7 +352,13 @@ export async function sendOtpSms(
     throw new Error("Phone number and OTP are required.");
   }
 
-  const message = template.replaceAll("{otp}", otp);
+  const message = template
+  .replaceAll("{otp}", otp)
+  .replaceAll("{#num#}", otp);
+
+if (message === template) {
+  throw new Error("OTP placeholder not found in SMS template.");
+}
 
   const url = new URL(apiUrl);
 
@@ -367,54 +373,61 @@ export async function sendOtpSms(
     signal: AbortSignal.timeout(15000),
   });
 
-  const responseText = await response.text();
+ 
+const responseText = await response.text();
 
-  // Never log OTP, API key, or full SMS URL.
+let providerData: any = null;
 
-  if (!response.ok) {
-    console.error("[SMS PROVIDER HTTP ERROR]", response.status);
+try {
+  providerData = JSON.parse(responseText);
+} catch {
+  // Some SMS gateways return plain-text responses.
+}
 
-    throw new Error(
-      `SMS provider HTTP error: ${response.status}`
-    );
+if (!response.ok) {
+  console.error("[SMS HTTP ERROR]", {
+    httpStatus: response.status,
+  });
+
+  throw new Error("SMS gateway request failed.");
+}
+
+if (!responseText.trim()) {
+  throw new Error("SMS gateway returned an empty response.");
+}
+
+if (providerData) {
+  const status = String(
+    providerData.status ??
+    providerData.type ??
+    providerData.success ??
+    ""
+  ).toLowerCase();
+
+  const requestId =
+    providerData.request_id ??
+    providerData.requestId ??
+    providerData.messageid ??
+    providerData.messageId ??
+    null;
+
+  console.info("[SMS GATEWAY RESPONSE]", {
+    status,
+    requestId,
+    httpStatus: response.status,
+  });
+
+  if (
+    ["false", "error", "failed", "failure", "rejected"].includes(status)
+  ) {
+    throw new Error("SMS gateway rejected the request.");
   }
+} else {
+  console.info("[SMS GATEWAY RESPONSE]", {
+    format: "plain-text",
+    httpStatus: response.status,
+  });
+}
 
-  if (!responseText.trim()) {
-    throw new Error("SMS provider returned an empty response.");
-  }
-
-  let providerData: any;
-
-  try {
-    providerData = JSON.parse(responseText);
-  } catch {
-    providerData = null;
-  }
-
-  // Detect common explicit provider rejection responses.
-  if (providerData) {
-    const status = String(
-      providerData.status ??
-      providerData.type ??
-      providerData.success ??
-      ""
-    ).toLowerCase();
-
-    if (
-      status === "false" ||
-      status === "error" ||
-      status === "failed" ||
-      status === "failure" ||
-      status === "rejected"
-    ) {
-      console.error("[SMS PROVIDER REJECTED REQUEST]", {
-        status,
-        message: providerData.message,
-      });
-
-      throw new Error("SMS provider rejected the request.");
-    }
-  }
-
-  return responseText;
+return responseText;
 }
