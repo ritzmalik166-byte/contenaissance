@@ -101,16 +101,16 @@ export async function POST(
 
       const otp = generateOtp();
 
-      console.log(
-        "[OTP] Sending OTP to:",
-        smsNumber
-      );
+      // console.log(
+      //   "[OTP] Sending OTP to:",
+      //   smsNumber
+      // );
 
       // Don't log OTP in production.
-      console.log(
-        "[OTP] Generated OTP:",
-        otp
-      );
+      // console.log(
+      //   "[OTP] Generated OTP:",
+      //   otp
+      // );
 
       const smsResponse =
         await sendOtpSms(
@@ -118,10 +118,10 @@ export async function POST(
           otp
         );
 
-      console.log(
-        "[OTP] SMS provider response:",
-        smsResponse
-      );
+      // console.log(
+      //   "[OTP] SMS provider response:",
+      //   smsResponse
+      // );
 
       const cookieValue =
         createOtpCookieValue(

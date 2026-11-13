@@ -386,15 +386,15 @@ export async function sendOtpSms(
 
   const text = await response.text();
 
-  console.log(
-    "[OTP SMS] HTTP:",
-    response.status
-  );
+  // console.log(
+  //   "[OTP SMS] HTTP:",
+  //   response.status
+  // );
 
-  console.log(
-    "[OTP SMS] Provider response:",
-    text
-  );
+  // console.log(
+  //   "[OTP SMS] Provider response:",
+  //   text
+  // );
 
   if (!response.ok) {
     throw new Error(
