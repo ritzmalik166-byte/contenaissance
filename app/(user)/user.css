@@ -5495,10 +5495,10 @@ textarea {
 .info__card {
   display: flex;
   gap: 18px;
-  padding: 24px;
+  padding: 28px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  transition: border-color 0.4s, transform 0.5s var(--ease);
+  /* transition: border-color 0.4s, transform 0.5s var(--ease); */
 }
 
 .info__card:hover {
