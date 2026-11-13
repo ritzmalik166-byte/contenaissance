@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip');
     const userAgent = request.headers.get('user-agent');
 
-    const upstream = await fetch(LIVE_OTP_API, {
+    const OTP_ENDPOINT = `${LIVE_OTP_API.replace(/\/+$/, '')}/api/otp`;
+
+    const upstream = await fetch(OTP_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
