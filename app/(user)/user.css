@@ -1289,6 +1289,12 @@ textarea {
     align-items: stretch;
   }
 
+    .rocket-panels {
+    min-height: 190px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
   .rocket-stage {
     min-height: 0;
     height: 100%;

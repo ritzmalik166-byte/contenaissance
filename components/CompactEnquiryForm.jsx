@@ -325,19 +325,18 @@ ${data.message}`,
                     </select>
                   </div>
 
-                  <div className="compact-enquiry__field">
-                    <label htmlFor={`${id}-message`}>
-                      Project details
-                    </label>
-                    <textarea
-                      id={`${id}-message`}
-                      name="message"
-                      placeholder="Tell us about your project..."
-                      rows={3}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+<div className="compact-enquiry__field">
+  <label htmlFor={`${id}-message`}>
+    Project details <span>(Optional)</span>
+  </label>
+  <textarea
+    id={`${id}-message`}
+    name="message"
+    placeholder="Tell us about your project..."
+    rows={3}
+    disabled={loading}
+  />
+</div>
 
                   {error && (
                     <p className="compact-enquiry__error" role="alert">
