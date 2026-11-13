@@ -341,7 +341,7 @@ export async function sendOtpSms(
 
   const template =
     process.env.SMS_OTP_TEMPLATE ||
-    "{otp} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE";
+    `{"num"} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE`;
 
   if (!apiUrl || !apiKey) {
     throw new Error(
