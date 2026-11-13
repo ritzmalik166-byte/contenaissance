@@ -1851,6 +1851,312 @@ textarea {
   }
 }
 
+
+/* ==========================================
+   SURFACE DUO & SMALL TABLET FIX
+   Viewports: 481px - 700px
+   Fix: Rocket and content overlap
+========================================== */
+
+@media (min-width: 481px) and (max-width: 700px) {
+
+  .rocket-sec {
+    height: auto !important;
+    min-height: 100svh;
+    overflow: visible !important;
+  }
+
+  .rocket-sec__inner {
+    height: auto !important;
+    min-height: 100svh;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 560px auto !important;
+    gap: 20px !important;
+    padding: 35px 28px 45px !important;
+    align-items: stretch;
+  }
+
+  /* Rocket area */
+  .rocket-stage {
+    height: 560px !important;
+    min-height: 560px !important;
+    overflow: visible !important;
+    position: relative;
+  }
+
+  /* Reduce rocket dimensions */
+  .rocket {
+    width: 92px !important;
+  }
+
+  .rocket__module {
+    height: 78px !important;
+  }
+
+  .rocket__module svg {
+    width: 27px !important;
+    height: 27px !important;
+  }
+
+  .rocket__fins {
+    width: 115px !important;
+    height: 76px !important;
+  }
+
+  /* Keep orbit inside the available width */
+  .orbit--1 {
+    width: min(85vw, 460px) !important;
+  }
+
+  .orbit--2 {
+    width: min(75vw, 390px) !important;
+  }
+
+  /* Stage labels */
+  .stage-label__txt strong {
+    font-size: 10px !important;
+    white-space: normal;
+  }
+
+  .stage-label--right {
+    left: calc(100% + 7px) !important;
+  }
+
+  .stage-label--left {
+    right: calc(100% + 7px) !important;
+  }
+
+  .stage-label__line {
+    width: 10px !important;
+  }
+
+  /* Content must appear BELOW rocket */
+  .rocket-copy {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    z-index: 5;
+    padding: 0 0 20px !important;
+    margin: 0 !important;
+  }
+
+  .rocket-copy__head {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 22px !important;
+    text-align: left;
+  }
+
+  .rocket-copy__head h2 {
+    font-size: clamp(27px, 5vw, 36px) !important;
+    line-height: 1.15;
+    max-width: 450px;
+  }
+
+  /* Stage descriptions */
+  .rocket-panels {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 170px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .rocket-panel {
+    width: 100%;
+    inset: 0;
+  }
+
+  .rocket-panel h3 {
+    font-size: clamp(23px, 4.5vw, 30px) !important;
+    line-height: 1.2;
+  }
+
+  .rocket-panel p {
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  /* Progress indicator */
+  .rocket-progress {
+    width: 100%;
+    margin-top: 20px !important;
+    position: relative;
+  }
+}
+
+/* ==========================================
+   SURFACE DUO FIX — 540 x 720
+   Rocket + Content visible together
+========================================== */
+
+@media (min-width: 481px) and (max-width: 700px) {
+
+  .rocket-sec {
+    height: auto !important;
+    min-height: 100svh;
+    overflow: visible !important;
+  }
+
+  .rocket-sec__inner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 370px auto !important;
+    gap: 10px !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding: 20px 28px 35px !important;
+    align-items: stretch;
+  }
+
+  /* ROCKET AREA */
+  .rocket-stage {
+    height: 350px !important;
+    min-height: 350px !important;
+    overflow: visible !important;
+    position: relative;
+  }
+
+  /* Smaller rocket */
+  .rocket {
+    width: 74px !important;
+  }
+
+  .rocket__module {
+    height: 64px !important;
+  }
+
+  .rocket__module svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .rocket__module > small {
+    font-size: 8px !important;
+    top: 4px;
+    left: 5px;
+  }
+
+  .rocket__nozzle {
+    width: 30px;
+    height: 12px;
+  }
+
+  .rocket__flame {
+    width: 25px;
+    height: 38px;
+  }
+
+  .rocket__fins {
+    width: 90px !important;
+    height: 60px !important;
+  }
+
+  /* Orbit */
+  .orbit--1 {
+    width: min(78vw, 380px) !important;
+  }
+
+  .orbit--2 {
+    width: min(65vw, 320px) !important;
+  }
+
+  /* Stage labels */
+  .stage-label {
+    gap: 5px;
+  }
+
+  .stage-label__txt strong {
+    font-size: 10px !important;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .stage-label--right {
+    left: calc(100% + 5px) !important;
+  }
+
+  .stage-label--left {
+    right: calc(100% + 5px) !important;
+  }
+
+  .stage-label__line {
+    width: 8px !important;
+  }
+
+  /* CONTENT AREA */
+  .rocket-copy {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 0 20px !important;
+    margin: 0 !important;
+    z-index: 5;
+  }
+
+  .rocket-copy__head {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 14px !important;
+    padding: 0 !important;
+  }
+
+  .rocket-copy__head .kicker {
+    font-size: 9px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .rocket-copy__head h2 {
+    font-size: 27px !important;
+    line-height: 1.12 !important;
+    margin: 6px 0 0 !important;
+    max-width: 100%;
+  }
+
+  /* Stage descriptions */
+  .rocket-panels {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    min-height: 170px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .rocket-panel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+
+  .rocket-panel h3 {
+    font-size: 23px !important;
+    line-height: 1.2 !important;
+    margin: 8px 0 10px !important;
+  }
+
+  .rocket-panel p {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    max-width: 100% !important;
+  }
+
+  /* Progress */
+  .rocket-progress {
+    display: flex;
+    width: 100%;
+    margin-top: 12px !important;
+    position: relative;
+  }
+
+}
+
 /* ---------- about ---------- */
 
 .about {
@@ -3842,6 +4148,59 @@ textarea {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+  }
+}
+
+/* ==========================================
+   NEST HUB MAX / LARGE TABLET FOOTER FIX
+   Keep all social icons on one line
+   ========================================== */
+
+@media (min-width: 1101px) and (max-width: 1400px) {
+
+  /* Give footer columns more usable width */
+  .footer__top {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.5fr);
+    gap: 35px;
+  }
+
+  /* Adjust Explore, Reach and Follow Us widths */
+  .footer__cols {
+    display: grid !important;
+    grid-template-columns:
+      minmax(80px, 0.7fr)
+      minmax(150px, 1fr)
+      max-content !important;
+
+    gap: 20px !important;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* Prevent Follow Us from wrapping */
+  .footer__social-col {
+    min-width: max-content;
+    grid-column: auto !important;
+  }
+
+  .footer__social-links {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    white-space: nowrap;
+  }
+
+  /* Slightly smaller icons to fit */
+  .footer__social-links a {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0;
+  }
+
+  .footer__social-links svg {
+    width: 19px;
+    height: 19px;
   }
 }
 /* ---------- video modal ---------- */

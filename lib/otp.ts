@@ -330,6 +330,7 @@ export function verifyOtpFromCookie(
 /**
  * Send OTP through team's SMS gateway.
  */
+
 export async function sendOtpSms(
   number: string,
   otp: string
@@ -341,66 +342,79 @@ export async function sendOtpSms(
 
   const template =
     process.env.SMS_OTP_TEMPLATE ||
-    `{"num"} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE`;
+    "{#num#} is your verification code. Don't share your code with anyone. Team CONTENAISSANCE";
 
   if (!apiUrl || !apiKey) {
-    throw new Error(
-      "SMS is not configured."
-    );
+    throw new Error("SMS is not configured.");
   }
 
-  const message = template.replaceAll(
-    "{otp}",
-    otp
-  );
+  if (!number || !otp) {
+    throw new Error("Phone number and OTP are required.");
+  }
+
+  const message = template.replaceAll("{otp}", otp);
 
   const url = new URL(apiUrl);
 
-  url.searchParams.set(
-    "apikey",
-    apiKey
-  );
+  url.searchParams.set("apikey", apiKey);
+  url.searchParams.set("senderid", senderId);
+  url.searchParams.set("number", number);
+  url.searchParams.set("message", message);
 
-  url.searchParams.set(
-    "senderid",
-    senderId
-  );
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    cache: "no-store",
+    signal: AbortSignal.timeout(15000),
+  });
 
-  url.searchParams.set(
-    "number",
-    number
-  );
+  const responseText = await response.text();
 
-  url.searchParams.set(
-    "message",
-    message
-  );
-
-  const response = await fetch(
-    url.toString(),
-    {
-      method: "GET",
-      cache: "no-store",
-    }
-  );
-
-  const text = await response.text();
-
-  // console.log(
-  //   "[OTP SMS] HTTP:",
-  //   response.status
-  // );
-
-  // console.log(
-  //   "[OTP SMS] Provider response:",
-  //   text
-  // );
+  // Never log OTP, API key, or full SMS URL.
 
   if (!response.ok) {
+    console.error("[SMS PROVIDER HTTP ERROR]", response.status);
+
     throw new Error(
       `SMS provider HTTP error: ${response.status}`
     );
   }
 
-  return text;
+  if (!responseText.trim()) {
+    throw new Error("SMS provider returned an empty response.");
+  }
+
+  let providerData: any;
+
+  try {
+    providerData = JSON.parse(responseText);
+  } catch {
+    providerData = null;
+  }
+
+  // Detect common explicit provider rejection responses.
+  if (providerData) {
+    const status = String(
+      providerData.status ??
+      providerData.type ??
+      providerData.success ??
+      ""
+    ).toLowerCase();
+
+    if (
+      status === "false" ||
+      status === "error" ||
+      status === "failed" ||
+      status === "failure" ||
+      status === "rejected"
+    ) {
+      console.error("[SMS PROVIDER REJECTED REQUEST]", {
+        status,
+        message: providerData.message,
+      });
+
+      throw new Error("SMS provider rejected the request.");
+    }
+  }
+
+  return responseText;
 }
