@@ -1,0 +1,428 @@
+
+.service-showreel {
+  position: relative;
+  width: 100%;
+  background: #090806;
+}
+
+/* Pinned viewport */
+
+.showreel-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: #090806;
+}
+
+/* Animated video frame */
+
+.showreel-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 76vw;
+  height: 72svh;
+
+  overflow: hidden;
+  border-radius: 8px;
+  background: #080808;
+
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+
+  will-change: width, height, border-radius;
+}
+
+/* Video */
+
+.showreel-video {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  background: #080808;
+}
+
+/* Cinematic overlay */
+
+.showreel-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.65) 0%,
+      transparent 22%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+}
+
+/* TOP BAR */
+
+.showreel-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 54px;
+  padding: 0 4.5%;
+
+  background: rgba(0, 0, 0, 0.88);
+  color: #c8c5bd;
+}
+
+.showreel-brand,
+.showreel-recording {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.showreel-recording {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.showreel-rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff554b;
+  animation: showreelBlink 1.5s infinite;
+}
+
+@keyframes showreelBlink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* CORNER FRAME */
+
+.showreel-corners {
+  position: absolute;
+  inset: 90px 4.5% 40px;
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+.corner {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  border-color: rgba(255, 255, 255, 0.6);
+  border-style: solid;
+}
+
+.corner--tl {
+  top: 0;
+  left: 0;
+  border-width: 1px 0 0 1px;
+}
+
+.corner--tr {
+  top: 0;
+  right: 0;
+  border-width: 1px 1px 0 0;
+}
+
+.corner--bl {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 1px 1px;
+}
+
+.corner--br {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1px 1px 0;
+}
+
+/* CENTER PLAY */
+
+.showreel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  transform: translate(-50%, -50%);
+}
+
+.showreel-play {
+  display: grid;
+  place-items: center;
+
+  width: 118px;
+  height: 118px;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.12);
+  color: white;
+
+  cursor: pointer;
+
+  transition:
+    background 0.35s ease,
+    transform 0.35s ease;
+}
+
+.showreel-play:hover {
+  background: rgba(237, 189, 53, 0.2);
+  transform: scale(1.08);
+}
+
+.showreel-play-icon {
+  font-size: 29px;
+  margin-left: 5px;
+}
+
+.showreel-pause-icon {
+  font-size: 27px;
+}
+
+.showreel-hint {
+  color: #c0c2c0;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  white-space: nowrap;
+}
+
+/* BOTTOM CONTENT */
+
+.showreel-bottom {
+  position: absolute;
+  right: 4.5%;
+  bottom: 40px;
+  left: 4.5%;
+  z-index: 3;
+}
+
+.showreel-bottom-content {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.showreel-title {
+  margin: 0;
+  color: #f1eee7;
+
+  font-size: clamp(32px, 4vw, 72px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.showreel-chapter {
+  margin: 20px 0 0;
+
+  color: #e9bd3e;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.showreel-duration {
+  padding-bottom: 2px;
+
+  color: #b6b7b3;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+/* TIMELINE */
+
+.showreel-timeline {
+  position: relative;
+
+  width: 100%;
+  height: 2px;
+  margin-top: 28px;
+
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.showreel-progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: #e9bd3e;
+
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.showreel-tick {
+  position: absolute;
+  top: -4px;
+
+  width: 1px;
+  height: 10px;
+
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.showreel-tick--one {
+  left: 25%;
+}
+
+.showreel-tick--two {
+  left: 50%;
+}
+
+.showreel-tick--three {
+  left: 75%;
+}
+
+/* TABLET */
+
+@media (max-width: 1024px) {
+  .showreel-frame {
+    width: 84vw;
+    height: 68svh;
+  }
+
+  .showreel-play {
+    width: 90px;
+    height: 90px;
+  }
+
+  .showreel-title {
+    font-size: clamp(32px, 5vw, 54px);
+  }
+
+  .showreel-topbar {
+    padding-inline: 3%;
+  }
+
+  .showreel-recording {
+    gap: 12px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .showreel-stage {
+    height: 100svh;
+  }
+
+  .showreel-frame {
+    width: 92vw;
+    height: 62svh;
+    border-radius: 6px;
+  }
+
+  .showreel-topbar {
+    min-height: 48px;
+    padding-inline: 15px;
+  }
+
+  .showreel-brand {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  .showreel-recording {
+    gap: 8px;
+    font-size: 8px;
+  }
+
+  .showreel-recording span:last-child {
+    display: none;
+  }
+
+  .showreel-corners {
+    inset: 65px 15px 30px;
+  }
+
+  .corner {
+    width: 22px;
+    height: 22px;
+  }
+
+  .showreel-play {
+    width: 75px;
+    height: 75px;
+  }
+
+  .showreel-play-icon {
+    font-size: 23px;
+  }
+
+  .showreel-hint {
+    font-size: 8px;
+  }
+
+  .showreel-bottom {
+    right: 18px;
+    bottom: 25px;
+    left: 18px;
+  }
+
+  .showreel-bottom-content {
+    align-items: flex-start;
+  }
+
+  .showreel-title {
+    font-size: clamp(27px, 7vw, 40px);
+    max-width: 340px;
+  }
+
+  .showreel-chapter {
+    margin-top: 12px;
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .showreel-duration {
+    display: none;
+  }
+
+  .showreel-timeline {
+    margin-top: 20px;
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .showreel-rec-dot {
+    animation: none;
+  }
+
+  .showreel-play {
+    transition: none;
+  }
+}

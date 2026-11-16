@@ -1,287 +1,263 @@
 
 'use client';
 
-import { Fragment, useRef, useState } from 'react';
-// import Link from 'next/link';
+import { useRef } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
-import { services } from '@/lib/user/content';
-import LazyVideo from '../LazyVideo';
-import Banner from '../Banner';
+import { openVideo } from '../VideoModal';
+import { ArrowUpRight } from '../Icons';
+import './ServiceList.css';
 
-const interludes = {
-  1: {
-    title: 'Cinematic Excellence',
-    sub: 'Experience the future of storytelling',
-  },
-  3: {
-    title: 'Digital Innovation',
-    sub: 'Where Creativity Meets Technology',
-    direction: 1,
-  },
-};
+// Independent Services Data
+const services = [
+  {
+    number: '01',
+    code: 'S1 / BOOSTER',
+    title: 'AI Brand Films',
+    description:
+      'AI-Powered Brand Films · Generative AI Storytelling · Interactive Brand Experiences · AI Cinematic Marketing',
 
-export function slugifyService(title = '') {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    video: {
+      preview: '/videos/01.mp4',
+      src: '/videos/01.mp4',
+      poster: '/images/04.jpg',
+    },
+  },
+  {
+    number: '02',
+    code: 'S2 / STAGE',
+    title: 'Digital-First Content',
+    description:
+      'Platform-Specific Content · AI-Driven Content Creation · Contextually Relevant Content · AI Analytics',
+
+    video: {
+      preview: '/videos/03.mp4',
+      src: '/videos/03.mp4',
+      poster: '/images/05.jpg',
+    },
+  },
+  {
+    number: '03',
+    code: 'S3 / STAGE',
+    title: 'AI-Powered Campaigns',
+    description:
+      'Maximize Marketing Impact · Data-Driven Decisions · Market Analysis & Optimization · Scalable AI Campaigns',
+
+    video: {
+      preview: '/videos/3d-website.mp4',
+      src: '/videos/3d-website.mp4',
+      poster: '/images/06.jpg',
+    },
+  },
+  {
+    number: '04',
+    code: 'S4 / PAYLOAD',
+    title: 'Visual Identity Systems',
+    description:
+      'AI-Driven Branding Frameworks · Custom Design Systems · Visual Identity Solutions · UI/UX & Interactive Assets',
+
+    video: {
+      preview: '/videos/09.mp4',
+      src: '/videos/09.mp4',
+      poster: '/images/07.png',
+    },
+  },
+];
+
+function ServiceRow({ item, index }) {
+  const videoRef = useRef(null);
+
+  const handleEnter = () => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    video.play().catch(() => {});
+  };
+
+  const handleLeave = () => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+  };
+
+  const playVideo = () => {
+    if (item.video?.src) {
+      openVideo(item.video.src);
+    }
+  };
+
+  return (
+    <article
+      className="services-row"
+      id={`service-${index + 1}`}
+      onPointerEnter={handleEnter}
+      onPointerLeave={handleLeave}
+    >
+      {/* Service Number */}
+      <div className="services-row-info">
+        <span className="services-row-number">
+          {item.number}
+        </span>
+
+        <span className="services-row-code mono">
+          {item.code}
+        </span>
+      </div>
+
+      {/* Service Content */}
+      <div className="services-row-main">
+        <h3 className="services-row-title">
+          {item.title}
+        </h3>
+
+        <p className="services-row-description">
+          {item.description}
+        </p>
+      </div>
+
+      {/* Hover Video Preview */}
+
+{/* Hover Video Preview */}
+{item.video?.preview && (
+  <button
+    type="button"
+    className="services-row-preview"
+    onClick={playVideo}
+    aria-label={`VIEW ${item.title}`}
+    data-cursor="VIEW"
+  >
+    <span className="services-preview-label mono">
+      REEL · 9:16
+    </span>
+
+    <video
+      ref={videoRef}
+      className="services-preview-video"
+      src={item.video.preview}
+      poster={item.video.poster}
+      muted
+      loop
+      playsInline
+      preload="none"
+    />
+  </button>
+)}
+
+      {/* Arrow */}
+      <button
+        type="button"
+        className="services-row-arrow"
+        onClick={playVideo}
+        aria-label={`Open ${item.title} video`}
+      >
+        <ArrowUpRight />
+      </button>
+    </article>
+  );
 }
 
 export default function ServiceList() {
   const root = useRef(null);
-  const [expandedItems, setExpandedItems] = useState({});
 
   useGSAP(
     () => {
-      gsap.utils.toArray('.svc', root.current).forEach((sec, i) => {
-        const media = sec.querySelector('.svc__media video');
+      const rows = gsap.utils.toArray(
+        '.services-row',
+        root.current
+      );
 
-        if (media) {
-          gsap.fromTo(
-            media,
-            { rotateY: i % 2 ? -12 : 12, scale: 1.12 },
-            {
-              rotateY: 0,
-              scale: 1,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: sec,
-                start: 'top bottom',
-                end: 'center center',
-                scrub: true,
-              },
-            }
-          );
-        }
+      rows.forEach((row) => {
+        gsap.fromTo(
+          row,
+          {
+            y: 70,
+            opacity: 0,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: row,
+              start: 'top 90%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
 
-        gsap.from(sec.querySelectorAll('.svc__copy > *'), {
-          y: 35,
+      gsap.fromTo(
+        '.services-section-heading',
+        {
+          y: 50,
           opacity: 0,
-          stagger: 0.06,
-          duration: 0.8,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.1,
           ease: 'power3.out',
           scrollTrigger: {
-            trigger: sec,
-            start: 'top 75%',
+            trigger: '.services-section-heading',
+            start: 'top 85%',
           },
-        });
-      });
+        }
+      );
     },
     { scope: root }
   );
 
-  useGSAP(
-    () => {
-      const copies = gsap.utils.toArray('.svc__copy', root.current);
-
-      copies.forEach((copy, index) => {
-        const expanded = Boolean(expandedItems[index]);
-
-        const paragraphs = copy.querySelectorAll(
-          '.svc__second-paragraph, .svc__extra-text'
-        );
-
-        paragraphs.forEach((paragraph) => {
-          const isDesktopSecond =
-            window.matchMedia('(min-width: 768px)').matches &&
-            paragraph.classList.contains('svc__second-paragraph');
-
-          if (isDesktopSecond) {
-            gsap.set(paragraph, {
-              clearProps: 'height,overflow,opacity,visibility',
-            });
-            return;
-          }
-
-          gsap.set(paragraph, {
-            height: expanded ? 'auto' : 0,
-            overflow: expanded ? 'visible' : 'hidden',
-            opacity: expanded ? 1 : 0,
-            visibility: expanded ? 'visible' : 'hidden',
-          });
-        });
-      });
-    },
-    { scope: root, dependencies: [expandedItems] }
-  );
-
-  const toggleExpanded = (index, copy, button) => {
-    const nextExpanded = !expandedItems[index];
-
-    const paragraphs = Array.from(
-      copy.querySelectorAll(
-        '.svc__second-paragraph, .svc__extra-text'
-      )
-    ).filter((paragraph) => {
-      return !(
-        window.matchMedia('(min-width: 768px)').matches &&
-        paragraph.classList.contains('svc__second-paragraph')
-      );
-    });
-
-    paragraphs.forEach((paragraph) => {
-      gsap.killTweensOf(paragraph);
-    });
-
-    paragraphs.forEach((paragraph) => {
-      if (nextExpanded) {
-        gsap.set(paragraph, {
-          height: 'auto',
-          overflow: 'hidden',
-          opacity: 1,
-          visibility: 'visible',
-        });
-
-        const fullHeight = paragraph.offsetHeight;
-
-        gsap.fromTo(
-          paragraph,
-          { height: 0, opacity: 0 },
-          {
-            height: fullHeight,
-            opacity: 1,
-            duration: 0.65,
-            ease: 'power2.inOut',
-            onComplete: () => {
-              gsap.set(paragraph, {
-                height: 'auto',
-                overflow: 'visible',
-              });
-            },
-          }
-        );
-      } else {
-        gsap.fromTo(
-          paragraph,
-          {
-            height: paragraph.offsetHeight,
-            opacity: 1,
-            overflow: 'hidden',
-            visibility: 'visible',
-          },
-          {
-            height: 0,
-            opacity: 0,
-            duration: 0.45,
-            ease: 'power2.inOut',
-            onComplete: () => {
-              gsap.set(paragraph, { visibility: 'hidden' });
-            },
-          }
-        );
-      }
-    });
-
-    button.textContent = nextExpanded
-      ? 'Read Less −'
-      : 'Read More +';
-
-    button.setAttribute('aria-expanded', String(nextExpanded));
-
-    setExpandedItems((previous) => ({
-      ...previous,
-      [index]: nextExpanded,
-    }));
-  };
-
   return (
-    <div ref={root}>
-      {services.map((s, i) => {
-        const slug = slugifyService(s.title);
-        const hasMobileExtra = s.paragraphs.length > 1;
-        const hasDesktopExtra = s.paragraphs.length > 2;
+    <section
+      className="services-list-section"
+      ref={root}
+    >
+      <div className="services-list-container">
 
-        return (
-          <Fragment key={s.title}>
-            <section className={`svc ${i % 2 ? 'svc--reverse' : ''}`}>
-              <div className="container svc__grid">
-                <div className="svc__media">
-                  {/* <Link
-                    href={`/services/${slug}`}
-                    aria-label={`View ${s.title} service`}
-                  > */}
-                    <LazyVideo
-                      src={s.video.preview}
-                      poster={s.video.poster}
-                    />
-                  {/* </Link> */}
-                </div>
+        {/* Section Heading */}
+        <div className="services-section-heading">
 
-                <div
-                  className={[
-                    'svc__copy',
-                    hasMobileExtra ? 'svc__copy--has-mobile-extra' : '',
-                    hasDesktopExtra ? 'svc__copy--has-desktop-extra' : '',
-                    expandedItems[i] ? 'is-expanded' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <p className="svc__num">
-                    {String(i + 1).padStart(2, '0')} /{' '}
-                    {String(services.length).padStart(2, '0')}
-                  </p>
+          <div className="services-heading-left">
+            <p className="services-kicker mono">
+              01 / OUR EXPERTISE
+            </p>
 
-                  <h2 className="display h-md">
-                    {/* <Link href={`/services/${slug}`}> */}
-                      {s.kicker}
-                    {/* </Link> */}
-                  </h2>
+            <h2 className="services-section-title">
+              Four Ways to Create.
+              <span>Infinite Ways to Stand Out.</span>
+            </h2>
+          </div>
 
-                  <h3>
-                    {/* <Link href={`/services/${slug}`}> */}
-                      {s.title}
-                    {/* </Link> */}
-                  </h3>
+          <div className="services-heading-right">
+            <p>
+              Ideas powered by imagination. Experiences
+              elevated by technology. Explore how we
+              transform brands through AI-driven creativity.
+            </p>
 
-                  <div className="svc__mobile-media">
-                    <LazyVideo
-                      src={s.video.preview}
-                      poster={s.video.poster}
-                    />
-                  </div>
+            <span className="services-stages mono">
+              04 STAGES / 01 LAUNCH
+            </span>
+          </div>
 
-                  {s.paragraphs.map((paragraph, j) => (
-                    <p
-                      key={j}
-                      className={
-                        j >= 2
-                          ? 'svc__extra-text'
-                          : j === 1
-                            ? 'svc__second-paragraph'
-                            : undefined
-                      }
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
+        </div>
 
-                  {s.paragraphs.length > 2 && (
-                    <button
-                      type="button"
-                      className="svc__read-more"
-                      aria-expanded={Boolean(expandedItems[i])}
-                      onClick={(e) =>
-                        toggleExpanded(
-                          i,
-                          e.currentTarget.closest('.svc__copy'),
-                          e.currentTarget
-                        )
-                      }
-                    >
-                      {expandedItems[i] ? 'Read Less −' : 'Read More +'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </section>
+        {/* Services */}
+        <div className="services-rows">
+          {services.map((item, index) => (
+            <ServiceRow
+              key={item.number}
+              item={item}
+              index={index}
+            />
+          ))}
+        </div>
 
-            {interludes[i] && <Banner {...interludes[i]} />}
-          </Fragment>
-        );
-      })}
-    </div>
+      </div>
+    </section>
   );
 }

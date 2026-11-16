@@ -4,143 +4,261 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
-import { services } from '@/lib/user/content';
-import LazyVideo from '../LazyVideo';
-import Cta from '../Cta';
-import CompactEnquiryForm from '../CompactEnquiryForm';
-import { ArrowRight, ArrowUpRight } from '../Icons';
-import './service-detail.css';
+import { ArrowUpRight } from '../Icons';
+import './ServiceDetail.css';
 
-const slugify = (title = '') =>
-  title.toLowerCase().trim().replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const capabilities = [
+  {
+    number: '01',
+    title: 'AI-Powered Brand Films',
+    detail:
+      'Cinematic brand films crafted with AI-assisted production, original visual direction and compelling storytelling.',
+  },
+  {
+    number: '02',
+    title: 'Generative AI Storytelling',
+    detail:
+      'Transform ideas into distinctive visual narratives using generative imagery, motion and intelligent creative workflows.',
+  },
+  {
+    number: '03',
+    title: 'Interactive Brand Experiences',
+    detail:
+      'Create immersive and engaging brand experiences that connect audiences with your story.',
+  },
+  {
+    number: '04',
+    title: 'AI Cinematic Marketing',
+    detail:
+      'Develop cinematic marketing content designed to capture attention and communicate your brand message.',
+  },
+];
 
-export default function ServiceDetail({ service }) {
+export default function ServiceDetail() {
   const root = useRef(null);
-  const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState(null);
 
-  const related = services
-    .filter(item => item.title !== service?.title)
-    .slice(0, 3);
-
-  useGSAP(() => {
-    gsap.from('.sd-title > *, .sd-description, .sd-video, .sd-enquiry', {
-      y: 20, opacity: 0, duration: 0.7, stagger: 0.1,
-      ease: 'power2.out'
-    });
-
-    gsap.utils.toArray('.sd-reveal').forEach(el => {
-      gsap.from(el, {
-        y: 20, opacity: 0, duration: 0.65,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top 75%',
+          toggleActions: 'play none none reverse',
+        },
       });
-    });
-  }, { scope: root });
 
-  if (!service) return null;
+      tl.fromTo(
+        '.detail-number',
+        {
+          opacity: 0,
+          y: 80,
+          scale: 0.9,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: 'power4.out',
+        }
+      )
+        .fromTo(
+          '.detail-meta',
+          {
+            opacity: 0,
+            y: 25,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+          },
+          '-=0.7'
+        )
+        .fromTo(
+          '.detail-heading-content',
+          {
+            opacity: 0,
+            y: 70,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out',
+          },
+          '-=0.7'
+        )
+        .fromTo(
+          '.detail-right-content',
+          {
+            opacity: 0,
+            y: 45,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out',
+          },
+          '-=0.65'
+        )
+        .fromTo(
+          '.detail-accordion-item',
+          {
+            opacity: 0,
+            x: 30,
+          },
+          {
+            opacity: 1,
+            x: 0,
+            stagger: 0.12,
+            duration: 0.65,
+            ease: 'power3.out',
+          },
+          '-=0.5'
+        )
+        .fromTo(
+          '.detail-cta',
+          {
+            opacity: 0,
+            y: 20,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+          },
+          '-=0.3'
+        );
+    },
+    { scope: root }
+  );
+
+  const toggleItem = (index) => {
+    setActiveItem((current) =>
+      current === index ? null : index
+    );
+  };
 
   return (
-    <main ref={root} className="sd-page">
+    <section
+      className="service-detail"
+      id="service-detail-1"
+      ref={root}
+    >
+      <div className="service-detail-inner">
 
-      <section className="container sd-hero-layout">
-        <div className="sd-hero-main">
-          <header className="sd-header">
-            <Link href="/services" className="sd-back">
-              <ArrowRight /> All Services
-            </Link>
+        {/* LEFT COLUMN */}
+        <div className="detail-left">
 
-            <div className="sd-title">
-              <p className="sd-label">{service.kicker}</p>
-              <h1 className="display">{service.title}</h1>
-            </div>
+          {/* Large outlined number */}
+          <div className="detail-number-wrapper">
+            <span className="detail-number">01</span>
+          </div>
 
-            <p className="sd-description">{service.paragraphs?.[0]}</p>
+          {/* Metadata: positioned in middle of left column */}
+          <div className="detail-meta">
+            <span className="detail-meta-count">
+              01 / 04
+            </span>
 
-            <a href="#sd-overview" className="sd-link">
-              Explore service <ArrowUpRight />
-            </a>
-          </header>
+            <span className="detail-stage">
+              <i />
+              STAGE 01 · BOOSTER
+            </span>
+          </div>
 
-          <section className="sd-video">
-            <LazyVideo src={service.video.preview} poster={service.video.poster} />
-          </section>
+          {/* Service title and tagline */}
+          <div className="detail-heading-content">
+            <h2 className="detail-title">
+              AI Brand Films
+            </h2>
+
+            <p className="detail-tagline">
+              Stories That Feel Real.
+              <br />
+              Worlds Beyond Imagination.
+            </p>
+          </div>
+
         </div>
 
-        {/* Single enquiry form for desktop and mobile */}
-        <aside className={`sd-enquiry ${enquiryOpen ? 'is-open' : ''}`}>
-          <div className="sd-enquiry-inner">
-            <button
-              className="sd-enquiry-close"
-              onClick={() => setEnquiryOpen(false)}
-              aria-label="Close enquiry form"
+        {/* RIGHT COLUMN */}
+        <div className="detail-right">
+          <div className="detail-right-content">
+
+            <p className="detail-category">
+              THE FILM STUDIO
+            </p>
+
+            <p className="detail-description">
+              We combine cinematic storytelling, generative
+              AI, and imaginative visual worlds to create
+              extraordinary brand films that capture attention,
+              build emotional connections, and make brands
+              unforgettable.
+            </p>
+
+            {/* Capabilities */}
+            <div className="detail-accordion">
+              {capabilities.map((item, index) => {
+                const isOpen = activeItem === index;
+
+                return (
+                  <div
+                    className={`detail-accordion-item ${
+                      isOpen ? 'is-open' : ''
+                    }`}
+                    key={item.number}
+                  >
+                    <button
+                      type="button"
+                      className="detail-accordion-trigger"
+                      onClick={() => toggleItem(index)}
+                      aria-expanded={isOpen}
+                    >
+                      <span className="detail-accordion-number">
+                        {item.number}
+                      </span>
+
+                      <span className="detail-accordion-title">
+                        {item.title}
+                      </span>
+
+                      <span className="detail-accordion-icon">
+                        {isOpen ? '−' : '+'}
+                      </span>
+                    </button>
+
+                    <div
+                      className="detail-accordion-content"
+                      aria-hidden={!isOpen}
+                    >
+                      <div>
+                        <p>{item.detail}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CTA */}
+            <Link
+              href="/portfolio"
+              className="detail-cta"
             >
-              ×
-            </button>
-            <CompactEnquiryForm variant="sidebar" />
-          </div>
-        </aside>
-      </section>
-
-      {/* Mobile / Tablet trigger */}
-      <button
-        className="sd-enquiry-trigger"
-        onClick={() => setEnquiryOpen(true)}
-        aria-label="Open enquiry form"
-        aria-expanded={enquiryOpen}
-      >
-        <ArrowUpRight />
-        <span>Enquire</span>
-      </button>
-
-      {/* Overview */}
-      <section id="sd-overview" className="container sd-overview sd-reveal">
-        <div className="sd-section-heading">
-          <p className="sd-label">ABOUT THE SERVICE</p>
-          <h2 className="display">Our approach</h2>
-        </div>
-
-        <div className="sd-copy">
-          {service.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
-        </div>
-      </section>
-
-      {/* Related services */}
-      {related.length > 0 && (
-        <section className="container sd-related">
-          <div className="sd-related-heading sd-reveal">
-            <div>
-              <p className="sd-label">DISCOVER MORE</p>
-              <h2 className="display">Related services</h2>
-            </div>
-            <Link href="/services" className="sd-link">
-              All services <ArrowUpRight />
+              <span>Explore AI Brand Films</span>
+              <ArrowUpRight />
             </Link>
-          </div>
 
-          <div className="sd-related-grid">
-            {related.map(item => (
-              <Link
-                key={item.title}
-                href={`/services/${slugify(item.title)}`}
-                className="sd-card sd-reveal"
-              >
-                <div className="sd-card-top">
-                  <span className="sd-label">{item.kicker}</span>
-                  <ArrowUpRight />
-                </div>
-                <h3>{item.title}</h3>
-                <p>{item.paragraphs?.[0]}</p>
-                <span className="sd-card-bottom">
-                  Explore service <ArrowRight />
-                </span>
-              </Link>
-            ))}
           </div>
-        </section>
-      )}
+        </div>
 
-      <div className="sd-cta"><Cta /></div>
-    </main>
+      </div>
+    </section>
   );
 }

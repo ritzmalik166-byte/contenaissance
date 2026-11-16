@@ -1,8 +1,14 @@
 
-import PageHero from '@/components/PageHero';
-import ServiceList from '@/components/services/ServiceList';
 import Cta from '@/components/Cta';
-import { v } from '@/lib/user/content';
+import DigitalContentSection from '@/components/services/DigitalContentSection';
+import DigitalInnovationSection from '@/components/services/DigitalInnovationSection';
+import ServiceCampaigns from '@/components/services/ServiceCampaigns';
+import ServiceDetail from '@/components/services/ServiceDetail';
+import ServiceIdentity from '@/components/services/ServiceIdentity';
+import ServiceList from '@/components/services/ServiceList';
+import ServicesHero from '@/components/services/ServicesHero';
+import ServiceShowreel from '@/components/services/ServiceShowreel';
+import StorytellingShowreel from '@/components/services/StorytellingShowreel';
 
 export const metadata = {
   title: "AI Creative & Video Production Agency | Contenaissance",
@@ -19,14 +25,15 @@ export const metadata = {
 export default function ServicesPage() {
   return (
     <>
-      <PageHero
-        lines={['AI Creative, Content Production', '& Digital Experiences']}
-        text="We bring together human creativity, AI technology and strategic storytelling to create compelling brand films, digital content, advertising campaigns and visual experiences. From the first idea to the final execution, we help brands turn ambitious ideas into meaningful creative work."
-        video={v('cinematic-landing-page')}
-      />
-
+      <ServicesHero />
       <ServiceList />
-
+      <ServiceDetail />
+      <ServiceShowreel />
+      <DigitalContentSection />
+      <StorytellingShowreel />
+      <ServiceCampaigns />
+      <ServiceIdentity />
+      <DigitalInnovationSection />
       <Cta />
     </>
   );

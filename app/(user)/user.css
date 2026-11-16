@@ -886,6 +886,15 @@ textarea {
 .rocket__nose {
   width: 100%;
   height: auto;
+  overflow: visible;
+}
+
+.rocket__nose circle {
+  filter: drop-shadow(0 0 3px rgba(242, 226, 27, 0.25));
+}
+
+.rocket__nose image {
+  filter: contrast(1.08) saturate(1.1);
 }
 
 .rocket__module {
@@ -972,12 +981,14 @@ textarea {
   align-items: center;
   gap: 12px;
   white-space: nowrap;
-  opacity: 0.18;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.5s var(--ease);
 }
 
 .stage-label.is-on {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .stage-label--right {
@@ -2156,6 +2167,352 @@ textarea {
   }
 
 }
+
+
+/* =====================================
+   SIX STAGE ROCKET UPDATE
+===================================== */
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .rocket__module {
+    height: 90px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .rocket-stage {
+    min-height: 560px !important;
+  }
+
+  .rocket__module {
+    height: 72px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .rocket-stage {
+    min-height: 570px !important;
+  }
+
+  .rocket__module {
+    height: 58px !important;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 380px) {
+  .rocket-sec__inner {
+    grid-template-rows: 590px auto !important;
+  }
+}
+
+/* Six Stage Mobile Labels */
+@media (max-width: 480px) {
+
+  .rocket__module[data-stage="S1"] .stage-label {
+    left: calc(100% + 5px) !important;
+    right: auto !important;
+    flex-direction: row !important;
+    text-align: left !important;
+  }
+
+  .rocket__module[data-stage="S2"] .stage-label {
+    right: calc(100% + 5px) !important;
+    left: auto !important;
+    flex-direction: row-reverse !important;
+    text-align: right !important;
+  }
+
+  .rocket__module[data-stage="S3"] .stage-label {
+    left: calc(100% + 5px) !important;
+    right: auto !important;
+    flex-direction: row !important;
+    text-align: left !important;
+  }
+
+  .rocket__module[data-stage="S4"] .stage-label {
+    right: calc(100% + 5px) !important;
+    left: auto !important;
+    flex-direction: row-reverse !important;
+    text-align: right !important;
+  }
+
+  .rocket__module[data-stage="S5"] .stage-label {
+    left: calc(100% + 5px) !important;
+    right: auto !important;
+    flex-direction: row !important;
+    text-align: left !important;
+  }
+
+  .rocket__module[data-stage="S6"] .stage-label {
+    right: calc(100% + 5px) !important;
+    left: auto !important;
+    flex-direction: row-reverse !important;
+    text-align: right !important;
+  }
+}
+
+/* S6 Nose Cone Stage Label */
+
+.rocket__nose-wrap {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.rocket__nose-wrap .rocket__nose {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.rocket__nose-wrap .stage-label {
+  position: absolute;
+  top: 78%;
+  right: calc(100% + 18px);
+  left: auto;
+  flex-direction: row-reverse;
+  text-align: right;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.rocket__nose-wrap .stage-label.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .rocket__nose-wrap .stage-label {
+    right: calc(100% + 5px) !important;
+    left: auto !important;
+    flex-direction: row-reverse !important;
+    text-align: right !important;
+    top: 78%;
+  }
+}
+
+
+/* =====================================
+   S1 ROCKET WINGS - REFINED
+===================================== */
+
+.rocket__module[data-stage="S1"]::before,
+.rocket__module[data-stage="S1"]::after {
+  content: "";
+  position: absolute;
+  top: 40%;
+  width: 40%;
+  height: 75%;
+  background: #f34f9b;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Left wing */
+.rocket__module[data-stage="S1"]::before {
+  left: -40%;
+  clip-path: polygon(
+    100% 0,
+    0 100%,
+    100% 82%
+  );
+}
+
+/* Right wing */
+.rocket__module[data-stage="S1"]::after {
+  right: -40%;
+  clip-path: polygon(
+    0 0,
+    100% 100%,
+    0 82%
+  );
+}
+
+/* Tablet */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .rocket__module[data-stage="S1"]::before,
+  .rocket__module[data-stage="S1"]::after {
+    width: 40%;
+    height: 75%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .rocket__module[data-stage="S1"]::before,
+  .rocket__module[data-stage="S1"]::after {
+    width: 35%;
+    height: 70%;
+    top: 40%;
+  }
+}
+
+/* =========================================
+   REALISTIC ROCKET EXHAUST
+========================================= */
+
+.rocket__flame {
+  display: block;
+  width: 52px;
+  height: 100px;
+  margin-top: -2px;
+  overflow: visible;
+  transform-origin: 50% 0%;
+  transform: scaleY(1);
+  filter:
+    drop-shadow(0 0 5px rgba(255, 110, 20, .8))
+    drop-shadow(0 0 15px rgba(255, 65, 15, .4));
+}
+
+/* Main exhaust movement */
+.flame3 {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: exhaustMotion .12s infinite alternate ease-in-out;
+}
+
+/* Outer flame */
+.fire-outer {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: outerMotion .17s infinite alternate;
+}
+
+/* Independent flame tongues */
+.fire-tongue {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+
+.fire-tongue--left {
+  animation: tongueLeft .13s infinite alternate;
+}
+
+.fire-tongue--right {
+  animation: tongueRight .16s infinite alternate;
+}
+
+/* Yellow flame */
+.fire-yellow {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: yellowMotion .11s infinite alternate;
+}
+
+/* Hot centre */
+.fire-hot {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: hotMotion .09s infinite alternate;
+}
+
+/* Exhaust movement */
+@keyframes exhaustMotion {
+  0% {
+    transform: scaleX(.94) scaleY(.94) skewX(-1deg);
+  }
+
+  50% {
+    transform: scaleX(1.05) scaleY(1.06) skewX(2deg);
+  }
+
+  100% {
+    transform: scaleX(.97) scaleY(1.12) skewX(-2deg);
+  }
+}
+
+@keyframes outerMotion {
+  from {
+    transform: scaleX(.92) scaleY(.92);
+  }
+
+  to {
+    transform: scaleX(1.08) scaleY(1.12);
+  }
+}
+
+@keyframes tongueLeft {
+  from {
+    transform: rotate(-13deg) scaleY(.7);
+    opacity: .55;
+  }
+
+  to {
+    transform: rotate(12deg) scaleY(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes tongueRight {
+  from {
+    transform: rotate(13deg) scaleY(1.15);
+    opacity: 1;
+  }
+
+  to {
+    transform: rotate(-12deg) scaleY(.72);
+    opacity: .6;
+  }
+}
+
+@keyframes yellowMotion {
+  from {
+    transform: scaleX(.85) scaleY(.92);
+  }
+
+  to {
+    transform: scaleX(1.13) scaleY(1.12);
+  }
+}
+
+@keyframes hotMotion {
+  from {
+    transform: scaleX(.85) scaleY(.9);
+    opacity: .8;
+  }
+
+  to {
+    transform: scaleX(1.15) scaleY(1.1);
+    opacity: 1;
+  }
+}
+
+/* Engine glow */
+.rocket__nozzle {
+  box-shadow: 0 0 18px rgba(255, 110, 35, .35);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .rocket__flame {
+    width: 32px;
+    height: 75px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rocket__flame {
+    width: 25px;
+    height: 55px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flame3,
+  .fire-outer,
+  .fire-tongue,
+  .fire-yellow,
+  .fire-hot {
+    animation: none;
+  }
+}
+
 
 /* ---------- about ---------- */
 

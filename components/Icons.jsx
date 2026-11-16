@@ -22,6 +22,7 @@ export const Close = ({ size = 18 }) => (
   </svg>
 );
 
+
 export const StageIcon = ({ name }) => {
   switch (name) {
     case 'camera':
@@ -31,27 +32,51 @@ export const StageIcon = ({ name }) => {
           <path d="M31 21l11-6v18l-11-6" />
         </svg>
       );
+
     case 'play':
       return (
         <svg viewBox="0 0 48 48" aria-hidden="true">
           <rect x="13" y="5" width="22" height="38" rx="3" />
-          <path d="M21 17v14l11-7-11-7Z" fill="currentColor" stroke="none" style={{ fill: 'var(--rocket-yellow)' }} />
+          <path d="M21 17v14l11-7-11-7Z" fill="var(--rocket-yellow)" stroke="none" />
         </svg>
       );
+
     case 'target':
       return (
         <svg viewBox="0 0 48 48" aria-hidden="true">
           <circle cx="24" cy="24" r="18" />
           <circle cx="24" cy="24" r="10" />
-          <circle cx="24" cy="24" r="3" fill="currentColor" style={{ fill: 'var(--rocket-yellow)' }} />
+          <circle cx="24" cy="24" r="3" fill="var(--rocket-yellow)" />
         </svg>
       );
-    default:
+
+    case 'star':
       return (
         <svg viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M24 5l5.6 12.2 13.4 1.5-10 9 2.8 13.2L24 34.2l-11.8 6.7L15 27.7l-10-9 13.4-1.5L24 5Z" strokeLinejoin="round" />
+          <path d="M24 5l5.6 12.2 13.4 1.5-10 9 2.8 13.2L24 34.2l-11.8 6.7L15 27.7l-10-9 13.4-1.5L24 5Z" />
         </svg>
       );
+
+    case 'layers':
+      return (
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 5 43 15 24 25 5 15 24 5Z" />
+          <path d="m7 23 17 9 17-9" />
+          <path d="m7 31 17 9 17-9" />
+        </svg>
+      );
+
+    case 'sparkles':
+      return (
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 4 28.5 18.5 43 23 28.5 27.5 24 42 19.5 27.5 5 23 19.5 18.5 24 4Z" />
+          <path d="m39 4 1.5 4.5L45 10l-4.5 1.5L39 16l-1.5-4.5L33 10l4.5-1.5L39 4Z" />
+          <path d="m8 32 1.5 4.5L14 38l-4.5 1.5L8 44l-1.5-4.5L2 38l4.5-1.5L8 32Z" />
+        </svg>
+      );
+
+    default:
+      return null;
   }
 };
 
