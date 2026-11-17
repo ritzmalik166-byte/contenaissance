@@ -939,8 +939,7 @@ textarea {
   height: 120px;
   transform: translateX(-50%);
   pointer-events: none;
-}
-
+}S6
 
 .rocket__nozzle {
   width: 50px;
@@ -2354,7 +2353,7 @@ textarea {
   top: 40%;
   width: 40%;
   height: 75%;
-  background: #f34f9b;
+  background: #d9772b;
   z-index: -1;
   pointer-events: none;
 }
