@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRef, useState } from 'react';
@@ -49,158 +48,241 @@ const capabilities = [
 export default function ServiceCampaigns() {
   const root = useRef(null);
   const visual = useRef(null);
+  const targetRef = useRef(null);
   const graphPath = useRef(null);
   const graphArea = useRef(null);
+  const chartClipRect = useRef(null);
 
   const [activeVariant, setActiveVariant] = useState('B');
+  const targetXTo = useRef(null);
+  const targetYTo = useRef(null);
+  const tiltXTo = useRef(null);
+  const tiltYTo = useRef(null);
 
   useGSAP(
     () => {
+      const q = gsap.utils.selector(root);
       const mm = gsap.matchMedia();
 
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const intro = gsap.timeline({
+        // 1. TOP INTRO SCROLLTRIGGER
+        const introTl = gsap.timeline({
           scrollTrigger: {
-            trigger: root.current,
-            start: 'top 75%',
+            trigger: q('.campaign-top'),
+            start: 'top 82%',
             toggleActions: 'play none none reverse',
           },
         });
 
-        intro
+        introTl
           .fromTo(
-            '.campaign-meta',
-            { opacity: 0, y: 20 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              stagger: 0.12,
-            }
+            q('.campaign-stage'),
+            { opacity: 0, y: 22 },
+            { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }
           )
           .fromTo(
-            '.campaign-title',
-            { opacity: 0, y: 55 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-              ease: 'power4.out',
-            },
-            '-=0.4'
+            q('.campaign-title'),
+            { opacity: 0, y: 48 },
+            { opacity: 1, y: 0, duration: 0.95, ease: 'power4.out' },
+            '-=0.45'
           )
           .fromTo(
-            '.campaign-big-number',
-            { opacity: 0, scale: 0.88 },
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 1.2,
-              ease: 'power3.out',
-            },
-            '-=0.8'
+            q('.campaign-tagline'),
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+            '-=0.55'
           )
           .fromTo(
-            '.campaign-intro-right',
-            { opacity: 0, x: 35 },
-            {
-              opacity: 1,
-              x: 0,
-              duration: 0.9,
-              ease: 'power3.out',
-            },
-            '-=0.7'
+            q('.campaign-big-number'),
+            { opacity: 0, scale: 0.84, y: 30 },
+            { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power3.out' },
+            '-=0.75'
           )
           .fromTo(
-            '.campaign-visual-card, .campaign-dashboard',
-            { opacity: 0, y: 50 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-              stagger: 0.18,
-              ease: 'power3.out',
-            },
-            '-=0.5'
-          )
-          .fromTo(
-            '.campaign-capability',
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              stagger: 0.12,
-            },
-            '-=0.5'
+            q('.campaign-intro-right > *'),
+            { opacity: 0, y: 28 },
+            { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out' },
+            '-=0.75'
           );
 
-        // Animate graph drawing
-        if (graphPath.current) {
-          const length = graphPath.current.getTotalLength();
+        // Subtle parallax scrub on the Big Number "03"
+        gsap.to(q('.campaign-big-number'), {
+          yPercent: -15,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: q('.campaign-top'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
+          },
+        });
 
+        // 2. MAIN VISUAL & DASHBOARD SCROLLTRIGGER
+        const mainTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: q('.campaign-main'),
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        mainTl
+          .fromTo(
+            q('.campaign-visual-card'),
+            { opacity: 0, y: 48, scale: 0.98 },
+            { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: 'power3.out' }
+          )
+          .fromTo(
+            q('.campaign-dashboard'),
+            { opacity: 0, y: 48, scale: 0.98 },
+            { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: 'power3.out' },
+            '-=0.8'
+          );
+
+        // 3. ANALYTICS GRAPH DRAWING WITH CLIP-PATH & DATA POINTS
+        if (graphPath.current && chartClipRect.current) {
+          const length = graphPath.current.getTotalLength();
           gsap.set(graphPath.current, {
             strokeDasharray: length,
             strokeDashoffset: length,
           });
+          gsap.set(chartClipRect.current, { attr: { width: 0 } });
+          gsap.set(q('.chart-point'), {
+            scale: 0,
+            transformOrigin: 'center center',
+            opacity: 0,
+          });
 
-          gsap.to(graphPath.current, {
-            strokeDashoffset: 0,
-            duration: 2.3,
-            ease: 'power2.out',
+          const graphTl = gsap.timeline({
             scrollTrigger: {
-              trigger: '.campaign-dashboard',
-              start: 'top 80%',
+              trigger: q('.campaign-dashboard'),
+              start: 'top 78%',
               once: true,
             },
           });
-        }
 
-        if (graphArea.current) {
-          gsap.fromTo(
-            graphArea.current,
-            { opacity: 0 },
-            {
-              opacity: 1,
-              duration: 1.5,
-              scrollTrigger: {
-                trigger: '.campaign-dashboard',
-                start: 'top 80%',
-                once: true,
+          graphTl
+            .to(graphPath.current, {
+              strokeDashoffset: 0,
+              duration: 2.2,
+              ease: 'power2.inOut',
+            })
+            .to(
+              chartClipRect.current,
+              {
+                attr: { width: 500 },
+                duration: 2.2,
+                ease: 'power2.inOut',
               },
-            }
-          );
+              0
+            )
+            .to(
+              q('.chart-point'),
+              {
+                scale: 1,
+                opacity: 1,
+                duration: 0.45,
+                stagger: 0.42,
+                ease: 'back.out(2)',
+              },
+              0.3
+            );
         }
 
-        // Targeting scanner animation
-        gsap.to('.campaign-scan-line', {
-          yPercent: 100,
-          duration: 3.5,
+        // 4. SCAN LINE SWEEP
+        gsap.fromTo(
+          q('.campaign-scan-line'),
+          { top: '0%', opacity: 0 },
+          {
+            keyframes: [
+              { top: '5%', opacity: 0.85, duration: 0.4, ease: 'sine.in' },
+              { top: '92%', opacity: 0.85, duration: 2.6, ease: 'none' },
+              { top: '100%', opacity: 0, duration: 0.4, ease: 'sine.out' },
+            ],
+            duration: 3.4,
+            repeat: -1,
+            yoyo: true,
+            ease: 'none',
+          }
+        );
+
+        // 5. ANIMATED TARGETING RINGS
+        gsap.to(q('.campaign-target-ring'), {
+          rotation: 360,
+          duration: 22,
+          repeat: -1,
           ease: 'none',
+          transformOrigin: 'center center',
+        });
+
+        gsap.to(q('.campaign-target-inner'), {
+          rotation: -360,
+          duration: 14,
+          repeat: -1,
+          ease: 'none',
+          transformOrigin: 'center center',
+        });
+
+        gsap.to(q('.campaign-target-dot'), {
+          scale: 1.35,
+          duration: 1.2,
           repeat: -1,
           yoyo: true,
+          ease: 'sine.inOut',
+          transformOrigin: 'center center',
         });
 
-        // Scanner rotation
-        gsap.to('.campaign-target-ring', {
-          rotation: 360,
-          duration: 24,
-          repeat: -1,
-          ease: 'none',
-        });
-
-        // Audience cluster animation
-        gsap.to('.audience-dot', {
+        // 6. AUDIENCE CLUSTER DOTS
+        gsap.to(q('.audience-dot'), {
           opacity: 0.3,
-          duration: 0.8,
+          duration: 0.9,
           stagger: {
-            each: 0.08,
+            each: 0.07,
             repeat: -1,
             yoyo: true,
           },
         });
 
-        return () => intro.kill();
+        // 7. BOTTOM CAPABILITIES SCROLLTRIGGER
+        const capTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: q('.campaign-capabilities'),
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        capTl.fromTo(
+          q('.campaign-capability'),
+          { opacity: 0, y: 38 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            stagger: 0.12,
+            ease: 'power3.out',
+          }
+        );
+
+        // QuickTo setup for targeting HUD and 3D tilt
+        if (targetRef.current && visual.current) {
+          targetXTo.current = gsap.quickTo(targetRef.current, 'left', {
+            duration: 0.6,
+            ease: 'power2.out',
+          });
+          targetYTo.current = gsap.quickTo(targetRef.current, 'top', {
+            duration: 0.6,
+            ease: 'power2.out',
+          });
+          tiltXTo.current = gsap.quickTo(visual.current, 'rotationY', {
+            duration: 0.7,
+            ease: 'power2.out',
+          });
+          tiltYTo.current = gsap.quickTo(visual.current, 'rotationX', {
+            duration: 0.7,
+            ease: 'power2.out',
+          });
+        }
       });
 
       return () => mm.revert();
@@ -210,25 +292,54 @@ export default function ServiceCampaigns() {
 
   const handleVariant = (id) => {
     setActiveVariant(id);
+
+    // Tactical HUD lock pulse animation
+    if (root.current) {
+      gsap.fromTo(
+        root.current.querySelector('.campaign-signal'),
+        { scale: 1.05, filter: 'drop-shadow(0 0 12px rgba(235, 189, 64, 0.7))' },
+        { scale: 1, filter: 'none', duration: 0.45, ease: 'power2.out' }
+      );
+    }
   };
 
   const handlePointerMove = (event) => {
-    if (!visual.current || window.matchMedia('(hover: none)').matches) {
+    if (!visual.current || typeof window === 'undefined' || window.matchMedia('(hover: none)').matches) {
       return;
     }
 
     const rect = visual.current.getBoundingClientRect();
-
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
 
     visual.current.style.setProperty('--mouse-x', `${x * 100}%`);
     visual.current.style.setProperty('--mouse-y', `${y * 100}%`);
+
+    // Smooth targeting reticle follow
+    if (targetXTo.current && targetYTo.current) {
+      const clampedX = Math.max(18, Math.min(82, x * 100));
+      const clampedY = Math.max(22, Math.min(78, y * 100));
+      targetXTo.current(`${clampedX}%`);
+      targetYTo.current(`${clampedY}%`);
+    }
+
+    // Subtle 3D perspective tilt
+    if (tiltXTo.current && tiltYTo.current) {
+      tiltXTo.current((x - 0.5) * 5);
+      tiltYTo.current((y - 0.5) * -5);
+    }
   };
 
-  const selectedVariant = variants.find(
-    (item) => item.id === activeVariant
-  );
+  const handlePointerLeave = () => {
+    if (targetXTo.current && targetYTo.current) {
+      targetXTo.current('48%');
+      targetYTo.current('43%');
+    }
+    if (tiltXTo.current && tiltYTo.current) {
+      tiltXTo.current(0);
+      tiltYTo.current(0);
+    }
+  };
 
   return (
     <section
@@ -239,7 +350,6 @@ export default function ServiceCampaigns() {
       <div className="campaign-container">
 
         {/* TOP INTRO */}
-
         <div className="campaign-top">
 
           <div className="campaign-heading">
@@ -289,8 +399,7 @@ export default function ServiceCampaigns() {
               className="campaign-cta"
             >
               <span>Explore AI Campaigns</span>
-
-              {/* <svg viewBox="0 0 24 24" fill="none">
+              {/* <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M5 19L19 5M8 5H19V16"
                   stroke="currentColor"
@@ -306,22 +415,27 @@ export default function ServiceCampaigns() {
         </div>
 
         {/* MAIN VISUALS */}
-
         <div className="campaign-main">
 
           {/* CAMPAIGN KEY VISUAL */}
-
           <div
             ref={visual}
             className="campaign-visual-card"
             onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
           >
 
-            <img
-              className="campaign-main-image"
-              src="/images/campaign-variant-b.jpg"
-              alt="AI generated luxury fragrance campaign"
-            />
+            {/* Interactive variants crossfade */}
+            {variants.map((v) => (
+              <img
+                key={v.id}
+                className={`campaign-main-image ${
+                  activeVariant === v.id ? 'is-active' : ''
+                }`}
+                src={v.image}
+                alt={`AI generated luxury fragrance campaign - ${v.name}`}
+              />
+            ))}
 
             <div className="campaign-image-overlay" />
 
@@ -332,8 +446,10 @@ export default function ServiceCampaigns() {
             </div>
 
             {/* Targeting system */}
-
-            <div className="campaign-target">
+            <div
+              ref={targetRef}
+              className="campaign-target"
+            >
               <span className="campaign-target-ring" />
               <span className="campaign-target-inner" />
               <span className="campaign-target-dot" />
@@ -361,7 +477,6 @@ export default function ServiceCampaigns() {
           </div>
 
           {/* ANALYTICS DASHBOARD */}
-
           <div className="campaign-dashboard">
 
             <div className="dashboard-header">
@@ -374,7 +489,6 @@ export default function ServiceCampaigns() {
             </div>
 
             {/* GRAPH */}
-
             <div className="campaign-chart">
 
               <svg
@@ -394,18 +508,27 @@ export default function ServiceCampaigns() {
                     <stop
                       offset="0%"
                       stopColor="#e9bd47"
-                      stopOpacity=".14"
+                      stopOpacity=".18"
                     />
                     <stop
                       offset="100%"
                       stopColor="#e9bd47"
-                      stopOpacity=".015"
+                      stopOpacity=".01"
                     />
                   </linearGradient>
+
+                  <clipPath id="campaignGraphClip">
+                    <rect
+                      ref={chartClipRect}
+                      x="0"
+                      y="0"
+                      width="0"
+                      height="210"
+                    />
+                  </clipPath>
                 </defs>
 
                 {/* Vertical chart guides */}
-
                 {[10, 142, 274, 406, 490].map((x) => (
                   <line
                     key={x}
@@ -418,16 +541,15 @@ export default function ServiceCampaigns() {
                 ))}
 
                 {/* Baseline */}
-
                 <path
                   d="M10 160 C150 154 340 142 490 120"
                   className="chart-baseline"
                 />
 
-                {/* Area */}
-
+                {/* Area with animated clip-path */}
                 <path
                   ref={graphArea}
+                  clipPath="url(#campaignGraphClip)"
                   d="M10 150
                      C75 148 110 130 145 116
                      S235 88 274 63
@@ -437,7 +559,6 @@ export default function ServiceCampaigns() {
                 />
 
                 {/* Natural curve */}
-
                 <path
                   ref={graphPath}
                   d="M10 150
@@ -448,20 +569,28 @@ export default function ServiceCampaigns() {
                 />
 
                 {/* Data points */}
-
                 {[
                   [10, 150],
                   [180, 99],
                   [345, 53],
                   [490, 12],
                 ].map(([x, y], index) => (
-                  <circle
-                    key={index}
-                    cx={x}
-                    cy={y}
-                    r={index === 3 ? 5.5 : 4.8}
-                    className="chart-point"
-                  />
+                  <g key={index} className="chart-point-group">
+                    {index === 3 && (
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="13"
+                        className="chart-beacon-ring"
+                      />
+                    )}
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={index === 3 ? 5.5 : 4.8}
+                      className={`chart-point ${index === 3 ? 'is-peak' : ''}`}
+                    />
+                  </g>
                 ))}
 
               </svg>
@@ -476,7 +605,6 @@ export default function ServiceCampaigns() {
             </div>
 
             {/* VARIANTS */}
-
             <div className="campaign-variants">
 
               <p className="variants-heading mono">
@@ -490,9 +618,7 @@ export default function ServiceCampaigns() {
                   <button
                     type="button"
                     key={variant.id}
-                    className={`variant-row ${
-                      isActive ? 'is-active' : ''
-                    }`}
+                    className={`variant-row ${isActive ? 'is-active' : ''}`}
                     onClick={() => handleVariant(variant.id)}
                     aria-pressed={isActive}
                   >
@@ -510,6 +636,7 @@ export default function ServiceCampaigns() {
 
                       <span className="variant-progress">
                         <span
+                          className="variant-progress-bar"
                           style={{
                             width: `${variant.performance}%`,
                           }}
@@ -530,7 +657,6 @@ export default function ServiceCampaigns() {
             </div>
 
             {/* AUDIENCE CLUSTERS */}
-
             <div className="audience-clusters">
 
               <span>AUDIENCE CLUSTERS</span>
@@ -551,7 +677,6 @@ export default function ServiceCampaigns() {
         </div>
 
         {/* BOTTOM CAPABILITIES */}
-
         <div className="campaign-capabilities">
 
           {capabilities.map((item) => (
@@ -561,7 +686,7 @@ export default function ServiceCampaigns() {
             >
 
               <div className="capability-top">
-                <span>{item.number}</span>
+                <span className="capability-num">{item.number}</span>
 
                 <div className="capability-bars">
                   <i />

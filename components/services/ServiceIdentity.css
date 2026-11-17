@@ -1287,3 +1287,14 @@
     transition-duration: .01ms !important;
   }
 }
+
+[data-center-card] {
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-center-card] {
+    will-change: auto;
+  }
+}

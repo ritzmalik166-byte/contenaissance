@@ -1,4 +1,3 @@
-
 /* =========================================
    CAMPAIGN SECTION
 ========================================= */
@@ -61,6 +60,7 @@
   font-size: 12px;
   font-weight: 400;
   letter-spacing: .08em;
+  will-change: transform, opacity;
 }
 
 .campaign-stage-label {
@@ -72,6 +72,7 @@
 
 .campaign-stage-label i,
 .dashboard-header i {
+  position: relative;
   width: 10px;
   height: 10px;
   flex-shrink: 0;
@@ -79,14 +80,35 @@
   background: var(--campaign-gold);
 }
 
+.campaign-stage-label i::after,
+.dashboard-header i::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--campaign-gold);
+  animation: livePing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes livePing {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  75%, 100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+}
+
 .campaign-title {
   margin: 0;
   font-size: 96px;
-  font-weight: 700;
+  font-weight: 650;
   line-height: .99;
   letter-spacing: -.075em;
-  font-weight: 650;
   color: #F1EDE5;
+  will-change: transform, opacity;
 }
 
 .campaign-tagline {
@@ -97,6 +119,7 @@
   font-style: italic;
   line-height: 1.17;
   letter-spacing: -.035em;
+  will-change: transform, opacity;
 }
 
 /* =========================================
@@ -110,11 +133,11 @@
   color: transparent;
   -webkit-text-stroke: 1.4px rgba(255, 255, 255, .2);
   font-size: 200px;
-  font: bold;
   line-height: .95;
   font-weight: 700;
   text-align: center;
   user-select: none;
+  will-change: transform, opacity;
 }
 
 /* =========================================
@@ -124,6 +147,10 @@
 .campaign-intro-right {
   padding: 8px 0 0 15px;
   max-width: 540px;
+}
+
+.campaign-intro-right > * {
+  will-change: transform, opacity;
 }
 
 .campaign-eyebrow {
@@ -146,10 +173,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 25px;
+  gap: 20px;
   min-height: 68px;
   margin-top: 85px;
-  padding: 0 27px;
+  padding: 0 28px;
   border: 1px solid var(--campaign-gold);
   border-radius: 5px;
   background: #EBBD40;
@@ -157,10 +184,11 @@
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   transition:
     color .35s ease,
     background .35s ease,
-    transform .35s ease,
+    transform .35s cubic-bezier(.2, .8, .2, 1),
     box-shadow .35s ease;
 }
 
@@ -174,11 +202,11 @@
   transform: translateY(-4px);
   background: transparent;
   color: var(--campaign-gold);
-  box-shadow: 0 10px 35px rgba(237, 189, 61, .09);
+  box-shadow: 0 12px 35px rgba(237, 189, 61, .15);
 }
 
 .campaign-cta:hover svg {
-  transform: translate(3px, -3px);
+  transform: translate(4px, -4px);
 }
 
 /* =========================================
@@ -206,10 +234,23 @@
   min-height: 560px;
   overflow: hidden;
   isolation: isolate;
-  border: 1px solid rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 5px;
   background: #151714;
   cursor: crosshair;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transition:
+    border-color .45s ease,
+    box-shadow .45s ease;
+}
+
+.campaign-visual-card:hover {
+  border-color: rgba(143, 197, 36, .35);
+  box-shadow:
+    0 24px 60px -15px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(143, 197, 36, 0.08);
 }
 
 .campaign-main-image {
@@ -220,14 +261,25 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+  opacity: 0;
+  transform: scale(1.02);
   transition:
-    transform 1s cubic-bezier(.2, .7, .2, 1),
+    opacity 0.7s cubic-bezier(.25, 1, .5, 1),
+    transform 1.1s cubic-bezier(.2, .7, .2, 1),
     filter .6s ease;
+  pointer-events: none;
+  will-change: transform, opacity;
 }
 
-.campaign-visual-card:hover .campaign-main-image {
-  transform: scale(1.045);
-  filter: brightness(1.08);
+.campaign-main-image.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.campaign-visual-card:hover .campaign-main-image.is-active {
+  transform: scale(1.055);
+  filter: brightness(1.08) contrast(1.02);
 }
 
 .campaign-image-overlay {
@@ -244,7 +296,7 @@
     radial-gradient(
       circle at var(--mouse-x) var(--mouse-y),
       transparent 0,
-      rgba(0, 0, 0, .18) 65%
+      rgba(0, 0, 0, .22) 65%
     );
   pointer-events: none;
 }
@@ -285,10 +337,16 @@
   left: 28px;
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, .65);
-  background: rgba(8, 8, 7, .7);
+  background: rgba(8, 8, 7, .75);
+  backdrop-filter: blur(6px);
   color: #e8e6dc;
   font-size: 11px;
   letter-spacing: .07em;
+  transition: border-color .3s ease, background .3s ease;
+}
+
+.campaign-visual-card:hover .campaign-context {
+  border-color: rgba(235, 189, 64, 0.7);
 }
 
 /* TARGETING */
@@ -303,6 +361,7 @@
   height: 235px;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  will-change: left, top, transform;
 }
 
 .campaign-target-ring {
@@ -310,12 +369,13 @@
   inset: 0;
   border: 1px solid rgba(143, 197, 36, .95);
   border-radius: 50%;
+  box-shadow: 0 0 14px rgba(143, 197, 36, .22);
 }
 
 .campaign-target-inner {
   position: absolute;
   inset: 24%;
-  border: 1px dashed rgba(143, 197, 36, .7);
+  border: 1px dashed rgba(143, 197, 36, .75);
   border-radius: 50%;
 }
 
@@ -325,13 +385,16 @@
   height: 10px;
   border-radius: 50%;
   background: var(--campaign-gold);
-  box-shadow: 0 0 16px rgba(237, 189, 61, .7);
+  box-shadow:
+    0 0 14px rgba(237, 189, 61, .9),
+    0 0 28px rgba(237, 189, 61, .4);
 }
 
 .campaign-target-horizontal,
 .campaign-target-vertical {
   position: absolute;
   background: var(--campaign-green);
+  opacity: .85;
 }
 
 .campaign-target-horizontal {
@@ -344,21 +407,47 @@
   height: calc(100% + 50px);
 }
 
-/* SCANNER */
+/* =========================================
+   HORIZONTAL SCANNING LINE
+========================================= */
 
 .campaign-scan-line {
   position: absolute;
-  top: -100%;
+  top: 0;
   left: 0;
+  right: 0;
+  display: block;
   width: 100%;
-  height: 50%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(166, 232, 50, 0.3) 12%,
+    rgba(166, 232, 50, 0.95) 50%,
+    rgba(166, 232, 50, 0.3) 88%,
+    transparent 100%
+  );
+  border: none;
+  opacity: 0.85;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow:
+    0 0 8px rgba(166, 232, 50, 0.65),
+    0 0 22px rgba(166, 232, 50, 0.28);
+}
+
+.campaign-scan-line::after {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: 0;
+  right: 0;
+  height: 22px;
   background: linear-gradient(
     180deg,
-    transparent,
-    rgba(143, 197, 36, .02),
-    rgba(143, 197, 36, .16)
+    transparent 0%,
+    rgba(166, 232, 50, 0.08) 100%
   );
-  border-bottom: 1px solid rgba(143, 197, 36, .75);
   pointer-events: none;
 }
 
@@ -374,12 +463,21 @@
   color: var(--campaign-gold);
   font-size: 11px;
   letter-spacing: .05em;
+  transition:
+    transform .35s ease,
+    filter .35s ease;
 }
 
 .campaign-signal span {
   padding: 7px 11px;
   border: 1px solid rgba(143, 197, 36, .8);
-  background: rgba(7, 7, 6, .78);
+  background: rgba(7, 7, 6, .82);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  transition:
+    border-color .3s ease,
+    background .3s ease,
+    color .3s ease;
 }
 
 /* IMAGE FOOTER */
@@ -428,14 +526,20 @@
   border: 1px solid rgba(255, 255, 255, .11);
   border-radius: 5px;
   background: #111110;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  will-change: transform, opacity;
   transition:
     border-color .4s ease,
+    box-shadow .4s ease,
     transform .4s ease;
 }
 
 .campaign-dashboard:hover {
-  border-color: rgba(237, 189, 61, .32);
-  transform: translateY(-3px);
+  border-color: rgba(237, 189, 61, .35);
+  box-shadow:
+    0 18px 45px -10px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(237, 189, 61, 0.05);
+  transform: translateY(-4px);
 }
 
 .dashboard-header {
@@ -498,27 +602,56 @@
 .chart-main-line {
   fill: none;
   stroke: #eac45a;
-  stroke-width: 2.3;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 4px rgba(234, 196, 90, .18));
+  filter: drop-shadow(0 0 8px rgba(234, 196, 90, .45));
 }
 
 .chart-point {
   fill: #111110;
   stroke: #eac45a;
-  stroke-width: 2;
+  stroke-width: 2.2;
+  cursor: pointer;
   transition:
-    r .3s ease,
-    fill .3s ease;
+    r .3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    fill .3s ease,
+    filter .3s ease;
 }
 
+.chart-point.is-peak,
 .chart-point:last-child {
   fill: #eac45a;
+  filter: drop-shadow(0 0 6px rgba(234, 196, 90, 0.75));
 }
 
-.campaign-chart:hover .chart-point {
+.chart-point:hover {
+  r: 7;
   fill: #eac45a;
+  filter: drop-shadow(0 0 10px rgba(234, 196, 90, 0.95));
+}
+
+.chart-beacon-ring {
+  fill: none;
+  stroke: var(--campaign-gold);
+  stroke-width: 1.5;
+  opacity: 0;
+  animation: beaconPulse 2.4s cubic-bezier(0.15, 0.85, 0.35, 1) infinite;
+}
+
+@keyframes beaconPulse {
+  0% {
+    r: 4px;
+    opacity: 0.9;
+  }
+  65% {
+    r: 16px;
+    opacity: 0;
+  }
+  100% {
+    r: 16px;
+    opacity: 0;
+  }
 }
 
 .chart-labels {
@@ -558,23 +691,52 @@
   gap: 16px;
   width: 100%;
   min-height: 61px;
-  padding: 5px 0;
-  border: 0;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--campaign-white);
   text-align: left;
   cursor: pointer;
+  transition:
+    background .3s ease,
+    border-color .3s ease,
+    transform .3s ease;
+}
+
+.variant-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.variant-row.is-active {
+  background: rgba(237, 189, 61, 0.045);
+  border-color: rgba(237, 189, 61, 0.28);
 }
 
 .variant-thumbnail {
   width: 53px;
   height: 53px;
   flex-shrink: 0;
-  border-radius: 3px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, .1);
   object-fit: cover;
   transition:
     transform .35s ease,
+    border-color .35s ease,
+    box-shadow .35s ease,
     filter .35s ease;
+}
+
+.variant-row.is-active .variant-thumbnail {
+  border-color: var(--campaign-gold);
+  box-shadow: 0 0 12px rgba(237, 189, 61, .32);
+}
+
+.variant-row:hover .variant-thumbnail {
+  transform: scale(1.08);
+  filter: brightness(1.15);
 }
 
 .variant-info {
@@ -598,36 +760,35 @@
   height: 4px;
   overflow: hidden;
   border-radius: 10px;
-  background: #30312f;
+  background: #252624;
 }
 
-.variant-progress > span {
+.variant-progress-bar {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: #81a82c;
   transition:
     width .7s cubic-bezier(.2, .7, .2, 1),
-    background .3s ease;
-}
-
-.variant-leading {
-  color: var(--campaign-gold);
-  font-size: 9px;
-  letter-spacing: .1em;
+    background .3s ease,
+    box-shadow .3s ease;
 }
 
 .variant-row.is-active .variant-name {
   color: var(--campaign-gold);
 }
 
-.variant-row.is-active .variant-progress > span {
-  background: var(--campaign-gold);
+.variant-row.is-active .variant-progress-bar {
+  background: linear-gradient(90deg, #d4a329 0%, #ecd07a 100%);
+  box-shadow: 0 0 8px rgba(237, 189, 61, .5);
 }
 
-.variant-row:hover .variant-thumbnail {
-  transform: scale(1.08);
-  filter: brightness(1.2);
+.variant-leading {
+  color: var(--campaign-gold);
+  font-size: 9px;
+  letter-spacing: .1em;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(237, 189, 61, .35);
 }
 
 .variant-row:hover .variant-name {
@@ -665,6 +826,12 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--campaign-green);
+  transition: transform .25s ease, filter .25s ease;
+}
+
+.audience-dot:hover {
+  transform: scale(1.4);
+  filter: drop-shadow(0 0 6px var(--campaign-green));
 }
 
 .audience-dot-1 {
@@ -695,9 +862,25 @@
   min-height: 180px;
   padding: 31px 28px 25px 0;
   border-right: 1px solid rgba(255, 255, 255, .12);
+  overflow: hidden;
+  will-change: transform, opacity;
   transition:
     background .35s ease,
-    padding .35s ease;
+    border-color .35s ease,
+    padding .35s ease,
+    transform .35s ease;
+}
+
+.campaign-capability::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--campaign-gold), transparent);
+  opacity: 0;
+  transition: opacity .4s ease;
 }
 
 .campaign-capability:not(:first-child) {
@@ -715,9 +898,12 @@
   margin-bottom: 35px;
 }
 
-.capability-top > span {
+.capability-num {
   color: #ECCD76;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  transition: text-shadow .3s ease;
 }
 
 .capability-bars {
@@ -731,10 +917,12 @@
   display: block;
   width: 4px;
   height: 10px;
+  border-radius: 1px;
   background: rgba(255, 255, 255, .4);
   transition:
     height .35s ease,
-    background .35s ease;
+    background .35s ease,
+    box-shadow .35s ease;
 }
 
 .capability-bars i:nth-child(2),
@@ -764,14 +952,23 @@
   color: var(--campaign-gold);
   font-size: 20px;
   opacity: 0;
-  transform: translate(-5px, 5px);
+  transform: translate(-7px, 7px);
   transition:
-    opacity .3s ease,
-    transform .3s ease;
+    opacity .35s cubic-bezier(.2, .8, .2, 1),
+    transform .35s cubic-bezier(.2, .8, .2, 1);
 }
 
 .campaign-capability:hover {
-  background: rgba(237, 189, 61, .035);
+  background: rgba(237, 189, 61, .04);
+  border-right-color: rgba(237, 189, 61, 0.2);
+}
+
+.campaign-capability:hover::before {
+  opacity: 1;
+}
+
+.campaign-capability:hover .capability-num {
+  text-shadow: 0 0 10px rgba(236, 205, 118, 0.6);
 }
 
 .campaign-capability:hover h3 {
@@ -779,8 +976,37 @@
 }
 
 .campaign-capability:hover .capability-bars i {
-  height: 22px;
   background: var(--campaign-gold);
+  box-shadow: 0 0 6px rgba(236, 205, 118, 0.5);
+}
+
+.campaign-capability:hover .capability-bars i:nth-child(1) {
+  animation: equalizerPulse 0.7s ease-in-out infinite alternate 0.05s;
+}
+
+.campaign-capability:hover .capability-bars i:nth-child(2) {
+  animation: equalizerPulse 0.5s ease-in-out infinite alternate 0.2s;
+}
+
+.campaign-capability:hover .capability-bars i:nth-child(3) {
+  animation: equalizerPulse 0.8s ease-in-out infinite alternate 0.1s;
+}
+
+.campaign-capability:hover .capability-bars i:nth-child(4) {
+  animation: equalizerPulse 0.55s ease-in-out infinite alternate 0.25s;
+}
+
+.campaign-capability:hover .capability-bars i:nth-child(5) {
+  animation: equalizerPulse 0.65s ease-in-out infinite alternate 0.15s;
+}
+
+@keyframes equalizerPulse {
+  0% {
+    height: 6px;
+  }
+  100% {
+    height: 22px;
+  }
 }
 
 .campaign-capability:hover .capability-arrow {

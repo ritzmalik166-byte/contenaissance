@@ -161,6 +161,66 @@ export default function ServiceIdentity() {
                 }
             );
 
+// =========================================
+// CENTER TO POSITION CARD ANIMATION
+// =========================================
+
+const section = root.current;
+
+const cards = gsap.utils.toArray(
+  '[data-center-card]',
+  section
+);
+
+const sectionRect = section.getBoundingClientRect();
+
+const centerX = sectionRect.width / 2;
+const centerY = sectionRect.height / 2;
+
+// Make every card originate from section center
+cards.forEach((card, index) => {
+  const rect = card.getBoundingClientRect();
+
+  const cardCenterX =
+    rect.left - sectionRect.left + rect.width / 2;
+
+  const cardCenterY =
+    rect.top - sectionRect.top + rect.height / 2;
+
+  gsap.set(card, {
+    x: centerX - cardCenterX,
+    y: centerY - cardCenterY,
+    scale: 0.65,
+    rotation: index % 2 === 0 ? -8 : 8,
+    autoAlpha: 0,
+    transformOrigin: 'center center',
+  });
+});
+
+// Animate cards into their original positions
+gsap.to(cards, {
+  x: 0,
+  y: 0,
+  scale: 1,
+  rotation: 0,
+  autoAlpha: 1,
+
+  duration: 1.4,
+
+  stagger: {
+    each: 0.12,
+    from: 'center',
+  },
+
+  ease: 'expo.out',
+
+  scrollTrigger: {
+    trigger: section,
+    start: 'top 75%',
+    toggleActions: 'play none none reverse',
+  },
+});
+
             return () => mm.revert();
         },
         { scope: root }
@@ -269,7 +329,7 @@ export default function ServiceIdentity() {
 
                     {/* LOGO CONSTRUCTION BOARD */}
 
-                    <div className="identity-artifact identity-logo-board">
+                    <div data-center-card className="identity-artifact identity-logo-board">
 
                         <div className="artifact-label">
                             <span>MARK / CONSTRUCTION 01</span>
@@ -302,7 +362,7 @@ export default function ServiceIdentity() {
 
                     {/* TYPOGRAPHY SPECIMEN */}
 
-                    <div className="identity-artifact identity-type-card">
+                    <div data-center-card className="identity-artifact identity-type-card">
 
                         <p className="type-label">
                             TYPE / SPECIMEN
@@ -340,7 +400,7 @@ export default function ServiceIdentity() {
 
                     {/* COLOUR SYSTEM */}
 
-                    <div className="identity-artifact identity-color-board">
+                    <div data-center-card className="identity-artifact identity-color-board">
 
                         <div className="color-board-label">
                             COLOUR / SYSTEM
@@ -372,7 +432,7 @@ export default function ServiceIdentity() {
 
                     {/* APPLICATION PREVIEW */}
 
-                    <div className="identity-artifact identity-application">
+                    <div data-center-card className="identity-artifact identity-application">
 
                         <img
                             src="/images/identity-application.jpg"
@@ -396,7 +456,7 @@ export default function ServiceIdentity() {
 
                     {/* INTERACTIVE BRAND KIT */}
 
-                    <div className="identity-artifact identity-kit">
+                    <div data-center-card className="identity-artifact identity-kit">
 
                         <div className="kit-greeting">
                             <span>Good evening</span>
@@ -452,7 +512,7 @@ export default function ServiceIdentity() {
 
                     {/* MOTION IDENTITY TIMELINE */}
 
-                    <div className="identity-artifact identity-motion-board">
+                    <div data-center-card className="identity-artifact identity-motion-board">
 
                         <div className="motion-header">
                             <span>MOTION IDENTITY / LOGO REVEAL</span>

@@ -5,20 +5,28 @@
 
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  overflow: clip;
+  min-height: 100svh;
   background: #080807;
   color: var(--story-white);
+
+  /* Important: Do not clip GSAP pinned content */
+  overflow: visible;
 }
+
+/* =================================
+   PINNED STAGE
+================================= */
 
 .story-stage {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 100%;
   height: 100svh;
-  overflow: hidden;
+  min-height: 100svh;
+
   background: #080807;
 }
 
@@ -31,38 +39,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 78vw;
   height: 70svh;
+
   overflow: hidden;
   isolation: isolate;
+
   background: #080807;
   border-radius: 5px;
+
   will-change: width, height, border-radius;
   box-shadow: 0 30px 100px rgba(0, 0, 0, .45);
 }
-
-/* VIDEO */
 
 .story-video {
   position: absolute;
   z-index: -3;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   object-position: center;
+
   pointer-events: none;
 }
 
 /* =================================
-   CINEMATIC OVERLAYS
+   OVERLAYS
 ================================= */
 
 .story-overlay {
   position: absolute;
   z-index: -2;
   inset: 0;
+
   pointer-events: none;
+
   background:
     linear-gradient(
       90deg,
@@ -82,7 +97,9 @@
   position: absolute;
   z-index: -1;
   inset: 0;
+
   pointer-events: none;
+
   box-shadow:
     inset 0 0 130px rgba(0, 0, 0, .5),
     inset 0 0 30px rgba(0, 0, 0, .25);
@@ -97,17 +114,22 @@
   z-index: 5;
   top: 0;
   left: 0;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
   width: 100%;
   height: 67px;
+
   padding: 0 4.3%;
+
   border-bottom: 1px solid rgba(255, 255, 255, .08);
+
   background: rgba(0, 0, 0, .82);
   color: #F0F2EF;
+
   font-size: 10px;
-  font-weight: 400;
   letter-spacing: .13em;
 }
 
@@ -120,44 +142,57 @@
 .story-rec-dot {
   width: 7px;
   height: 7px;
+
   border-radius: 50%;
   background: #f35d50;
+
   box-shadow: 0 0 10px rgba(243, 93, 80, .6);
 }
 
 /* =================================
-   HERO TEXT
+   HERO
 ================================= */
 
 .story-hero {
   position: relative;
   z-index: 4;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   width: 100%;
+
   padding: 70px 4% 30px;
+
   text-align: center;
   pointer-events: none;
 }
 
 .story-kicker {
   margin: 0 0 37px;
+
   color: var(--story-gold);
+
   font-size: 11px;
-  font-weight: 400;
   letter-spacing: .11em;
 }
+
 .story-title {
   max-width: 1250px;
+
   margin: 0;
+
   color: var(--story-white);
+
   font-size: 112px;
   font-weight: 700;
   line-height: .99;
   letter-spacing: -.075em;
+
   text-wrap: balance;
+
   will-change: transform, opacity;
 }
 
@@ -172,8 +207,11 @@
 .story-accent-line {
   width: 240px;
   height: 2px;
+
   margin-top: 42px;
+
   background: var(--story-gold);
+
   transform-origin: center;
 }
 
@@ -184,20 +222,29 @@
 .story-play-button {
   position: absolute;
   z-index: 7;
+
   right: 35px;
   bottom: 100px;
+
   display: grid;
   place-items: center;
+
   width: 48px;
   height: 48px;
-  padding: 0 0 0 2px;
+
+  padding: 0;
+
   border: 1px solid rgba(255, 255, 255, .55);
   border-radius: 50%;
+
   background: rgba(0, 0, 0, .3);
   color: white;
+
   font-size: 18px;
+
   cursor: pointer;
   opacity: 0;
+
   transition:
     opacity .3s ease,
     background .3s ease,
@@ -215,64 +262,78 @@
 }
 
 /* =================================
-   BOTTOM CAMERA BAR
+   FOOTER OUTSIDE VIDEO
 ================================= */
 
-.story-footer {
-  position: absolute;
-  z-index: 5;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 0 4.3% 22px;
-  background: linear-gradient(
-    transparent,
-    rgba(0, 0, 0, .8)
-  );
+.story-caption {
+  position: relative;
+  z-index: 2;
+
+  display: block;
+
+  width: 100%;
+  min-height: 78px;
+
+  padding: 17px 4.3% 13px;
+
+  background: #080807;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+
   color: rgba(255, 255, 255, .57);
-  font-size: 10px;
-  letter-spacing: .1em;
 }
 
-.story-footer-top {
+.story-caption-inner {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
   gap: 15px;
-  margin-bottom: 20px;
+
+  font-size: 9px;
+  letter-spacing: .1em;
 }
 
 .story-sound-hint {
   color: var(--story-gold);
 }
 
-.story-timeline {
+.story-caption-timeline {
   position: relative;
+
   width: 100%;
   height: 2px;
+
+  margin-top: 13px;
+
   overflow: hidden;
-  background: rgba(255, 255, 255, .25);
+
+  background: rgba(255, 255, 255, .2);
 }
 
 .story-progress {
   position: absolute;
   inset: 0;
+
   background: var(--story-gold);
+
   transform: scaleX(0);
   transform-origin: left;
 }
 
-.story-time {
+.story-caption-time {
   display: flex;
   justify-content: flex-end;
+
   gap: 7px;
-  margin-top: 10px;
-  font-size: 10px;
+
+  margin-top: 8px;
+
+  font-size: 9px;
   font-variant-numeric: tabular-nums;
 }
 
 /* =================================
-   DESKTOP
+   LARGE DESKTOP
 ================================= */
 
 @media (min-width: 1400px) {
@@ -286,7 +347,6 @@
 
   .story-accent-line {
     margin-top: 46px;
-    width: 240px;
   }
 }
 
@@ -294,7 +354,7 @@
    TABLET
 ================================= */
 
-@media (max-width: 1100px) {
+@media (min-width: 701px) and (max-width: 1100px) {
   .story-frame {
     width: 86vw;
     height: 68svh;
@@ -321,6 +381,7 @@
 @media (max-width: 700px) {
   .story-stage {
     height: 100svh;
+    min-height: 100svh;
   }
 
   .story-frame {
@@ -359,31 +420,35 @@
     margin-top: 26px;
   }
 
-  .story-footer {
-    padding: 0 15px 15px;
+  .story-caption {
+    min-height: 72px;
+    padding: 15px 15px 12px;
+  }
+
+  .story-caption-inner {
     font-size: 8px;
     letter-spacing: .06em;
   }
 
-  .story-footer-top {
-    margin-bottom: 13px;
-  }
-
-  .story-time {
-    font-size: 9px;
+  .story-caption-time {
+    font-size: 8px;
   }
 
   .story-play-button {
     right: 17px;
     bottom: 85px;
+
     width: 38px;
     height: 38px;
+
     opacity: .85;
     font-size: 14px;
   }
 }
 
-/* SMALL MOBILE */
+/* =================================
+   SMALL MOBILE
+================================= */
 
 @media (max-width: 380px) {
   .story-frame {
@@ -403,17 +468,20 @@
     gap: 7px;
   }
 
-  .story-footer {
+  .story-caption-inner {
     font-size: 7px;
   }
 }
 
-/* REDUCED MOTION */
+/* =================================
+   REDUCED MOTION
+================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .story-frame,
   .story-title,
-  .story-accent-line {
+  .story-accent-line,
+  .story-play-button {
     transition: none !important;
   }
 }

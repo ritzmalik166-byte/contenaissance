@@ -24,7 +24,7 @@ export default function Rocket() {
       const bars = q('.rocket-progress i');
       const flame = q('.rocket__flame')[0];
       gsap.set(flame, {
-        scaleY: 0.55,
+        scaleY: 0.45,
         transformOrigin: '50% 0%',
       });
       const noseAt = modules.length; // 5
@@ -239,122 +239,9 @@ export default function Rocket() {
 
             <div className="rocket__nozzle" />
 
-
-            <svg
-              className="rocket__flame"
-              viewBox="0 0 80 160"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="fireOuter" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#fff8a0" />
-                  <stop offset="15%" stopColor="#ffcf46" />
-                  <stop offset="45%" stopColor="#ff7926" />
-                  <stop offset="78%" stopColor="#ff4224" />
-                  <stop offset="100%" stopColor="#c91d16" stopOpacity="0" />
-                </linearGradient>
-
-                <linearGradient id="fireCore" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="35%" stopColor="#ffffb0" />
-                  <stop offset="75%" stopColor="#e5ff68" />
-                  <stop offset="100%" stopColor="#ffb52b" stopOpacity="0" />
-                </linearGradient>
-
-                <filter id="fireDistortion" x="-60%" y="-20%" width="220%" height="150%">
-                  <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.035 0.09"
-                    numOctaves="2"
-                    seed="4"
-                    result="noise"
-                  >
-                    <animate
-                      attributeName="baseFrequency"
-                      values="0.035 0.09;0.05 0.12;0.025 0.07;0.045 0.1"
-                      dur="0.7s"
-                      repeatCount="indefinite"
-                    />
-                  </feTurbulence>
-
-                  <feDisplacementMap
-                    in="SourceGraphic"
-                    in2="noise"
-                    scale="13"
-                    xChannelSelector="R"
-                    yChannelSelector="G"
-                  >
-                    <animate
-                      attributeName="scale"
-                      values="9;16;11;18;9"
-                      dur="0.55s"
-                      repeatCount="indefinite"
-                    />
-                  </feDisplacementMap>
-                </filter>
-              </defs>
-
-              <g className="flame3">
-
-                {/* Turbulent outer exhaust */}
-                <path
-                  className="fire-outer"
-                  d="
-        M15 0
-        C9 24 18 35 8 60
-        C-2 88 14 119 40 160
-        C66 118 82 88 72 60
-        C62 35 71 24 65 0
-        C57 17 53 23 40 30
-        C28 22 23 12 15 0Z
-      "
-                  fill="url(#fireOuter)"
-                  filter="url(#fireDistortion)"
-                />
-
-                {/* Moving orange tongues */}
-                <path
-                  className="fire-tongue fire-tongue--left"
-                  d="M18 0 C-2 33 23 47 13 78 C34 55 29 25 18 0Z"
-                  fill="#ff9a25"
-                />
-
-                <path
-                  className="fire-tongue fire-tongue--right"
-                  d="M62 0 C83 32 57 52 68 79 C46 54 51 24 62 0Z"
-                  fill="#ff6124"
-                />
-
-                {/* Hot yellow exhaust */}
-                <path
-                  className="fire-yellow"
-                  d="
-        M27 0
-        C21 30 34 43 25 75
-        C19 102 33 127 40 139
-        C51 112 63 91 54 67
-        C48 40 58 19 52 0
-        C47 20 43 29 39 40
-        C35 23 33 11 27 0Z
-      "
-                  fill="#d5fa62"
-                />
-
-                {/* Bright inner core */}
-                <path
-                  className="fire-hot"
-                  d="
-        M34 0
-        C29 27 39 43 34 66
-        C30 89 38 108 40 117
-        C48 89 50 69 44 47
-        C42 27 43 12 34 0Z
-      "
-                  fill="url(#fireCore)"
-                />
-
-              </g>
+            <svg className="rocket__flame" viewBox="0 0 34 70" aria-hidden="true">
+              <path d="M2 0h30l-6 38c-3 18-6 30-9 32-3-2-6-14-9-32Z" fill="#ff5a3c" />
+              <path d="M9 0h16l-3 26c-2 12-3 18-5 20-2-2-3-8-5-20Z" fill="#c8f04a" />
             </svg>
 
             <div className="rocket__smoke" />

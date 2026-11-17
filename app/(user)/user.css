@@ -941,21 +941,66 @@ textarea {
   pointer-events: none;
 }
 
+
 .rocket__nozzle {
-  width: 40px;
+  width: 50px;
   height: 18px;
   background: #f4f4f0;
   border-radius: 3px 3px 6px 6px;
   margin-top: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .rocket__flame {
+  display: block;
   width: 34px;
   height: 70px;
   margin-top: -2px;
-  transform-origin: 50% 0;
-  transform: scaleY(0.25);
+  flex-shrink: 0;
+  transform-origin: 50% 0%;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
 }
+
+/* Animate flame shapes only */
+.rocket__flame path:first-child {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: outer-fire 0.16s ease-in-out infinite alternate;
+}
+
+.rocket__flame path:last-child {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: inner-fire 0.12s ease-in-out infinite alternate;
+}
+
+@keyframes outer-fire {
+  from {
+    transform: scaleY(0.92) scaleX(0.96);
+  }
+  to {
+    transform: scaleY(1) scaleX(1.04);
+  }
+}
+
+@keyframes inner-fire {
+  from {
+    transform: scaleY(0.88) scaleX(1.04);
+  }
+  to {
+    transform: scaleY(1) scaleX(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rocket__flame path {
+    animation: none;
+  }
+}
+
 
 .rocket__smoke {
   position: absolute;
