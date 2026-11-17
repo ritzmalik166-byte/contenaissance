@@ -172,12 +172,12 @@
 
   margin-bottom: clamp(34px, 3.2vw, 56px);
 
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.095em;
 
-  color: rgba(255, 255, 255, 0.9);
+  color: #F1EDE5;
 }
 
 .di-eyebrow-dot {
@@ -209,12 +209,12 @@
   position: relative;
   margin: 0;
 
-  font-size: clamp(58px, 6.65vw, 120px);
-  font-weight: 750;
+  font-size: 92px;
+  font-weight: 700;
   line-height: 0.99;
   letter-spacing: -0.067em;
 
-  color: #f5f0e8;
+  color: #F1EDE5;
   will-change: transform;
 }
 
@@ -222,9 +222,10 @@
   display: block;
   width: fit-content;
   max-width: 100%;
+  padding-right: 5px;
+  padding-bottom: 5px;
 
   overflow: hidden;
-  padding-bottom: 0.035em;
 }
 
 .di-period {
@@ -266,12 +267,11 @@
 
   margin: 0;
 
-  font-size: clamp(17px, 1.32vw, 23px);
+  font-size: 17px;
   line-height: 1.58;
   font-weight: 400;
-  letter-spacing: -0.025em;
 
-  color: rgba(24, 13, 6, 0.94);
+  color: #1B0F06;
 
   opacity: 1;
   visibility: visible;
@@ -284,11 +284,11 @@
 
   margin-top: 27px;
 
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 400;
   letter-spacing: 0.075em;
 
-  color: rgba(20, 12, 5, 0.92);
+  color: #1B0F06;
 
   opacity: 1;
   visibility: visible;
@@ -309,7 +309,7 @@
 
   width: 100%;
   margin-top: auto;
-  margin-bottom: 20px;
+  margin-bottom: 150px;
 }
 
 .di-mega-clip {
@@ -367,86 +367,6 @@
   }
 }
 
-/* =========================================
-   CURSOR REACTIVE FIELD
-========================================= */
-
-.di-field-label {
-  position: absolute;
-  top: 43%;
-  left: 51%;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  pointer-events: none;
-  will-change: transform;
-}
-
-.di-field-ring {
-  position: relative;
-
-  width: 110px;
-  height: 110px;
-  flex: 0 0 110px;
-
-  display: grid;
-  place-items: center;
-
-  border: 1.4px solid rgba(20, 12, 5, 0.9);
-  border-radius: 50%;
-
-  animation: di-field-pulse 4s ease-in-out infinite;
-}
-
-.di-field-ring::before,
-.di-field-ring::after {
-  content: "";
-  position: absolute;
-  inset: 9px;
-
-  border: 1px solid rgba(20, 12, 5, 0.18);
-  border-radius: 50%;
-}
-
-.di-field-ring::after {
-  inset: -8px;
-  border-color: rgba(20, 12, 5, 0.12);
-}
-
-.di-field-ring span {
-  width: 10px;
-  height: 10px;
-
-  border-radius: 50%;
-  background: #090705;
-  box-shadow: 0 0 15px rgba(9, 7, 5, 0.3);
-}
-
-.di-field-line {
-  width: 55px;
-  height: 1.5px;
-  background: #090705;
-}
-
-.di-field-box {
-  display: block;
-  padding: 11px 15px;
-
-  background: #090705;
-  color: #f4ede3;
-
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  white-space: nowrap;
-
-  transition:
-    background 0.4s ease,
-    transform 0.4s ease;
-}
-
 @keyframes di-field-pulse {
   0%, 100% {
     transform: scale(1);
@@ -492,48 +412,6 @@
   background: #090705;
 
   transform: translate(-50%, -50%);
-}
-
-/* =========================================
-   BOTTOM FOOTER
-========================================= */
-
-.di-bottom {
-  position: relative;
-  z-index: 3;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-  width: 100%;
-
-  margin-top: 40px;
-  padding-top: 18px;
-
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.11em;
-
-  color: rgba(25, 14, 6, 0.83);
-}
-
-.di-bottom span {
-  transition:
-    transform 0.4s ease,
-    opacity 0.4s ease;
-}
-
-.di-bottom-center {
-  opacity: 0.65;
-}
-
-@media (hover: hover) {
-  .di-bottom span:hover {
-    transform: translateY(-3px);
-    opacity: 1;
-  }
 }
 
 /* =========================================
@@ -628,26 +506,6 @@
   .di-mega-text {
     font-size: 19vw;
   }
-
-  .di-field-label {
-    left: 38%;
-    top: 27%;
-  }
-
-  .di-field-ring {
-    width: 68px;
-    height: 68px;
-    flex-basis: 68px;
-  }
-
-  .di-field-line {
-    width: 25px;
-  }
-
-  .di-field-box {
-    font-size: 8px;
-    padding: 9px;
-  }
 }
 
 /* =========================================
@@ -700,57 +558,12 @@
     line-height: 0.9;
   }
 
-  .di-field-label {
-    left: 17%;
-    top: 15%;
-    gap: 7px;
-  }
-
-  .di-field-ring {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-  }
-
-  .di-field-ring::before {
-    inset: 5px;
-  }
-
-  .di-field-ring::after {
-    inset: -5px;
-  }
-
-  .di-field-ring span {
-    width: 6px;
-    height: 6px;
-  }
-
-  .di-field-line {
-    width: 17px;
-  }
-
-  .di-field-box {
-    padding: 7px 8px;
-    font-size: 7px;
-  }
-
   .di-cursor {
     display: none;
   }
 
   .di-spotlight {
     opacity: 0.4;
-  }
-
-  .di-bottom {
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 25px;
-    font-size: 8px;
-  }
-
-  .di-bottom-center {
-    display: none;
   }
 }
 
@@ -794,7 +607,6 @@
   }
 
   .di-cross,
-  .di-bottom span,
   .di-period {
     transition: none !important;
   }

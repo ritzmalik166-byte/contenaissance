@@ -49,7 +49,7 @@
   align-items: center;
   gap: 23px;
   margin-bottom: 40px;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: .08em;
 }
 
@@ -57,19 +57,20 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  color: var(--identity-gold);
+    font-size: 12px;
+  color: #ECCD76;
 }
 
 .identity-stage i {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--identity-gold);
+  background: #ECCD76;
 }
 
 .identity-heading {
   margin: 0;
-  font-size: clamp(65px, 7vw, 126px);
+  font-size: 96px;
   font-weight: 700;
   line-height: .98;
   letter-spacing: -.075em;
@@ -77,8 +78,8 @@
 
 .identity-tagline {
   margin: 26px 0 0 3px;
-  color: #d9a600;
-  font-size: clamp(23px, 2.1vw, 37px);
+  color: #EBBD40;
+  font-size: 28px;
   font-style: italic;
   font-weight: 400;
   line-height: 1.15;
@@ -95,12 +96,15 @@
   margin-top: -20px;
   color: transparent;
   -webkit-text-stroke: 1.4px rgba(20, 19, 17, .15);
-  font-size: clamp(150px, 15vw, 280px);
-  line-height: 1;
-  font-weight: 300;
-  letter-spacing: -.09em;
+  font-size: 200px;
+  font: bold;
   text-align: center;
   user-select: none;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: -0.06em;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* =========================================
@@ -116,7 +120,7 @@
 .identity-eyebrow {
   margin: 0 0 24px;
   color: #d94e27;
-  font-size: 13px;
+  font-size: 11px;
   letter-spacing: .09em;
 }
 
@@ -124,7 +128,7 @@
   max-width: 500px;
   margin: 0;
   color: #55534f;
-  font-size: clamp(16px, 1.22vw, 21px);
+  font-size: 17px;
   line-height: 1.55;
   letter-spacing: -.02em;
 }
@@ -134,7 +138,7 @@
 ========================================= */
 
 .identity-service-list {
-  margin-top: 68px;
+  margin-top: 28px;
   border-top: 1px solid rgba(0, 0, 0, .17);
 }
 
@@ -232,6 +236,7 @@
   gap: 32px;
   align-items: start;
   min-height: 760px;
+  margin-top: -50px;
 }
 
 /* Shared artifact */
@@ -405,7 +410,7 @@
   width: 75%;
   height: 310px;
   width: 440px;
-  margin-top: 30px;
+  margin-top: 70px;
   padding: 23px;
   border-radius: 4px;
   background: #faf9f5;
@@ -548,6 +553,7 @@
   width: 68%;
   height: 320px;
   width: 230px;
+  margin-top: -25px;
   margin-left: -10px;
   overflow: hidden;
   border-radius: 8px;
@@ -627,7 +633,7 @@
   width: 63%;
   min-height: 400px;
   width: 226px;
-  margin-top: -5px;
+  margin-top: -35px;
   padding: 27px 22px 23px;
   border-radius: 32px;
   background: #090705;
@@ -759,7 +765,7 @@
   grid-column: 1 / 3;
   grid-row: 2 / 4;
   align-self: end;
-  height: 170px;
+  height: 180px;
   width: 790px;
   margin-top: 32px;
   padding: 24px;

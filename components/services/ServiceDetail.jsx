@@ -252,7 +252,6 @@ export default function ServiceDetail() {
               className="detail-cta"
             >
               <span>Explore AI Brand Films</span>
-              <ArrowUpRight />
             </Link>
 
           </div>

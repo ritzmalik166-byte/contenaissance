@@ -1,7 +1,7 @@
 
 .story-showreel {
-  --story-gold: #efbd37;
-  --story-white: #f0ede7;
+  --story-gold: #EBBD40;
+  --story-white: #F1EDE5;
 
   position: relative;
   width: 100%;
@@ -105,8 +105,9 @@
   padding: 0 4.3%;
   border-bottom: 1px solid rgba(255, 255, 255, .08);
   background: rgba(0, 0, 0, .82);
-  color: rgba(255, 255, 255, .62);
+  color: #F0F2EF;
   font-size: 10px;
+  font-weight: 400;
   letter-spacing: .13em;
 }
 
@@ -144,15 +145,15 @@
 .story-kicker {
   margin: 0 0 37px;
   color: var(--story-gold);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 400;
   letter-spacing: .11em;
 }
-
 .story-title {
   max-width: 1250px;
   margin: 0;
   color: var(--story-white);
-  font-size: clamp(48px, 7.8vw, 145px);
+  font-size: 112px;
   font-weight: 700;
   line-height: .99;
   letter-spacing: -.075em;
@@ -160,8 +161,12 @@
   will-change: transform, opacity;
 }
 
-.story-title span {
+.story-title .future {
   color: var(--story-gold);
+}
+
+.story-title .storytelling {
+  color: #F1EDE58C;
 }
 
 .story-accent-line {

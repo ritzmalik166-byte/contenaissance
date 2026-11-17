@@ -290,7 +290,7 @@ export default function ServiceCampaigns() {
             >
               <span>Explore AI Campaigns</span>
 
-              <svg viewBox="0 0 24 24" fill="none">
+              {/* <svg viewBox="0 0 24 24" fill="none">
                 <path
                   d="M5 19L19 5M8 5H19V16"
                   stroke="currentColor"
@@ -298,7 +298,7 @@ export default function ServiceCampaigns() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-              </svg>
+              </svg> */}
             </Link>
 
           </div>

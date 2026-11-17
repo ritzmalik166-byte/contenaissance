@@ -5,7 +5,9 @@
   background: #090806;
 }
 
-/* Pinned viewport */
+/* =========================================
+   PINNED STAGE
+========================================= */
 
 .showreel-stage {
   position: relative;
@@ -15,7 +17,9 @@
   background: #090806;
 }
 
-/* Animated video frame */
+/* =========================================
+   MAIN FRAME
+========================================= */
 
 .showreel-frame {
   position: absolute;
@@ -25,9 +29,14 @@
   width: 76vw;
   height: 72svh;
 
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
   overflow: hidden;
+
   border-radius: 8px;
-  background: #080808;
+  background: #090806;
 
   transform: translate(-50%, -50%);
   transform-origin: center center;
@@ -35,64 +44,34 @@
   will-change: width, height, border-radius;
 }
 
-/* Video */
-
-.showreel-video {
-  position: absolute;
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-  object-position: center;
-
-  background: #080808;
-}
-
-/* Cinematic overlay */
-
-.showreel-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.65) 0%,
-      transparent 22%,
-      transparent 55%,
-      rgba(0, 0, 0, 0.6) 100%
-    );
-}
-
-/* TOP BAR */
+/* =========================================
+   TOP BLACK RECORDING BAR
+========================================= */
 
 .showreel-topbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 3;
+  position: relative;
+  z-index: 5;
+
+  flex: 0 0 54px;
+  min-height: 54px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   width: 100%;
-  min-height: 54px;
+  box-sizing: border-box;
   padding: 0 4.5%;
 
-  background: rgba(0, 0, 0, 0.88);
-  color: #c8c5bd;
+  background: #050504;
+  color: #F0F2EF;
 }
 
 .showreel-brand,
 .showreel-recording {
   font-size: 10px;
   letter-spacing: 0.12em;
+  white-space: nowrap;
 }
 
 .showreel-recording {
@@ -104,8 +83,11 @@
 .showreel-rec-dot {
   width: 8px;
   height: 8px;
+  flex: 0 0 8px;
+
   border-radius: 50%;
   background: #ff554b;
+
   animation: showreelBlink 1.5s infinite;
 }
 
@@ -115,20 +97,93 @@
   }
 }
 
-/* CORNER FRAME */
+/* =========================================
+   VIDEO MEDIA
+========================================= */
+
+.showreel-media {
+  position: relative;
+
+  flex: 1 1 auto;
+  min-height: 0;
+
+  width: 100%;
+  overflow: hidden;
+
+  background: #090806;
+}
+
+/* Video stays inside media only */
+
+.showreel-video {
+  position: absolute;
+  inset: 0;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  background: #090806;
+}
+
+/* =========================================
+   CINEMATIC OVERLAY
+========================================= */
+
+.showreel-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  pointer-events: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.20) 0%,
+    transparent 35%,
+    rgba(0, 0, 0, 0.12) 60%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+
+/* =========================================
+   FIXED BOTTOM BLACK PADDING
+========================================= */
+
+.showreel-bottom-space {
+  position: relative;
+  z-index: 5;
+
+  flex: 0 0 70px;
+  min-height: 70px;
+
+  width: 100%;
+
+  background: #090806;
+}
+
+/* =========================================
+   CORNER FRAME ELEMENTS
+========================================= */
 
 .showreel-corners {
   position: absolute;
-  inset: 90px 4.5% 40px;
-  z-index: 2;
+  inset: 10% 4.5% 7%;
 
+  z-index: 2;
   pointer-events: none;
 }
 
 .corner {
   position: absolute;
+
   width: 35px;
   height: 35px;
+
   border-color: rgba(255, 255, 255, 0.6);
   border-style: solid;
 }
@@ -157,12 +212,15 @@
   border-width: 0 1px 1px 0;
 }
 
-/* CENTER PLAY */
+/* =========================================
+   CENTER PLAY BUTTON
+========================================= */
 
 .showreel-center {
   position: absolute;
   top: 50%;
   left: 50%;
+
   z-index: 4;
 
   display: flex;
@@ -209,18 +267,24 @@
 
 .showreel-hint {
   color: #c0c2c0;
+
   font-size: 10px;
   letter-spacing: 0.13em;
+
   white-space: nowrap;
 }
 
-/* BOTTOM CONTENT */
+/* =========================================
+   BOTTOM CINEMATIC CONTENT
+========================================= */
 
 .showreel-bottom {
   position: absolute;
+
   right: 4.5%;
   bottom: 40px;
   left: 4.5%;
+
   z-index: 3;
 }
 
@@ -228,14 +292,16 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+
   gap: 20px;
 }
 
 .showreel-title {
   margin: 0;
-  color: #f1eee7;
 
-  font-size: clamp(32px, 4vw, 72px);
+  color: #F1EDE5;
+
+  font-size: 56px;
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.045em;
@@ -244,8 +310,9 @@
 .showreel-chapter {
   margin: 20px 0 0;
 
-  color: #e9bd3e;
-  font-size: 11px;
+  color: #EBBD40;
+
+  font-size: 10px;
   letter-spacing: 0.08em;
 }
 
@@ -253,18 +320,22 @@
   padding-bottom: 2px;
 
   color: #b6b7b3;
+
   font-size: 10px;
   letter-spacing: 0.1em;
   white-space: nowrap;
 }
 
-/* TIMELINE */
+/* =========================================
+   TIMELINE
+========================================= */
 
 .showreel-timeline {
   position: relative;
 
   width: 100%;
   height: 2px;
+
   margin-top: 28px;
 
   background: rgba(255, 255, 255, 0.22);
@@ -305,12 +376,25 @@
   left: 75%;
 }
 
-/* TABLET */
+/* =========================================
+   TABLET
+========================================= */
 
 @media (max-width: 1024px) {
   .showreel-frame {
     width: 84vw;
     height: 68svh;
+  }
+
+  .showreel-topbar {
+    flex-basis: 50px;
+    min-height: 50px;
+    padding-inline: 3%;
+  }
+
+  .showreel-bottom-space {
+    flex-basis: 60px;
+    min-height: 60px;
   }
 
   .showreel-play {
@@ -322,16 +406,14 @@
     font-size: clamp(32px, 5vw, 54px);
   }
 
-  .showreel-topbar {
-    padding-inline: 3%;
-  }
-
   .showreel-recording {
     gap: 12px;
   }
 }
 
-/* MOBILE */
+/* =========================================
+   MOBILE
+========================================= */
 
 @media (max-width: 700px) {
   .showreel-stage {
@@ -345,7 +427,9 @@
   }
 
   .showreel-topbar {
-    min-height: 48px;
+    flex-basis: 44px;
+    min-height: 44px;
+
     padding-inline: 15px;
   }
 
@@ -359,12 +443,23 @@
     font-size: 8px;
   }
 
+  .showreel-rec-dot {
+    width: 6px;
+    height: 6px;
+    flex-basis: 6px;
+  }
+
   .showreel-recording span:last-child {
     display: none;
   }
 
+  .showreel-bottom-space {
+    flex-basis: 45px;
+    min-height: 45px;
+  }
+
   .showreel-corners {
-    inset: 65px 15px 30px;
+    inset: 8% 15px 7%;
   }
 
   .corner {
@@ -396,8 +491,8 @@
   }
 
   .showreel-title {
-    font-size: clamp(27px, 7vw, 40px);
     max-width: 340px;
+    font-size: clamp(27px, 7vw, 40px);
   }
 
   .showreel-chapter {
@@ -415,7 +510,9 @@
   }
 }
 
-/* REDUCED MOTION */
+/* =========================================
+   REDUCED MOTION
+========================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .showreel-rec-dot {

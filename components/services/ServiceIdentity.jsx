@@ -100,7 +100,7 @@ export default function ServiceIdentity() {
                             {
                                 opacity: 0,
                                 y: 45,
-                                rotate: 2,
+                                rotate: 0,
                                 duration: 0.9,
                                 stagger: 0.13,
                                 ease: 'power3.out',
@@ -130,31 +130,31 @@ export default function ServiceIdentity() {
 
                     // Floating specimen card
                     gsap.to('.identity-type-card', {
-                        y: -9,
-                        rotation: 0.4,
-                        duration: 3.5,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: 'sine.inOut',
+                        // y: -9,
+                        rotation: 3,
+                        // duration: 3.5,
+                        // repeat: -1,
+                        // yoyo: true,
+                        // ease: 'sine.inOut',
                     });
 
                     // Floating application card
                     gsap.to('.identity-application', {
-                        y: -8,
-                        rotation: -0.6,
-                        duration: 4,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: 'sine.inOut',
+                        // y: -8,
+                        rotation: -3,
+                        // duration: 4,
+                        // repeat: -1,
+                        // yoyo: true,
+                        // ease: 'sine.inOut',
                     });
 
                     // Brand kit subtle movement
                     gsap.to('.identity-kit', {
-                        y: -5,
-                        duration: 3,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: 'sine.inOut',
+                        // y: -5,
+                        // duration: 3,
+                        // repeat: -1,
+                        // yoyo: true,
+                        // ease: 'sine.inOut',
                     });
 
                     return () => intro.kill();
@@ -255,7 +255,6 @@ export default function ServiceIdentity() {
                             className="identity-cta"
                         >
                             Explore Visual Identity
-                            <span>↗</span>
                         </Link>
 
                     </div>
@@ -482,7 +481,7 @@ export default function ServiceIdentity() {
                                     )}
 
                                     <span className="motion-diamond" />
-                                    <small>{stage}</small>
+                                    {/* <small>{stage}</small> */}
                                 </div>
                             ))}
 

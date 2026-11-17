@@ -71,7 +71,7 @@ function ServiceRow({ item, index }) {
 
     if (!video) return;
 
-    video.play().catch(() => {});
+    video.play().catch(() => { });
   };
 
   const handleLeave = () => {
@@ -120,31 +120,31 @@ function ServiceRow({ item, index }) {
 
       {/* Hover Video Preview */}
 
-{/* Hover Video Preview */}
-{item.video?.preview && (
-  <button
-    type="button"
-    className="services-row-preview"
-    onClick={playVideo}
-    aria-label={`VIEW ${item.title}`}
-    data-cursor="VIEW"
-  >
-    <span className="services-preview-label mono">
-      REEL · 9:16
-    </span>
+      {/* Hover Video Preview */}
+      {item.video?.preview && (
+        <button
+          type="button"
+          className="services-row-preview"
+          onClick={playVideo}
+          aria-label={`VIEW ${item.title}`}
+          data-cursor="VIEW"
+        >
+          <span className="services-preview-label mono">
+            REEL · 9:16
+          </span>
 
-    <video
-      ref={videoRef}
-      className="services-preview-video"
-      src={item.video.preview}
-      poster={item.video.poster}
-      muted
-      loop
-      playsInline
-      preload="none"
-    />
-  </button>
-)}
+          <video
+            ref={videoRef}
+            className="services-preview-video"
+            src={item.video.preview}
+            poster={item.video.poster}
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </button>
+      )}
 
       {/* Arrow */}
       <button

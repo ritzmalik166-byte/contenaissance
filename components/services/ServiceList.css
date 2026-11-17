@@ -24,20 +24,23 @@
 
 .services-kicker {
   margin-bottom: 32px;
-  color: #e9bd48;
-  font-size: 12px;
+  color: #EBBD40;
+  font-weight: 400;
+  font-size: 11px;
   letter-spacing: 0.12em;
 }
 
 .services-section-title {
   margin: 0;
-  font-size: clamp(42px, 4.5vw, 78px);
+  font-size: 64px;
+  font-weight: 600;
   line-height: 1.04;
   letter-spacing: -0.055em;
-  font-weight: 500;
+  color: #F1EDE5;
 }
 
 .services-section-title span {
+  padding-top: 7px;
   display: block;
   color: #66635f;
 }
@@ -50,15 +53,18 @@
 .services-heading-right p {
   margin: 0;
   color: #a4b1ac;
-  font-size: clamp(15px, 1.2vw, 21px);
+  font-size: 17px;
+  font-weight: 400;
   line-height: 1.65;
+  color: #A7B8AF;
 }
 
 .services-stages {
   display: block;
   margin-top: 48px;
-  color: #e7bf57;
-  font-size: 11px;
+  color: #ECCD76;
+  font-weight: 400;
+  font-size: 10px;
   letter-spacing: 0.1em;
 }
 
@@ -114,15 +120,17 @@
 }
 
 .services-row-number {
-  color: #edc65b;
-  font-size: 26px;
+  color: #ECCD76;
+  font-size: 22px;
+  font-weight: 500;
   line-height: 1;
 }
 
 .services-row-code {
-  color: #7e8588;
-  font-size: 10px;
+  color: #929DA8;
+  font-size: 9px;
   letter-spacing: 0.12em;
+  font-weight: 400;
 }
 
 /* Title and description */
@@ -137,23 +145,24 @@
   position: relative;
   display: inline-block;
   margin: 0;
-  font-size: clamp(42px, 4.8vw, 86px);
+  font-size: 68px;
   line-height: 1.05;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.055em;
-  color: #eeeae3;
+  color: #F1EDE5;
   transition: color 0.4s ease;
 }
 
 .services-row:hover .services-row-title {
-  color: #efbf37;
+  color: #EBBD40;
 }
 
 .services-row-description {
   margin: 18px 0 0;
   max-width: 100%;
-  color: #929da4;
-  font-size: clamp(12px, 1vw, 16px);
+  color: #929DA8;
+  font-size: 12.5px;
+  font-weight: 400;
   line-height: 1.5;
   transition: color 0.4s ease;
 }
@@ -165,8 +174,8 @@
   z-index: 4;
   top: 50%;
   left: 68%;
-  width: clamp(135px, 12.5vw, 225px);
-  aspect-ratio: 9 / 16;
+  width: 180px;
+  height: 236px;
   padding: 0;
   overflow: visible;
   border: 0;
@@ -204,7 +213,8 @@
   top: 15px;
   left: 14px;
   z-index: 2;
-  color: #fff;
+  color: #F0F2EF;
+  font-weight: 400;
   font-size: 10px;
   letter-spacing: 0.1em;
   pointer-events: none;
@@ -213,6 +223,7 @@
 
 /* Right arrow */
 
+/* Right Arrow */
 .services-row-arrow {
   position: relative;
   z-index: 5;
@@ -220,30 +231,40 @@
   justify-content: center;
   align-items: center;
   justify-self: end;
-  width: 70px;
-  height: 70px;
+
+  width: 56px;
+  height: 56px;
+
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 50%;
+
   background: transparent;
-  color: #f0eee9;
+  color: #F0F2EF;
+
   cursor: pointer;
+
   transition:
     background 0.35s ease,
     color 0.35s ease,
-    border-color 0.35s ease,
-    transform 0.35s ease;
+    border-color 0.35s ease;
 }
 
 .services-row-arrow svg {
   width: 22px;
   height: 22px;
+
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Hover */
 .services-row:hover .services-row-arrow {
-  border-color: #edbd38;
-  background: #edbd38;
-  color: #080706;
-  transform: rotate(45deg);
+  border-color: #EBBD40;
+  background: #EBBD40;
+  color: #090705;
+}
+
+.services-row:hover .services-row-arrow svg {
+  transform: rotate(90deg);
 }
 
 /* Tablet */
@@ -346,9 +367,9 @@
     line-height: 1.6;
   }
 
-  .services-row-preview {
+  /* .services-row-preview {
     display: none;
-  }
+  } */
 
   .services-row-arrow {
     width: 38px;

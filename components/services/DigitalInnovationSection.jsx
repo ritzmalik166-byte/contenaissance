@@ -9,202 +9,124 @@ export default function DigitalInnovationSection() {
   const root = useRef(null);
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
+  const headlineRef = useRef(null);
 
-  // -----------------------------------------
-  // CINEMATIC GSAP ANIMATIONS
-  // -----------------------------------------
-
-  useGSAP(
-    () => {
-      const section = root.current;
-      if (!section) return;
-
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        {
-          desktop: '(min-width: 901px)',
-          mobile: '(max-width: 900px)',
-          reduceMotion: '(prefers-reduced-motion: reduce)',
+  // GSAP entrance and scroll animation
+useGSAP(
+  () => {
+    const ctx = gsap.context(() => {
+      const intro = gsap.timeline({
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top 78%',
+          toggleActions: 'play none none reverse',
         },
-        (context) => {
-          const { desktop, mobile, reduceMotion } = context.conditions;
+      });
 
-          if (reduceMotion) return;
+      intro
+        .from('.di-eyebrow', {
+          opacity: 0,
+          y: 15,
+          duration: 0.8,
+          ease: 'power3.out',
+        })
+        .from(
+          '.di-heading-line',
+          {
+            yPercent: 105,
+            opacity: 0,
+            stagger: 0.18,
+            duration: 1.25,
+            ease: 'power4.out',
+          },
+          '-=0.3'
+        )
+        .from(
+          '.di-description',
+          {
+            opacity: 0,
+            filter: 'blur(8px)',
+            duration: 1,
+            ease: 'power3.out',
+          },
+          '-=0.65'
+        )
+        .from(
+          '.di-meta',
+          {
+            opacity: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.5'
+        );
 
-          // Intro animation. Content remains visible before this runs.
-          const intro = gsap.timeline({
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 75%',
-              once: true,
-            },
-          });
-
-          intro
-            .fromTo(
-              '.di-eyebrow',
-              { y: 20, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                duration: 0.7,
-                ease: 'power3.out',
-              }
-            )
-            .fromTo(
-              '.di-heading-line',
-              { y: 75, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                stagger: 0.15,
-                duration: 1.1,
-                ease: 'power4.out',
-              },
-              '-=0.3'
-            )
-            .fromTo(
-              '.di-description, .di-meta',
-              { y: 25, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                stagger: 0.15,
-                duration: 0.9,
-                ease: 'power3.out',
-              },
-              '-=0.65'
-            );
-
-          // Giant typography scroll movement.
-          if (desktop) {
-            gsap.fromTo(
-              '.di-mega-text',
-              { x: 35 },
-              {
-                x: -95,
-                ease: 'none',
-                scrollTrigger: {
-                  trigger: section,
-                  start: 'top top',
-                  end: 'bottom top',
-                  scrub: 1.5,
-                },
-              }
-            );
-
-            gsap.fromTo(
-              '.di-field-label',
-              { y: 25, opacity: 0 },
-              {
-                y: -15,
-                opacity: 1,
-                ease: 'none',
-                scrollTrigger: {
-                  trigger: section,
-                  start: 'top 60%',
-                  end: 'bottom 30%',
-                  scrub: 1,
-                },
-              }
-            );
-
-            // Background parallax.
-            gsap.to('.di-gradient', {
-              yPercent: 8,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: 1.5,
-              },
-            });
-
-            // Network parallax.
-            gsap.to('.di-network', {
-              yPercent: -5,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: 1.5,
-              },
-            });
-          } else if (mobile) {
-            gsap.to('.di-mega-text', {
-              x: -35,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: 1,
-              },
-            });
-          }
-
-          // Bottom line reveal.
-          gsap.fromTo(
-            '.di-bottom-line',
-            { scaleX: 0 },
-            {
-              scaleX: 1,
-              duration: 1.2,
-              ease: 'power3.inOut',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 65%',
-                once: true,
-              },
-            }
-          );
-
-          // Subtle heading parallax.
-          if (desktop) {
-            gsap.to('.di-heading', {
-              y: -18,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: 1,
-              },
-            });
-          }
+      gsap.fromTo(
+        '.di-mega-text',
+        {
+          opacity: 0,
+          scale: 0.96,
+          filter: 'blur(12px)',
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          filter: 'blur(0px)',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top 65%',
+            end: 'bottom 70%',
+            scrub: 1.2,
+          },
         }
       );
 
-      return () => mm.revert();
-    },
-    { scope: root }
-  );
+      gsap.fromTo(
+        '.di-bottom-line',
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.5,
+          ease: 'power3.inOut',
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top 65%',
+          },
+        }
+      );
 
-  // -----------------------------------------
-  // INTERACTIVE CANVAS NETWORK
-  // -----------------------------------------
+      gsap.to('.di-cross', {
+        rotation: 90,
+        duration: 1.2,
+        ease: 'power3.inOut',
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top 40%',
+          end: 'bottom 50%',
+          scrub: 1,
+        },
+      });
+    }, root);
 
+    return () => ctx.revert();
+  },
+  { scope: root }
+);
+
+  // Interactive canvas network
   useEffect(() => {
-    const section = root.current;
     const canvas = canvasRef.current;
+    const section = root.current;
 
-    if (!section || !canvas) return;
+    if (!canvas || !section) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     let width = 0;
     let height = 0;
-    let frame = 0;
-    let lastTime = 0;
-    let nodes = [];
-
-    const reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
+    let animationId;
 
     const mouse = {
       x: -1000,
@@ -212,40 +134,39 @@ export default function DigitalInnovationSection() {
       active: false,
     };
 
+    const nodes = [];
+
     const createNodes = () => {
-      nodes = [];
+      nodes.length = 0;
 
       const count = Math.min(
-        65,
-        Math.max(24, Math.round(width / 27))
+        48,
+        Math.max(22, Math.floor(width / 38))
       );
 
       for (let i = 0; i < count; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-
         nodes.push({
-          x,
-          y,
-          originX: x,
-          originY: y,
-          radius: Math.random() > 0.78 ? 4.2 : 2.5,
+          x: Math.random() * width,
+          y: Math.random() * height,
+          baseX: Math.random() * width,
+          baseY: Math.random() * height,
+          radius: Math.random() > 0.8 ? 4 : 2,
+          speed: 0.3 + Math.random() * 0.6,
           phase: Math.random() * Math.PI * 2,
-          speed: 0.3 + Math.random() * 0.7,
-          drift: 9 + Math.random() * 17,
         });
       }
     };
 
     const resize = () => {
       const rect = section.getBoundingClientRect();
+
       width = rect.width;
       height = rect.height;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
@@ -255,101 +176,98 @@ export default function DigitalInnovationSection() {
     };
 
     const draw = (time) => {
-      frame = requestAnimationFrame(draw);
-
-      // Limit unnecessary redraws on reduced-motion devices.
-      if (reducedMotion && time - lastTime < 100) return;
-      lastTime = time;
-
       ctx.clearRect(0, 0, width, height);
 
-      const timeValue = reducedMotion ? 0 : time * 0.00035;
+      const t = time * 0.0003;
 
-      const positions = nodes.map((node) => {
-        let x =
-          node.originX +
-          Math.sin(timeValue * node.speed + node.phase) *
-            node.drift;
+      nodes.forEach((node, i) => {
+        const driftX =
+          Math.sin(t * node.speed + node.phase) * 13;
 
-        let y =
-          node.originY +
-          Math.cos(timeValue * node.speed + node.phase) *
-            node.drift;
+        const driftY =
+          Math.cos(t * node.speed + node.phase) * 17;
 
-        // Mouse repulsion.
-        if (mouse.active && !reducedMotion) {
+        let x = node.baseX + driftX;
+        let y = node.baseY + driftY;
+
+        if (mouse.active) {
           const dx = x - mouse.x;
           const dy = y - mouse.y;
-          const distance = Math.hypot(dx, dy);
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const radius = 230;
 
-          if (distance < 220 && distance > 0) {
-            const force = (1 - distance / 220) * 36;
+          if (distance < radius && distance > 0) {
+            const force = (1 - distance / radius) * 25;
             x += (dx / distance) * force;
             y += (dy / distance) * force;
           }
         }
 
-        return {
-          x: node.x + (x - node.x) * 0.07,
-          y: node.y + (y - node.y) * 0.07,
-          radius: node.radius,
-        };
-      });
+        node.x += (x - node.x) * 0.055;
+        node.y += (y - node.y) * 0.055;
 
-      positions.forEach((node, i) => {
-        for (let j = i + 1; j < positions.length; j++) {
-          const other = positions[j];
-          const distance = Math.hypot(
-            node.x - other.x,
-            node.y - other.y
-          );
+        for (let j = i + 1; j < nodes.length; j++) {
+          const other = nodes[j];
 
-          if (distance < 235) {
-            const alpha = (1 - distance / 235) * 0.34;
+          const dx = node.x - other.x;
+          const dy = node.y - other.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 230) {
+            const alpha = (1 - distance / 230) * 0.38;
 
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(other.x, other.y);
-            ctx.strokeStyle = `rgba(28, 17, 8, ${alpha})`;
-            ctx.lineWidth = 0.9;
-            ctx.stroke();
-          }
-        }
 
-        // Cursor connections.
-        if (mouse.active) {
-          const distance = Math.hypot(
-            node.x - mouse.x,
-            node.y - mouse.y
-          );
-
-          if (distance < 200) {
-            ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(20, 12, 5, ${
-              (1 - distance / 200) * 0.65
-            })`;
+            ctx.strokeStyle = `rgba(35, 20, 5, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
         }
 
-        // Node circles.
+        // Mouse reactive connections
+        if (mouse.active) {
+          const dx = node.x - mouse.x;
+          const dy = node.y - mouse.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 190) {
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(20, 15, 5, ${
+              (1 - distance / 190) * 0.55
+            })`;
+            ctx.stroke();
+          }
+        }
+
+        // Nodes
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
 
-        if (node.radius > 3) {
-          ctx.fillStyle = '#090705';
-          ctx.fill();
-        } else {
-          ctx.fillStyle = '#f3e9d8';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(20, 12, 5, 0.9)';
-          ctx.lineWidth = 1.4;
+        ctx.fillStyle =
+          node.radius > 3 ? '#090705' : '#f1eadf';
+
+        ctx.fill();
+
+        if (node.radius <= 3) {
+          ctx.strokeStyle = 'rgba(15, 12, 8, 0.8)';
+          ctx.lineWidth = 1.5;
           ctx.stroke();
         }
       });
+
+      // Cursor connection point
+      if (mouse.active) {
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#090705';
+        ctx.fill();
+      }
+
+      animationId = requestAnimationFrame(draw);
     };
 
     const handlePointerMove = (event) => {
@@ -358,10 +276,6 @@ export default function DigitalInnovationSection() {
       mouse.x = event.clientX - rect.left;
       mouse.y = event.clientY - rect.top;
       mouse.active = true;
-
-      // Follow light.
-      section.style.setProperty('--di-mouse-x', `${mouse.x}px`);
-      section.style.setProperty('--di-mouse-y', `${mouse.y}px`);
 
       if (cursorRef.current) {
         cursorRef.current.style.opacity = '1';
@@ -379,23 +293,17 @@ export default function DigitalInnovationSection() {
     };
 
     resize();
-
-    if (reducedMotion) {
-      draw(0);
-      cancelAnimationFrame(frame);
-    } else {
-      frame = requestAnimationFrame(draw);
-    }
+    animationId = requestAnimationFrame(draw);
 
     section.addEventListener('pointermove', handlePointerMove);
     section.addEventListener('pointerleave', handlePointerLeave);
 
-    const observer = new ResizeObserver(resize);
-    observer.observe(section);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(section);
 
     return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
+      cancelAnimationFrame(animationId);
+      resizeObserver.disconnect();
 
       section.removeEventListener('pointermove', handlePointerMove);
       section.removeEventListener('pointerleave', handlePointerLeave);
@@ -408,35 +316,38 @@ export default function DigitalInnovationSection() {
       className="digital-innovation"
       id="digital-innovation"
     >
-      {/* Background */}
+      {/* Animated background */}
       <div className="di-gradient" />
-      <div className="di-spotlight" />
       <div className="di-grain" />
 
-      {/* Network */}
+      {/* Network canvas */}
       <canvas
         ref={canvasRef}
         className="di-network"
         aria-hidden="true"
       />
 
-      {/* Custom cursor */}
-      <div ref={cursorRef} className="di-cursor">
+      {/* Cursor */}
+      <div
+        ref={cursorRef}
+        className="di-cursor"
+        aria-hidden="true"
+      >
         <span />
       </div>
 
-      {/* Main content */}
+      {/* Top content */}
       <div className="di-top">
         <div className="di-left">
           <span className="di-eyebrow">
-            <span className="di-eyebrow-dot" />
             03 / DIGITAL INNOVATION
           </span>
 
-          <h2 className="di-heading">
+          <h2 ref={headlineRef} className="di-heading">
             <span className="di-heading-line">
               Where Creativity
             </span>
+
             <span className="di-heading-line">
               Meets Technology<span className="di-period">.</span>
             </span>
@@ -445,46 +356,26 @@ export default function DigitalInnovationSection() {
 
         <div className="di-right">
           <p className="di-description">
-            We push the boundaries of what's possible, bringing
-            together human imagination and emerging technology
-            to create meaningful brand experiences.
+            We push the boundaries of what's possible,
+            bringing together human imagination and emerging
+            technology to create meaningful brand experiences.
           </p>
 
-          <div className="di-meta">
-            <span>HUMAN IMAGINATION</span>
-            <span className="di-meta-cross">×</span>
-            <span>EMERGING TECHNOLOGY</span>
-          </div>
+          <span className="di-meta">
+            HUMAN IMAGINATION <i>×</i> EMERGING TECHNOLOGY
+          </span>
         </div>
       </div>
 
-      {/* Oversized typography */}
+      {/* Oversized interactive typography */}
       <div className="di-visual">
-        <div className="di-mega-clip">
-          <div className="di-mega-text">
-            <span>CREATIVITY</span>
+        <div className="di-mega-wrap">
+          <div className="di-mega-text" aria-label="Creativity">
+            CREATIVITY
             <span className="di-cross">×</span>
           </div>
         </div>
-
-        <div className="di-field-label">
-          <span className="di-field-ring">
-            <span />
-          </span>
-          <span className="di-field-line" />
-          <span className="di-field-box">
-            CURSOR-REACTIVE FIELD
-          </span>
-        </div>
       </div>
-
-      {/* Footer */}
-      <div className="di-bottom">
-        <span>CONTENAISSANCE / DIGITAL INNOVATION</span>
-        <span className="di-bottom-center">IDEAS IN MOTION</span>
-        <span>HUMAN × MACHINE</span>
-      </div>
-
       <div className="di-bottom-line" />
     </section>
   );

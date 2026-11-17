@@ -271,7 +271,6 @@ export default function DigitalContentSection() {
 
           <div className="digital-visual-footer mono">
             <span>↳ LAYERS DRIFT AT DIFFERENT SCROLL SPEEDS</span>
-            <span>INTERACTIVE / 02</span>
           </div>
 
         </div>
@@ -279,18 +278,25 @@ export default function DigitalContentSection() {
         {/* RIGHT CONTENT */}
         <div className="digital-right">
 
-          <div className="digital-stage mono">
-            <span>02 / 04</span>
 
-            <span className="digital-stage-label">
-              <i />
-              STAGE 02
-            </span>
+          <div className="digital-stage-row">
+
+            {/* Large outlined 02 */}
+            <div className="digital-content-number">
+              02
+            </div>
+
+            {/* Stage information */}
+            <div className="digital-stage mono">
+              <span>02 / 04</span>
+
+              <span className="digital-stage-label">
+                <i />
+                STAGE 02
+              </span>
+            </div>
+
           </div>
-
-          <span className="digital-category mono">
-            THE CONTENT ENGINE
-          </span>
 
           <h2 className="digital-title">
             Digital-First
@@ -317,13 +323,7 @@ export default function DigitalContentSection() {
                 className="digital-capability"
                 key={item}
               >
-                <span className="digital-capability-number mono">
-                  0{index + 1}
-                </span>
-
                 {item}
-
-                <span className="digital-capability-dot" />
               </span>
             ))}
           </div>
@@ -333,7 +333,6 @@ export default function DigitalContentSection() {
             className="digital-cta"
           >
             <span>Explore Digital Content</span>
-            <ArrowUpRight />
           </Link>
 
         </div>

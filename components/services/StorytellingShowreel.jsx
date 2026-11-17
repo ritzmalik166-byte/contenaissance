@@ -253,9 +253,9 @@ export default function StorytellingShowreel() {
             </p>
 
             <h2 className="story-title">
-              Experience the <span>Future</span>
+              Experience the <span className='future'>Future</span>
               <br />
-              of Storytelling.
+              of <span className='storytelling'>Storytelling.</span>
             </h2>
 
             <div className="story-accent-line" />
