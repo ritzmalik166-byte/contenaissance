@@ -1,13 +1,12 @@
 
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';
 import './ServiceList.css';
 
-// Independent Services Data
 const services = [
   {
     number: '01',
@@ -15,7 +14,6 @@ const services = [
     title: 'AI Brand Films',
     description:
       'AI-Powered Brand Films · Generative AI Storytelling · Interactive Brand Experiences · AI Cinematic Marketing',
-
     video: {
       preview: '/videos/01.mp4',
       src: '/videos/01.mp4',
@@ -28,7 +26,6 @@ const services = [
     title: 'Digital-First Content',
     description:
       'Platform-Specific Content · AI-Driven Content Creation · Contextually Relevant Content · AI Analytics',
-
     video: {
       preview: '/videos/03.mp4',
       src: '/videos/03.mp4',
@@ -41,7 +38,6 @@ const services = [
     title: 'AI-Powered Campaigns',
     description:
       'Maximize Marketing Impact · Data-Driven Decisions · Market Analysis & Optimization · Scalable AI Campaigns',
-
     video: {
       preview: '/videos/3d-website.mp4',
       src: '/videos/3d-website.mp4',
@@ -54,7 +50,6 @@ const services = [
     title: 'Visual Identity Systems',
     description:
       'AI-Driven Branding Frameworks · Custom Design Systems · Visual Identity Solutions · UI/UX & Interactive Assets',
-
     video: {
       preview: '/videos/09.mp4',
       src: '/videos/09.mp4',
@@ -63,27 +58,11 @@ const services = [
   },
 ];
 
-function ServiceRow({ item, index }) {
-  const videoRef = useRef(null);
 
-  const handleEnter = () => {
-    const video = videoRef.current;
+function ServiceRow({ item, index, onActivate }) {
+  const playVideo = (e) => {
+    e.stopPropagation();
 
-    if (!video) return;
-
-    video.play().catch(() => { });
-  };
-
-  const handleLeave = () => {
-    const video = videoRef.current;
-
-    if (!video) return;
-
-    video.pause();
-    video.currentTime = 0;
-  };
-
-  const playVideo = () => {
     if (item.video?.src) {
       openVideo(item.video.src);
     }
@@ -93,10 +72,19 @@ function ServiceRow({ item, index }) {
     <article
       className="services-row"
       id={`service-${index + 1}`}
-      onPointerEnter={handleEnter}
-      onPointerLeave={handleLeave}
+      onPointerEnter={() => onActivate(index)}
+      onPointerLeave={() => onActivate(null)}
+      onClick={playVideo}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          playVideo(e);
+        }
+      }}
+      aria-label={`Play ${item.title}`}
     >
-      {/* Service Number */}
       <div className="services-row-info">
         <span className="services-row-number">
           {item.number}
@@ -107,7 +95,6 @@ function ServiceRow({ item, index }) {
         </span>
       </div>
 
-      {/* Service Content */}
       <div className="services-row-main">
         <h3 className="services-row-title">
           {item.title}
@@ -118,40 +105,11 @@ function ServiceRow({ item, index }) {
         </p>
       </div>
 
-      {/* Hover Video Preview */}
-
-      {/* Hover Video Preview */}
-      {item.video?.preview && (
-        <button
-          type="button"
-          className="services-row-preview"
-          onClick={playVideo}
-          aria-label={`VIEW ${item.title}`}
-          data-cursor="VIEW"
-        >
-          <span className="services-preview-label mono">
-            REEL · 9:16
-          </span>
-
-          <video
-            ref={videoRef}
-            className="services-preview-video"
-            src={item.video.preview}
-            poster={item.video.poster}
-            muted
-            loop
-            playsInline
-            preload="none"
-          />
-        </button>
-      )}
-
-      {/* Arrow */}
       <button
         type="button"
         className="services-row-arrow"
         onClick={playVideo}
-        aria-label={`Open ${item.title} video`}
+        aria-label={`Play ${item.title} video`}
       >
         <ArrowUpRight />
       </button>
@@ -161,9 +119,44 @@ function ServiceRow({ item, index }) {
 
 export default function ServiceList() {
   const root = useRef(null);
+  const previewRef = useRef(null);
+  const videoRefs = useRef([]);
+  const activeLayerRef = useRef(0);
+  const activeIndexRef = useRef(0);
+  const transitionTokenRef = useRef(0);
 
+  const moveX = useRef(null);
+  const moveY = useRef(null);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [previewVisible, setPreviewVisible] = useState(false);
+
+  const activeItem = services[activeIndex];
+
+  // Smooth cursor-follow animation
   useGSAP(
     () => {
+      const preview = previewRef.current;
+
+      if (!preview) return;
+
+      gsap.set(preview, {
+        xPercent: -50,
+        yPercent: -50,
+        scale: 0.8,
+        opacity: 0,
+      });
+
+      moveX.current = gsap.quickTo(preview, 'x', {
+        duration: 0.65,
+        ease: 'power3.out',
+      });
+
+      moveY.current = gsap.quickTo(preview, 'y', {
+        duration: 0.65,
+        ease: 'power3.out',
+      });
+
       const rows = gsap.utils.toArray(
         '.services-row',
         root.current
@@ -172,10 +165,7 @@ export default function ServiceList() {
       rows.forEach((row) => {
         gsap.fromTo(
           row,
-          {
-            y: 70,
-            opacity: 0,
-          },
+          { y: 70, opacity: 0 },
           {
             y: 0,
             opacity: 1,
@@ -192,10 +182,7 @@ export default function ServiceList() {
 
       gsap.fromTo(
         '.services-section-heading',
-        {
-          y: 50,
-          opacity: 0,
-        },
+        { y: 50, opacity: 0 },
         {
           y: 0,
           opacity: 1,
@@ -211,16 +198,170 @@ export default function ServiceList() {
     { scope: root }
   );
 
+  // Change video without closing the floating preview
+  // Initialize first video
+  useEffect(() => {
+    const video = videoRefs.current[0];
+
+    if (!video) return;
+
+    video.src = services[0].video.preview;
+    video.load();
+
+    const startVideo = () => {
+      video.play().catch(() => { });
+    };
+
+    video.addEventListener('canplay', startVideo, { once: true });
+
+    return () => {
+      video.removeEventListener('canplay', startVideo);
+      transitionTokenRef.current++;
+      videoRefs.current.forEach((v) => {
+        v?.pause();
+      });
+    };
+  }, []);
+
+  // Follow the cursor
+  const handlePointerMove = (e) => {
+    if (!moveX.current || !moveY.current) return;
+
+    moveX.current(e.clientX + 35);
+    moveY.current(e.clientY + 25);
+  };
+
+  // Show preview
+const handleActivate = (index) => {
+  if (index === null) {
+    setPreviewVisible(false);
+
+    videoRefs.current.forEach((video) => {
+      video?.pause();
+    });
+
+    if (previewRef.current) {
+      gsap.to(previewRef.current, {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.3,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    }
+
+    return;
+  }
+
+  transitionVideo(index);
+
+  setPreviewVisible(true);
+
+  if (previewRef.current) {
+    gsap.to(previewRef.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.4,
+      ease: 'power3.out',
+      overwrite: 'auto',
+    });
+  }
+};
+
+  // Hide only when leaving the entire section
+  const handleSectionLeave = () => {
+    setPreviewVisible(false);
+
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+
+    if (previewRef.current) {
+      gsap.to(previewRef.current, {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    }
+  };
+
+  const transitionVideo = (index) => {
+    if (index === activeIndexRef.current) return;
+
+    const currentLayer = activeLayerRef.current;
+    const nextLayer = currentLayer === 0 ? 1 : 0;
+
+    const currentVideo = videoRefs.current[currentLayer];
+    const nextVideo = videoRefs.current[nextLayer];
+
+    if (!currentVideo || !nextVideo) return;
+
+    const token = ++transitionTokenRef.current;
+    const nextItem = services[index];
+
+    // Prepare incoming video
+    nextVideo.pause();
+    nextVideo.src = nextItem.video.preview;
+    nextVideo.poster = nextItem.video.poster;
+    nextVideo.load();
+
+    nextVideo.oncanplay = () => {
+      if (token !== transitionTokenRef.current) return;
+
+      nextVideo.oncanplay = null;
+
+      nextVideo.play().catch(() => { });
+
+      // Incoming video starts below the current video
+      gsap.set(nextVideo, {
+        yPercent: 100,
+        zIndex: 2,
+        opacity: 1,
+      });
+
+      gsap.set(currentVideo, {
+        yPercent: 0,
+        zIndex: 1,
+      });
+
+      // Bottom-to-top cinematic reveal
+      gsap.timeline({
+        onComplete: () => {
+          if (token !== transitionTokenRef.current) return;
+
+          currentVideo.pause();
+
+          activeLayerRef.current = nextLayer;
+          activeIndexRef.current = index;
+
+          setActiveIndex(index);
+        },
+      })
+        .to(nextVideo, {
+          yPercent: 0,
+          duration: 0.75,
+          ease: 'power3.inOut',
+        }, 0)
+        .to(currentVideo, {
+          yPercent: -12,
+          duration: 0.75,
+          ease: 'power3.inOut',
+        }, 0);
+    };
+  };
+
   return (
     <section
       className="services-list-section"
       ref={root}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handleSectionLeave}
     >
       <div className="services-list-container">
 
-        {/* Section Heading */}
         <div className="services-section-heading">
-
           <div className="services-heading-left">
             <p className="services-kicker mono">
               01 / OUR EXPERTISE
@@ -243,20 +384,54 @@ export default function ServiceList() {
               04 STAGES / 01 LAUNCH
             </span>
           </div>
-
         </div>
 
-        {/* Services */}
         <div className="services-rows">
           {services.map((item, index) => (
             <ServiceRow
               key={item.number}
               item={item}
               index={index}
+              onActivate={handleActivate}
             />
           ))}
         </div>
+      </div>
 
+      {/* ONE SHARED FLOATING VIDEO PREVIEW */}
+      <div
+        ref={previewRef}
+        className={`services-floating-preview ${previewVisible ? 'is-visible' : ''
+          }`}
+        aria-hidden="true"
+      >
+        <span className="services-preview-label mono">
+          REEL · 9:16
+        </span>
+
+<div className="services-video-stack">
+  {[0, 1].map((layer) => (
+    <video
+      key={layer}
+      ref={(el) => {
+        videoRefs.current[layer] = el;
+      }}
+      className="services-preview-video"
+      muted
+      loop
+      playsInline
+      preload="auto"
+    />
+  ))}
+</div>
+
+        <span className="services-preview-index mono">
+          {activeItem.number} / 04
+        </span>
+
+        <span className="services-preview-view mono">
+          VIEW
+        </span>
       </div>
     </section>
   );

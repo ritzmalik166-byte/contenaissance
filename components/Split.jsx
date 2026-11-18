@@ -1,7 +1,3 @@
-/**
- * Server-safe text splitter. `by="chars"` wraps each character, `by="words"` each word,
- * `lines` (array of strings) renders each entry in its own overflow-masked line.
- */
 export default function Split({ text, lines, by = 'chars', as: Tag = 'span', className, ...rest }) {
   const rows = lines || [text];
 
