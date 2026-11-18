@@ -939,37 +939,62 @@ textarea {
   height: 120px;
   transform: translateX(-50%);
   pointer-events: none;
-}S6
 
-.rocket__nozzle {
-  width: 50px;
-  height: 18px;
-  background: #f4f4f0;
-  border-radius: 3px 3px 6px 6px;
-  margin-top: 0;
-  position: relative;
-  z-index: 2;
-}
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
 
-.rocket__flame {
-  display: block;
-  width: 34px;
-  height: 70px;
-  margin-top: -2px;
-  flex-shrink: 0;
-  transform-origin: 50% 0%;
-  position: relative;
-  z-index: 1;
   overflow: visible;
 }
 
-/* Animate flame shapes only */
+/* Rocket nozzle */
+.rocket__nozzle {
+  position: relative;
+  z-index: 10;
+
+  display: block;
+  width: 50px;
+  height: 18px;
+  min-height: 18px;
+
+  flex: 0 0 18px;
+  background: #f4f4f0;
+
+  border-radius: 3px 3px 6px 6px;
+  margin: 0 auto;
+
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Rocket flame */
+.rocket__flame {
+  display: block;
+  position: relative;
+  z-index: 5;
+
+  width: 52px;
+  height: 100px;
+  flex-shrink: 0;
+
+  margin: -2px auto 0;
+  overflow: visible;
+  transform-origin: 50% 0%;
+
+  filter:
+    drop-shadow(0 0 5px rgba(255, 110, 20, .8))
+    drop-shadow(0 0 15px rgba(255, 65, 15, .4));
+}
+
+/* Outer flame animation */
 .rocket__flame path:first-child {
   transform-box: fill-box;
   transform-origin: center top;
   animation: outer-fire 0.16s ease-in-out infinite alternate;
 }
 
+/* Inner flame animation */
 .rocket__flame path:last-child {
   transform-box: fill-box;
   transform-origin: center top;
@@ -977,21 +1002,13 @@ textarea {
 }
 
 @keyframes outer-fire {
-  from {
-    transform: scaleY(0.92) scaleX(0.96);
-  }
-  to {
-    transform: scaleY(1) scaleX(1.04);
-  }
+  from { transform: scaleY(.92) scaleX(.96); }
+  to { transform: scaleY(1) scaleX(1.04); }
 }
 
 @keyframes inner-fire {
-  from {
-    transform: scaleY(0.88) scaleX(1.04);
-  }
-  to {
-    transform: scaleY(1) scaleX(0.94);
-  }
+  from { transform: scaleY(.88) scaleX(1.04); }
+  to { transform: scaleY(1) scaleX(.94); }
 }
 
 @media (prefers-reduced-motion: reduce) {
