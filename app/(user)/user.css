@@ -2598,7 +2598,7 @@ textarea {
 }
 
 .about__title {
-  font-size: clamp(38px, 4.4vw, 68px);
+  font-size: clamp(28px, 3.4vw, 52px);
 }
 
 .about__body {
@@ -3862,7 +3862,7 @@ textarea {
 .quote__text {
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(28px, 3.3vw, 50px);
+  font-size: clamp(28px, 3.4vw, 52px);
   line-height: 1.2;
   letter-spacing: -0.02em;
   max-width: 980px;
