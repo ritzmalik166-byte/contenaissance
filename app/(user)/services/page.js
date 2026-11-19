@@ -2,6 +2,7 @@
 import Cta from '@/components/Cta';
 import DigitalContentSection from '@/components/services/DigitalContentSection';
 import DigitalInnovationSection from '@/components/services/DigitalInnovationSection';
+import GalaxyBackground from '@/components/services/GalaxyBackground';
 import ServiceCampaigns from '@/components/services/ServiceCampaigns';
 import ServiceDetail from '@/components/services/ServiceDetail';
 import ServiceIdentity from '@/components/services/ServiceIdentity';
@@ -24,17 +25,21 @@ export const metadata = {
 
 export default function ServicesPage() {
   return (
-    <>
-      <ServicesHero />
-      <ServiceList />
-      <ServiceDetail />
-      <ServiceShowreel />
-      <DigitalContentSection />
-      <StorytellingShowreel />
-      <ServiceCampaigns />
-      <ServiceIdentity />
-      <DigitalInnovationSection />
-      <Cta />
-    </>
+    <div className="services-page">
+      <GalaxyBackground />
+
+      <main className="services-page-content">
+        <ServicesHero />
+        <ServiceList />
+        <ServiceDetail />
+        <ServiceShowreel />
+        <DigitalContentSection />
+        <StorytellingShowreel />
+        <ServiceCampaigns />
+        <ServiceIdentity />
+        <DigitalInnovationSection />
+        <Cta />
+      </main>
+    </div>
   );
 }

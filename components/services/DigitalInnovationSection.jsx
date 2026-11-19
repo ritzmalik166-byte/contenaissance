@@ -9,115 +9,160 @@ export default function DigitalInnovationSection() {
   const root = useRef(null);
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
-  const headlineRef = useRef(null);
 
-  // GSAP entrance and scroll animation
-useGSAP(
-  () => {
-    const ctx = gsap.context(() => {
-      const intro = gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top 78%',
-          toggleActions: 'play none none reverse',
-        },
-      });
+  // =========================================
+  // GSAP SCROLL ANIMATIONS
+  // =========================================
 
-      intro
-        .from('.di-eyebrow', {
-          opacity: 0,
-          y: 15,
-          duration: 0.8,
-          ease: 'power3.out',
-        })
-        .from(
-          '.di-heading-line',
-          {
-            yPercent: 105,
-            opacity: 0,
-            stagger: 0.18,
-            duration: 1.25,
-            ease: 'power4.out',
+  useGSAP(
+    () => {
+      const section = root.current;
+      const mm = gsap.matchMedia();
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        // INTRO REVEAL
+        const intro = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 78%',
+            toggleActions: 'play none none reverse',
           },
-          '-=0.3'
-        )
-        .from(
-          '.di-description',
-          {
+        });
+
+        intro
+          .from('.di-eyebrow', {
             opacity: 0,
-            filter: 'blur(8px)',
-            duration: 1,
+            y: 20,
+            duration: 0.7,
             ease: 'power3.out',
-          },
-          '-=0.65'
-        )
-        .from(
-          '.di-meta',
+          })
+          .from(
+            '.di-heading-line',
+            {
+              yPercent: 110,
+              opacity: 0,
+              stagger: 0.18,
+              duration: 1.2,
+              ease: 'power4.out',
+            },
+            '-=0.3'
+          )
+          .from(
+            '.di-description',
+            {
+              opacity: 0,
+              x: 35,
+              filter: 'blur(8px)',
+              duration: 1,
+              ease: 'power3.out',
+            },
+            '-=0.65'
+          )
+          .from(
+            '.di-meta',
+            {
+              opacity: 0,
+              y: 12,
+              duration: 0.7,
+              ease: 'power2.out',
+            },
+            '-=0.5'
+          );
+
+        // BIG TYPOGRAPHY REVEAL
+        gsap.fromTo(
+          '.di-mega-text',
           {
+            x: -100,
             opacity: 0,
-            duration: 0.8,
-            ease: 'power2.out',
+            scale: 0.94,
+            filter: 'blur(10px)',
           },
-          '-=0.5'
+          {
+            x: 0,
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 55%',
+              end: 'bottom 75%',
+              scrub: 1.2,
+              invalidateOnRefresh: true,
+            },
+          }
         );
 
-      gsap.fromTo(
-        '.di-mega-text',
-        {
-          opacity: 0,
-          scale: 0.96,
-          filter: 'blur(12px)',
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          filter: 'blur(0px)',
+        // NETWORK CANVAS REVEAL
+        gsap.fromTo(
+          '.di-network',
+          { opacity: 0 },
+          {
+            opacity: 0.9,
+            duration: 1.5,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 60%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+
+        // BOTTOM LINE
+        gsap.fromTo(
+          '.di-bottom-line',
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            duration: 1.4,
+            ease: 'power3.inOut',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 65%',
+            },
+          }
+        );
+
+        // CROSS ROTATION
+        gsap.to('.di-cross', {
+          rotation: 90,
           ease: 'none',
           scrollTrigger: {
-            trigger: root.current,
-            start: 'top 65%',
-            end: 'bottom 70%',
+            trigger: section,
+            start: 'top 40%',
+            end: 'bottom 50%',
             scrub: 1.2,
           },
-        }
-      );
+        });
 
-      gsap.fromTo(
-        '.di-bottom-line',
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          duration: 1.5,
-          ease: 'power3.inOut',
+        // SUBTLE MEGA TEXT MOVEMENT
+        gsap.to('.di-mega-text', {
+          y: -35,
+          ease: 'none',
           scrollTrigger: {
-            trigger: root.current,
-            start: 'top 65%',
+            trigger: section,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1,
           },
-        }
-      );
-
-      gsap.to('.di-cross', {
-        rotation: 90,
-        duration: 1.2,
-        ease: 'power3.inOut',
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top 40%',
-          end: 'bottom 50%',
-          scrub: 1,
-        },
+        });
       });
-    }, root);
 
-    return () => ctx.revert();
-  },
-  { scope: root }
-);
+      return () => mm.revert();
+    },
+    { scope: root }
+  );
 
-  // Interactive canvas network
+  // =========================================
+  // INTERACTIVE NETWORK + SMOOTH CURSOR
+  // =========================================
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const section = root.current;
+    const cursor = cursorRef.current;
 
     if (!canvas || !section) return;
 
@@ -127,6 +172,7 @@ useGSAP(
     let width = 0;
     let height = 0;
     let animationId;
+    let resizeObserver;
 
     const mouse = {
       x: -1000,
@@ -135,6 +181,17 @@ useGSAP(
     };
 
     const nodes = [];
+
+    // Smooth cursor movement
+    const moveX = gsap.quickTo(cursor, 'x', {
+      duration: 0.45,
+      ease: 'power3.out',
+    });
+
+    const moveY = gsap.quickTo(cursor, 'y', {
+      duration: 0.45,
+      ease: 'power3.out',
+    });
 
     const createNodes = () => {
       nodes.length = 0;
@@ -145,12 +202,15 @@ useGSAP(
       );
 
       for (let i = 0; i < count; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+
         nodes.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          baseX: Math.random() * width,
-          baseY: Math.random() * height,
-          radius: Math.random() > 0.8 ? 4 : 2,
+          x,
+          y,
+          baseX: x,
+          baseY: y,
+          radius: Math.random() > 0.82 ? 4 : 2,
           speed: 0.3 + Math.random() * 0.6,
           phase: Math.random() * Math.PI * 2,
         });
@@ -187,31 +247,33 @@ useGSAP(
         const driftY =
           Math.cos(t * node.speed + node.phase) * 17;
 
-        let x = node.baseX + driftX;
-        let y = node.baseY + driftY;
+        let targetX = node.baseX + driftX;
+        let targetY = node.baseY + driftY;
 
+        // Magnetic cursor reaction
         if (mouse.active) {
-          const dx = x - mouse.x;
-          const dy = y - mouse.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const radius = 230;
+          const dx = targetX - mouse.x;
+          const dy = targetY - mouse.y;
+          const distance = Math.hypot(dx, dy);
 
-          if (distance < radius && distance > 0) {
-            const force = (1 - distance / radius) * 25;
-            x += (dx / distance) * force;
-            y += (dy / distance) * force;
+          if (distance < 230 && distance > 0) {
+            const force = (1 - distance / 230) * 30;
+            targetX += (dx / distance) * force;
+            targetY += (dy / distance) * force;
           }
         }
 
-        node.x += (x - node.x) * 0.055;
-        node.y += (y - node.y) * 0.055;
+        // Smooth node movement
+        node.x += (targetX - node.x) * 0.055;
+        node.y += (targetY - node.y) * 0.055;
 
+        // Network connections
         for (let j = i + 1; j < nodes.length; j++) {
           const other = nodes[j];
 
           const dx = node.x - other.x;
           const dy = node.y - other.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const distance = Math.hypot(dx, dy);
 
           if (distance < 230) {
             const alpha = (1 - distance / 230) * 0.38;
@@ -219,52 +281,66 @@ useGSAP(
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(other.x, other.y);
-
             ctx.strokeStyle = `rgba(35, 20, 5, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
         }
 
-        // Mouse reactive connections
+        // Cursor connections
         if (mouse.active) {
           const dx = node.x - mouse.x;
           const dy = node.y - mouse.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const distance = Math.hypot(dx, dy);
 
           if (distance < 190) {
+            const alpha = (1 - distance / 190) * 0.55;
+
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(20, 15, 5, ${
-              (1 - distance / 190) * 0.55
-            })`;
+            ctx.strokeStyle = `rgba(20, 15, 5, ${alpha})`;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
           }
         }
 
-        // Nodes
+        // Node glow
+        if (node.radius > 3) {
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 9, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 225, 160, 0.13)';
+          ctx.fill();
+        }
+
+        // Node point
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-
         ctx.fillStyle =
           node.radius > 3 ? '#090705' : '#f1eadf';
-
         ctx.fill();
 
         if (node.radius <= 3) {
           ctx.strokeStyle = 'rgba(15, 12, 8, 0.8)';
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         }
       });
 
       // Cursor connection point
       if (mouse.active) {
+        const pulse = 5 + Math.sin(time * 0.004) * 1.5;
+
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
+        ctx.arc(mouse.x, mouse.y, pulse, 0, Math.PI * 2);
         ctx.fillStyle = '#090705';
         ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 18, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(9, 7, 5, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
 
       animationId = requestAnimationFrame(draw);
@@ -277,18 +353,38 @@ useGSAP(
       mouse.y = event.clientY - rect.top;
       mouse.active = true;
 
-      if (cursorRef.current) {
-        cursorRef.current.style.opacity = '1';
-        cursorRef.current.style.transform =
-          `translate3d(${mouse.x}px, ${mouse.y}px, 0) translate(-50%, -50%)`;
+      if (cursor) {
+        gsap.to(cursor, {
+          opacity: 1,
+          duration: 0.25,
+          overwrite: 'auto',
+        });
+
+        moveX(mouse.x);
+        moveY(mouse.y);
       }
+
+      // Move the background spotlight
+      section.style.setProperty(
+        '--di-mouse-x',
+        `${mouse.x}px`
+      );
+
+      section.style.setProperty(
+        '--di-mouse-y',
+        `${mouse.y}px`
+      );
     };
 
     const handlePointerLeave = () => {
       mouse.active = false;
 
-      if (cursorRef.current) {
-        cursorRef.current.style.opacity = '0';
+      if (cursor) {
+        gsap.to(cursor, {
+          opacity: 0,
+          duration: 0.3,
+          overwrite: 'auto',
+        });
       }
     };
 
@@ -298,15 +394,17 @@ useGSAP(
     section.addEventListener('pointermove', handlePointerMove);
     section.addEventListener('pointerleave', handlePointerLeave);
 
-    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(section);
 
     return () => {
       cancelAnimationFrame(animationId);
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
 
       section.removeEventListener('pointermove', handlePointerMove);
       section.removeEventListener('pointerleave', handlePointerLeave);
+
+      gsap.killTweensOf(cursor);
     };
   }, []);
 
@@ -318,16 +416,17 @@ useGSAP(
     >
       {/* Animated background */}
       <div className="di-gradient" />
+      <div className="di-spotlight" />
       <div className="di-grain" />
 
-      {/* Network canvas */}
+      {/* Interactive network */}
       <canvas
         ref={canvasRef}
         className="di-network"
         aria-hidden="true"
       />
 
-      {/* Cursor */}
+      {/* Smooth custom cursor */}
       <div
         ref={cursorRef}
         className="di-cursor"
@@ -343,7 +442,7 @@ useGSAP(
             03 / DIGITAL INNOVATION
           </span>
 
-          <h2 ref={headlineRef} className="di-heading">
+          <h2 className="di-heading">
             <span className="di-heading-line">
               Where Creativity
             </span>
@@ -369,13 +468,14 @@ useGSAP(
 
       {/* Oversized interactive typography */}
       <div className="di-visual">
-        <div className="di-mega-wrap">
+        <div className="di-mega-clip">
           <div className="di-mega-text" aria-label="Creativity">
-            CREATIVITY
+            <span>CREATIVITY</span>
             <span className="di-cross">×</span>
           </div>
         </div>
       </div>
+
       <div className="di-bottom-line" />
     </section>
   );

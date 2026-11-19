@@ -43,188 +43,180 @@ export default function ServiceIdentity() {
 
     const [launched, setLaunched] = useState(false);
 
-    useGSAP(
-        () => {
-            const mm = gsap.matchMedia();
+useGSAP(
+  () => {
+    const section = root.current;
 
-            mm.add(
-                '(prefers-reduced-motion: no-preference)',
-                () => {
-                    const intro = gsap.timeline({
-                        scrollTrigger: {
-                            trigger: root.current,
-                            start: 'top 75%',
-                            toggleActions: 'play none none reverse',
-                        },
-                    });
+    const mm = gsap.matchMedia();
 
-                    intro
-                        .from('.identity-meta', {
-                            opacity: 0,
-                            y: 20,
-                            duration: 0.7,
-                            stagger: 0.12,
-                        })
-                        .from(
-                            '.identity-heading',
-                            {
-                                opacity: 0,
-                                y: 55,
-                                duration: 1,
-                                ease: 'power4.out',
-                            },
-                            '-=0.35'
-                        )
-                        .from(
-                            '.identity-number',
-                            {
-                                opacity: 0,
-                                scale: 0.85,
-                                duration: 1.1,
-                                ease: 'power3.out',
-                            },
-                            '-=0.8'
-                        )
-                        .from(
-                            '.identity-intro-right',
-                            {
-                                opacity: 0,
-                                x: 35,
-                                duration: 0.9,
-                                ease: 'power3.out',
-                            },
-                            '-=0.65'
-                        )
-                        .from(
-                            '.identity-artifact',
-                            {
-                                opacity: 0,
-                                y: 45,
-                                rotate: 0,
-                                duration: 0.9,
-                                stagger: 0.13,
-                                ease: 'power3.out',
-                            },
-                            '-=0.45'
-                        )
-                        .from(
-                            '.identity-motion-step',
-                            {
-                                opacity: 0,
-                                scale: 0.7,
-                                y: 20,
-                                stagger: 0.1,
-                                duration: 0.6,
-                                ease: 'back.out(1.5)',
-                            },
-                            '-=0.4'
-                        );
-
-                    // Continuous subtle construction rotation
-                    gsap.to('.identity-logo-orbit', {
-                        rotation: 360,
-                        duration: 35,
-                        repeat: -1,
-                        ease: 'none',
-                    });
-
-                    // Floating specimen card
-                    gsap.to('.identity-type-card', {
-                        // y: -9,
-                        rotation: 3,
-                        // duration: 3.5,
-                        // repeat: -1,
-                        // yoyo: true,
-                        // ease: 'sine.inOut',
-                    });
-
-                    // Floating application card
-                    gsap.to('.identity-application', {
-                        // y: -8,
-                        rotation: -3,
-                        // duration: 4,
-                        // repeat: -1,
-                        // yoyo: true,
-                        // ease: 'sine.inOut',
-                    });
-
-                    // Brand kit subtle movement
-                    gsap.to('.identity-kit', {
-                        // y: -5,
-                        // duration: 3,
-                        // repeat: -1,
-                        // yoyo: true,
-                        // ease: 'sine.inOut',
-                    });
-
-                    return () => intro.kill();
-                }
-            );
-
-// =========================================
-// CENTER TO POSITION CARD ANIMATION
-// =========================================
-
-const section = root.current;
-
-const cards = gsap.utils.toArray(
-  '[data-center-card]',
-  section
-);
-
-const sectionRect = section.getBoundingClientRect();
-
-const centerX = sectionRect.width / 2;
-const centerY = sectionRect.height / 2;
-
-// Make every card originate from section center
-cards.forEach((card, index) => {
-  const rect = card.getBoundingClientRect();
-
-  const cardCenterX =
-    rect.left - sectionRect.left + rect.width / 2;
-
-  const cardCenterY =
-    rect.top - sectionRect.top + rect.height / 2;
-
-  gsap.set(card, {
-    x: centerX - cardCenterX,
-    y: centerY - cardCenterY,
-    scale: 0.65,
-    rotation: index % 2 === 0 ? -8 : 8,
-    autoAlpha: 0,
-    transformOrigin: 'center center',
-  });
-});
-
-// Animate cards into their original positions
-gsap.to(cards, {
-  x: 0,
-  y: 0,
-  scale: 1,
-  rotation: 0,
-  autoAlpha: 1,
-
-  duration: 1.4,
-
-  stagger: {
-    each: 0.12,
-    from: 'center',
-  },
-
-  ease: 'expo.out',
-
-  scrollTrigger: {
-    trigger: section,
-    start: 'top 75%',
-    toggleActions: 'play none none reverse',
-  },
-});
-
-            return () => mm.revert();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      // INTRO REVEAL
+      const introTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 75%',
+          end: 'top 15%',
+          scrub: 1,
         },
-        { scope: root }
-    );
+      });
+
+      introTl
+        .from('.identity-meta', {
+          opacity: 0,
+          y: 20,
+          stagger: 0.12,
+          duration: 0.6,
+        })
+        .from('.identity-heading', {
+          opacity: 0,
+          y: 60,
+          duration: 1,
+          ease: 'power3.out',
+        }, '-=0.3')
+        .from('.identity-tagline', {
+          opacity: 0,
+          y: 25,
+          duration: 0.6,
+        }, '-=0.5')
+        .from('.identity-number', {
+          opacity: 0,
+          scale: 0.8,
+          rotation: 8,
+          duration: 1,
+        }, '-=0.7')
+        .from('.identity-intro-right', {
+          opacity: 0,
+          x: 40,
+          duration: 0.8,
+        }, '-=0.6');
+
+      // WORKSPACE CARDS: ONE BY ONE FROM BOTTOM
+      const cards = Array.from(
+        section.querySelectorAll('.identity-artifact')
+      );
+
+      gsap.set(cards, {
+        autoAlpha: 0,
+        y: 100,
+      });
+
+      const cardsTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.identity-workspace',
+          start: 'top 85%',
+          end: 'bottom 30%',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+
+// WORKSPACE CARDS: INDIVIDUAL CENTER REVEAL
+// const cards = section.querySelectorAll('.identity-artifact');
+
+cards.forEach((card) => {
+  gsap.fromTo(
+    card,
+    {
+      autoAlpha: 0,
+      y: 100,
+    },
+    {
+      autoAlpha: 1,
+      y: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: card,
+        start: 'top 85%',
+        end: 'center 50%',
+        scrub: 1,
+        invalidateOnRefresh: true,
+      },
+    }
+  );
+});
+
+      // COLOR PALETTE: LEFT TO RIGHT
+      const colorBlocks = Array.from(
+        section.querySelectorAll('.identity-color')
+      );
+
+      gsap.set(colorBlocks, {
+        scaleY: 0,
+        transformOrigin: 'bottom',
+      });
+
+      gsap.to(colorBlocks, {
+        scaleY: 1,
+        stagger: 0.15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.identity-color-board',
+          start: 'top 85%',
+          end: 'top 35%',
+          scrub: 1,
+        },
+      });
+
+      // MOTION SHAPES: SEQUENTIAL REVEAL
+      const motionSteps = Array.from(
+        section.querySelectorAll('.identity-motion-step')
+      );
+
+      gsap.set(motionSteps, {
+        opacity: 0,
+        y: 30,
+        scale: 0.7,
+      });
+
+      gsap.to(motionSteps, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        stagger: 0.15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.identity-motion-board',
+          start: 'top 85%',
+          end: 'top 35%',
+          scrub: 1,
+        },
+      });
+
+      // SLOW LOGO ORBIT
+      gsap.to('.identity-logo-orbit', {
+        rotation: 360,
+        duration: 35,
+        repeat: -1,
+        ease: 'none',
+      });
+
+      // CARD HOVER DEPTH
+      const hoverCards = section.querySelectorAll('.identity-artifact');
+
+      hoverCards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            y: -8,
+            duration: 0.35,
+            ease: 'power2.out',
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            y: 0,
+            duration: 0.35,
+            ease: 'power2.out',
+          });
+        });
+      });
+    });
+
+    return () => mm.revert();
+  },
+  { scope: root }
+);
 
     const toggleSetting = (key) => {
         setSettings((current) => ({
@@ -272,9 +264,9 @@ gsap.to(cards, {
 
                     </div>
 
-                    <div className="identity-number" aria-hidden="true">
+                    <span className="identity-number" aria-hidden="true">
                         04
-                    </div>
+                    </span>
 
                     <div className="identity-intro-right">
 

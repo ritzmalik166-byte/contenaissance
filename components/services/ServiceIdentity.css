@@ -1,4 +1,3 @@
-
 /* =========================================
    VISUAL IDENTITY SYSTEMS
 ========================================= */
@@ -57,7 +56,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-    font-size: 12px;
+  font-size: 12px;
   color: #ECCD76;
 }
 
@@ -95,7 +94,7 @@
   z-index: 1;
   margin-top: -20px;
   color: transparent;
-  -webkit-text-stroke: 1.4px rgba(20, 19, 17, .15);
+  -webkit-text-stroke: 1px rgba(20, 19, 17, .15);
   font-size: 200px;
   font: bold;
   text-align: center;
@@ -105,6 +104,20 @@
   letter-spacing: -0.06em;
   opacity: 1;
   visibility: visible;
+  font-size: 280px;
+  transition:
+    -webkit-text-stroke 0.5s ease,
+    text-shadow 0.5s ease;
+
+  transform: translate3d(var(--parallax-x),
+      var(--parallax-y),
+      0);
+  will-change: transform;
+}
+
+.identity-number:hover {
+  -webkit-text-stroke-color: rgba(245, 200, 64, 0.95);
+  text-shadow: 0 0 45px rgba(235, 189, 64, 0.12);
 }
 
 /* =========================================
@@ -156,7 +169,7 @@
     color .35s ease;
 }
 
-.identity-service-item > span {
+.identity-service-item>span {
   color: #dfae31;
   font-size: 12px;
 }
@@ -166,7 +179,7 @@
   font-weight: 500;
 }
 
-.identity-service-item > i {
+.identity-service-item>i {
   color: #d49e24;
   font-size: 17px;
   font-style: normal;
@@ -180,7 +193,7 @@
   background: rgba(235, 189, 64, .09);
 }
 
-.identity-service-item:hover > i {
+.identity-service-item:hover>i {
   opacity: 1;
   transform: translate(0, 0);
 }
@@ -377,7 +390,7 @@
   letter-spacing: .07em;
 }
 
-.logo-exploration > div {
+.logo-exploration>div {
   display: flex;
   gap: 12px;
 }
@@ -542,6 +555,16 @@
   transform: translateY(-5px);
 }
 
+/* Deep Space: improve text contrast */
+.identity-color:first-child {
+  color: #eeeae3;
+}
+
+.identity-color:first-child small {
+  color: #eeeae3;
+  opacity: 0.65;
+}
+
 /* =========================================
    APPLICATION CARD
 ========================================= */
@@ -561,7 +584,7 @@
   transform: rotate(-4deg);
 }
 
-.identity-application > img {
+.identity-application>img {
   display: block;
   width: 100%;
   height: 75%;
@@ -569,7 +592,7 @@
   transition: transform .8s ease;
 }
 
-.identity-application:hover > img {
+.identity-application:hover>img {
   transform: scale(1.09);
 }
 
@@ -815,7 +838,7 @@
   min-width: 0;
 }
 
-.identity-motion-step > button {
+.identity-motion-step>button {
   display: grid;
   place-items: center;
   width: 70px;
@@ -1164,7 +1187,7 @@
     padding: 0;
   }
 
-  .identity-motion-step > button {
+  .identity-motion-step>button {
     width: 42px;
     height: 48px;
   }
@@ -1265,7 +1288,7 @@
     height: 180px;
   }
 
-  .identity-motion-step > button {
+  .identity-motion-step>button {
     width: 37px;
   }
 
@@ -1279,6 +1302,7 @@
 ========================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
   .identity-section *,
   .identity-section *::before,
   .identity-section *::after {
@@ -1297,4 +1321,8 @@
   [data-center-card] {
     will-change: auto;
   }
+}
+
+.identity-artifact:hover {
+  z-index: 4;
 }
