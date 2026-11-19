@@ -282,9 +282,9 @@ export default function DigitalContentSection() {
           <div className="digital-stage-row">
 
             {/* Large outlined 02 */}
-            <div className="digital-content-number">
+            <span className="digital-content-number">
               02
-            </div>
+            </span>
 
             {/* Stage information */}
             <div className="digital-stage mono">

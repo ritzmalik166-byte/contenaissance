@@ -2,7 +2,7 @@
 .services-list-section {
   position: relative;
   width: 100%;
-  background: #090806;
+  background: #090806 !important;
   color: #eeeae3;
   overflow: hidden;
 }

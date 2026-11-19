@@ -54,6 +54,16 @@ export default function ServiceCampaigns() {
   const chartClipRect = useRef(null);
 
   const [activeVariant, setActiveVariant] = useState('B');
+  const [revealingVariant, setRevealingVariant] = useState(null);
+
+  // Scan transition controls. The active image index is kept in a ref so
+  // GSAP can advance variants without rebuilding the animation on every render.
+  const activeIndexRef = useRef(1);
+  const scanDirectionRef = useRef(1); // 1 = top to bottom, -1 = bottom to top
+  const scanTimelineRef = useRef(null);
+  const scanDelayRef = useRef(null);
+  const runScanRef = useRef(null);
+
   const targetXTo = useRef(null);
   const targetYTo = useRef(null);
   const tiltXTo = useRef(null);
@@ -65,6 +75,45 @@ export default function ServiceCampaigns() {
       const mm = gsap.matchMedia();
 
       mm.add('(prefers-reduced-motion: no-preference)', () => {
+
+        // RIGHT-TO-LEFT CINEMATIC REVEAL
+        const entryScan = q('.campaign-entry-scan')[0];
+
+        gsap.set(root.current, {
+          clipPath: 'inset(0 0 0 100%)',
+        });
+
+        gsap.set(entryScan, {
+          left: '100%',
+          opacity: 0,
+        });
+
+        const entryTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        entryTimeline
+          .to(root.current, {
+            clipPath: 'inset(0 0 0 0%)',
+            ease: 'none',
+            duration: 1,
+          }, 0)
+          .to(entryScan, {
+            left: '0%',
+            opacity: 1,
+            ease: 'none',
+            duration: 0.9,
+          }, 0)
+          .to(entryScan, {
+            opacity: 0,
+            duration: 0.1,
+          }, 0.9);
         // 1. TOP INTRO SCROLLTRIGGER
         const introTl = gsap.timeline({
           scrollTrigger: {
@@ -140,71 +189,127 @@ export default function ServiceCampaigns() {
           );
 
         // 3. ANALYTICS GRAPH DRAWING WITH CLIP-PATH & DATA POINTS
+
+        // 3. ANALYTICS GRAPH DRAWING WITH REVERSIBLE SCROLL
         if (graphPath.current && chartClipRect.current) {
-          const length = graphPath.current.getTotalLength();
-          gsap.set(graphPath.current, {
-            strokeDasharray: length,
-            strokeDashoffset: length,
+          gsap.set(chartClipRect.current, {
+            attr: { width: 0 },
           });
-          gsap.set(chartClipRect.current, { attr: { width: 0 } });
+
           gsap.set(q('.chart-point'), {
             scale: 0,
-            transformOrigin: 'center center',
             opacity: 0,
+            transformOrigin: 'center center',
           });
 
           const graphTl = gsap.timeline({
             scrollTrigger: {
               trigger: q('.campaign-dashboard'),
               start: 'top 78%',
-              once: true,
+              end: 'top 30%',
+              scrub: 1,
+              invalidateOnRefresh: true,
             },
           });
 
           graphTl
-            .to(graphPath.current, {
-              strokeDashoffset: 0,
-              duration: 2.2,
-              ease: 'power2.inOut',
-            })
-            .to(
-              chartClipRect.current,
-              {
-                attr: { width: 500 },
-                duration: 2.2,
-                ease: 'power2.inOut',
-              },
-              0
-            )
-            .to(
-              q('.chart-point'),
-              {
-                scale: 1,
-                opacity: 1,
-                duration: 0.45,
-                stagger: 0.42,
-                ease: 'back.out(2)',
-              },
-              0.3
-            );
+            .to(chartClipRect.current, {
+              attr: { width: 500 },
+              duration: 1,
+              ease: 'none',
+            }, 0)
+            .to(q('.chart-point'), {
+              scale: 1,
+              opacity: 1,
+              duration: 0.35,
+              stagger: 0.15,
+              ease: 'power2.out',
+            }, 0.45);
         }
 
-        // 4. SCAN LINE SWEEP
-        gsap.fromTo(
-          q('.campaign-scan-line'),
-          { top: '0%', opacity: 0 },
-          {
-            keyframes: [
-              { top: '5%', opacity: 0.85, duration: 0.4, ease: 'sine.in' },
-              { top: '92%', opacity: 0.85, duration: 2.6, ease: 'none' },
-              { top: '100%', opacity: 0, duration: 0.4, ease: 'sine.out' },
-            ],
-            duration: 3.4,
-            repeat: -1,
-            yoyo: true,
-            ease: 'none',
-          }
-        );
+        // 4. SCAN-REVEAL IMAGE TRANSITION
+        // The next image is clipped from the direction the scan line travels.
+        // This keeps the previous image visible until the new image replaces it.
+        const campaignImages = q('.campaign-main-image');
+        const scanLine = q('.campaign-scan-line')[0];
+
+        gsap.set(campaignImages, {
+          opacity: 0,
+          clipPath: 'inset(0% 0% 0% 0%)',
+          scale: 1.02,
+        });
+        gsap.set(campaignImages[activeIndexRef.current], {
+          opacity: 1,
+          scale: 1,
+        });
+        gsap.set(scanLine, { top: '0%', opacity: 0 });
+
+        const runImageScan = () => {
+          const nextIndex = (activeIndexRef.current + 1) % variants.length;
+          const nextImage = campaignImages[nextIndex];
+          const direction = scanDirectionRef.current;
+          const nextId = variants[nextIndex].id;
+
+          if (!nextImage || !scanLine) return;
+
+          setRevealingVariant(nextId);
+
+          gsap.set(nextImage, {
+            opacity: 1,
+            scale: 1.035,
+            clipPath: direction === 1
+              ? 'inset(0% 0% 100% 0%)'
+              : 'inset(100% 0% 0% 0%)',
+          });
+
+          gsap.set(scanLine, {
+            top: direction === 1 ? '0%' : '100%',
+            opacity: 0,
+          });
+
+          const scanTl = gsap.timeline({
+            delay: 0.65,
+            onComplete: () => {
+              // Commit the new image only after the scan has fully crossed it.
+              gsap.set(campaignImages, { opacity: 0 });
+              gsap.set(nextImage, {
+                opacity: 1,
+                scale: 1,
+                clipPath: 'inset(0% 0% 0% 0%)',
+              });
+
+              activeIndexRef.current = nextIndex;
+              setActiveVariant(nextId);
+              setRevealingVariant(null);
+              scanDirectionRef.current *= -1;
+
+              scanDelayRef.current = gsap.delayedCall(1.15, runImageScan);
+            },
+          });
+
+          scanTl
+            .to(nextImage, {
+              clipPath: 'inset(0% 0% 0% 0%)',
+              duration: 2.8,
+              ease: 'none',
+            }, 0)
+            .to(scanLine, {
+              top: direction === 1 ? '100%' : '0%',
+              opacity: 0.9,
+              duration: 2.8,
+              ease: 'none',
+            }, 0)
+            .to(scanLine, {
+              opacity: 0,
+              duration: 0.22,
+              ease: 'sine.out',
+            }, 2.65);
+
+          scanTimelineRef.current = scanTl;
+        };
+
+        runScanRef.current = runImageScan;
+        scanDelayRef.current = gsap.delayedCall(1.4, runImageScan);
 
         // 5. ANIMATED TARGETING RINGS
         gsap.to(q('.campaign-target-ring'), {
@@ -244,25 +349,32 @@ export default function ServiceCampaigns() {
         });
 
         // 7. BOTTOM CAPABILITIES SCROLLTRIGGER
-        const capTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: q('.campaign-capabilities'),
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        });
 
-        capTl.fromTo(
-          q('.campaign-capability'),
-          { opacity: 0, y: 38 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.85,
-            stagger: 0.12,
-            ease: 'power3.out',
-          }
-        );
+// 7. SEQUENTIAL CAPABILITY CARD REVEAL
+const capabilityCards = q('.campaign-capability');
+
+gsap.set(capabilityCards, {
+  opacity: 0,
+  y: 90,
+});
+
+const capTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: q('.campaign-capabilities'),
+    start: 'top 85%',
+    end: 'bottom 60%',
+    scrub: 1,
+    invalidateOnRefresh: true,
+  },
+});
+
+capTl.to(capabilityCards, {
+  opacity: 1,
+  y: 0,
+  duration: 1,
+  stagger: 0.8,
+  ease: 'none',
+});
 
         // QuickTo setup for targeting HUD and 3D tilt
         if (targetRef.current && visual.current) {
@@ -285,13 +397,47 @@ export default function ServiceCampaigns() {
         }
       });
 
-      return () => mm.revert();
+      return () => {
+        scanTimelineRef.current?.kill();
+        scanDelayRef.current?.kill();
+        runScanRef.current = null;
+        mm.revert();
+      };
     },
     { scope: root }
   );
 
   const handleVariant = (id) => {
+    const selectedIndex = variants.findIndex((variant) => variant.id === id);
+    if (selectedIndex < 0) return;
+
+    scanTimelineRef.current?.kill();
+    scanDelayRef.current?.kill();
+
+    activeIndexRef.current = selectedIndex;
+    scanDirectionRef.current = 1;
+    setRevealingVariant(null);
     setActiveVariant(id);
+
+    if (root.current) {
+      const images = root.current.querySelectorAll('.campaign-main-image');
+      gsap.set(images, {
+        opacity: 0,
+        clipPath: 'inset(0% 0% 0% 0%)',
+        scale: 1.02,
+      });
+      gsap.set(images[selectedIndex], { opacity: 1, scale: 1 });
+
+      const scanLine = root.current.querySelector('.campaign-scan-line');
+      if (scanLine) gsap.set(scanLine, { top: '0%', opacity: 0 });
+
+      // Resume the automatic scan sequence after the manual selection settles.
+      if (runScanRef.current) {
+        scanDelayRef.current = gsap.delayedCall(1.5, () => {
+          runScanRef.current?.();
+        });
+      }
+    }
 
     // Tactical HUD lock pulse animation
     if (root.current) {
@@ -347,6 +493,10 @@ export default function ServiceCampaigns() {
       className="campaign-section"
       id="service-campaigns"
     >
+      <div
+        className="campaign-entry-scan"
+        aria-hidden="true"
+      />
       <div className="campaign-container">
 
         {/* TOP INTRO */}
@@ -377,9 +527,9 @@ export default function ServiceCampaigns() {
 
           </div>
 
-          <div className="campaign-big-number" aria-hidden="true">
+          <span className="campaign-big-number" aria-hidden="true">
             03
-          </div>
+          </span>
 
           <div className="campaign-intro-right">
 
@@ -429,9 +579,9 @@ export default function ServiceCampaigns() {
             {variants.map((v) => (
               <img
                 key={v.id}
-                className={`campaign-main-image ${
-                  activeVariant === v.id ? 'is-active' : ''
-                }`}
+                className={`campaign-main-image ${activeVariant === v.id ? 'is-active' : ''
+                  } ${revealingVariant === v.id ? 'is-revealing' : ''
+                  }`}
                 src={v.image}
                 alt={`AI generated luxury fragrance campaign - ${v.name}`}
               />
@@ -561,18 +711,19 @@ export default function ServiceCampaigns() {
                 {/* Natural curve */}
                 <path
                   ref={graphPath}
+                  clipPath="url(#campaignGraphClip)"
                   d="M10 150
-                     C75 148 110 130 145 116
-                     S235 88 274 63
-                     S375 44 490 12"
+     C75 148 110 130 145 116
+     S235 88 274 63
+     S375 44 490 12"
                   className="chart-main-line"
                 />
 
                 {/* Data points */}
                 {[
                   [10, 150],
-                  [180, 99],
-                  [345, 53],
+                  [180, 102],
+                  [345, 42],
                   [490, 12],
                 ].map(([x, y], index) => (
                   <g key={index} className="chart-point-group">

@@ -180,7 +180,7 @@ export default function Rocket() {
 
       // Base grid lines
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255,255,255,0.075)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.01)';
       ctx.lineWidth = 1;
 
       // Horizontal lines
@@ -213,7 +213,7 @@ export default function Rocket() {
 
       // Neon liquid highlights
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(202,245,66,0.22)';
+      ctx.strokeStyle = 'rgba(237, 243, 220, 0.1)';
       ctx.lineWidth = 1.2;
 
       for (let y = 0; y <= height + gridSize; y += gridSize) {
