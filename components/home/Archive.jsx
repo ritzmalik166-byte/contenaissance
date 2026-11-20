@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
 import { archive } from '@/lib/user/content';
@@ -8,18 +9,19 @@ import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';
 import Split from '../Split';
-
+import './MissionArchive.css';
 
 function Work({ item }) {
   return (
     <button
-      type="button"
       className={`work work--${item.size}`}
       onClick={() => openVideo(item.video.src)}
-      data-cursor="Play"
       aria-label={`Play ${item.title}`}
     >
-      <div className="work__media" style={{ aspectRatio: item.ratio }}>
+      <div
+        className="work__media"
+        style={{ aspectRatio: item.ratio }}
+      >
         <span className="mono work__tag">{item.tag}</span>
 
         <LazyVideo
@@ -42,100 +44,194 @@ function Work({ item }) {
 
 export default function Archive() {
   const root = useRef(null);
+  const spaceOuter = useRef(null);
+  const spaceView = useRef(null);
+  const spaceScene = useRef(null);
 
-  useGSAP(
-    (ctx, contextSafe) => {
-      gsap.from('.archive__title .split-char', {
-        yPercent: 110,
+  // Three.js background
+  useEffect(() => {
+    let disposed = false;
+
+    import('../three/ArchiveSpaceScene').then(({ createArchiveSpaceScene }) => {
+      if (disposed || !spaceView.current) return;
+
+      spaceScene.current = createArchiveSpaceScene(
+        spaceView.current,
+        spaceOuter.current
+      );
+    });
+
+    return () => {
+      disposed = true;
+      spaceScene.current?.destroy();
+      spaceScene.current = null;
+    };
+  }, []);
+
+  // GSAP animations
+  useGSAP((ctx, contextSafe) => {
+    gsap.to({}, {
+      scrollTrigger: {
+        trigger: root.current,
+        start: 'top bottom',
+        end: 'bottom top',
+        onUpdate: (self) => {
+          spaceScene.current?.setScroll(self.progress);
+        },
+      },
+    });
+
+    gsap.from('.archive__title .split-char', {
+      yPercent: 100,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.02,
+      ease: 'power4.out',
+      scrollTrigger: {
+        trigger: '.archive__head',
+        start: 'top 80%',
+      },
+    });
+
+    gsap.utils.toArray('.work', root.current).forEach((card) => {
+      gsap.from(card, {
+        y: 100,
+        opacity: 0,
+        rotateX: 15,
         duration: 1,
-        stagger: 0.015,
-        ease: 'power4.out',
-        scrollTrigger: { trigger: '.archive__head', start: 'top 80%' },
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 90%',
+          end: 'top 55%',
+          scrub: 1,
+        },
+      });
+    });
+
+    if (window.innerWidth > 760) {
+      gsap.fromTo(
+        '.archive__col:last-child',
+        { y: 60 },
+        {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.archive__grid',
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      );
+    }
+
+    if (isTouch()) return;
+
+    const onPointerMove = (e) => {
+      spaceScene.current?.setPointer(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -((e.clientY / window.innerHeight) * 2 - 1)
+      );
+    };
+
+    root.current.addEventListener('pointermove', onPointerMove);
+
+    const cards = gsap.utils.toArray('.work__media', root.current);
+
+    const cleanups = cards.map((card) => {
+      const rotateX = gsap.quickTo(card, 'rotateX', {
+        duration: 0.5,
+        ease: 'power2.out',
       });
 
-      gsap.utils.toArray('.work', root.current).forEach((card) => {
-        gsap.fromTo(
-          card,
-          { rotateX: 28, y: 160, z: -220, opacity: 0, transformOrigin: '50% 100%' },
-          {
-            rotateX: 0,
-            y: 0,
-            z: 0,
-            opacity: 1,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: card, start: 'top 105%', end: 'top 55%', scrub: 1 },
-          }
-        );
-        // gsap.fromTo(
-        //   card.querySelector('video'),
-        //   { yPercent: -6 },
-        //   { yPercent: 6, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } }
-        // );
+      const rotateY = gsap.quickTo(card, 'rotateY', {
+        duration: 0.5,
+        ease: 'power2.out',
       });
 
-      if (window.innerWidth > 760) {
-        gsap.fromTo(
-          '.archive__col:last-child',
-          { y: 80 },
-          { y: -80, ease: 'none', scrollTrigger: { trigger: '.archive__grid', start: 'top bottom', end: 'bottom top', scrub: true } }
-        );
-      }
+      const move = contextSafe((e) => {
+        const rect = card.getBoundingClientRect();
 
-      if (isTouch()) return;
-      const cards = gsap.utils.toArray('.work__media', root.current);
-      const handlers = cards.map((media) => {
-        const rx = gsap.quickTo(media, 'rotateX', { duration: 0.6, ease: 'power3' });
-        const ry = gsap.quickTo(media, 'rotateY', { duration: 0.6, ease: 'power3' });
-        const move = contextSafe((e) => {
-          const r = media.getBoundingClientRect();
-          ry(((e.clientX - r.left) / r.width - 0.5) * 8);
-          rx(-((e.clientY - r.top) / r.height - 0.5) * 8);
-        });
-        const leave = contextSafe(() => {
-          rx(0);
-          ry(0);
-        });
-        media.addEventListener('pointermove', move);
-        media.addEventListener('pointerleave', leave);
-        return () => {
-          media.removeEventListener('pointermove', move);
-          media.removeEventListener('pointerleave', leave);
-        };
+        rotateY(((e.clientX - rect.left) / rect.width - 0.5) * 8);
+        rotateX(-((e.clientY - rect.top) / rect.height - 0.5) * 8);
       });
-      return () => handlers.forEach((off) => off());
-    },
-    { scope: root }
-  );
+
+      const leave = () => {
+        rotateX(0);
+        rotateY(0);
+      };
+
+      card.addEventListener('pointermove', move);
+      card.addEventListener('pointerleave', leave);
+
+      return () => {
+        card.removeEventListener('pointermove', move);
+        card.removeEventListener('pointerleave', leave);
+      };
+    });
+
+    return () => {
+      root.current?.removeEventListener('pointermove', onPointerMove);
+      cleanups.forEach((cleanup) => cleanup());
+    };
+  }, { scope: root });
 
   return (
     <section ref={root} className="archive" id="work">
+
+      <div
+        ref={spaceOuter}
+        className="archive__space"
+        aria-hidden="true"
+      >
+        <div ref={spaceView} className="archive__space-view" />
+      </div>
+
       <div className="container">
+
         <div className="archive__head">
           <div>
             <p className="kicker">05 / Mission archive</p>
-            <Split as="h2" className="display h-lg archive__title" lines={['Stories beyond the ordinary']} style={{ marginTop: 18 }} />
+
+            <Split
+              as="h2"
+              className="display h-lg archive__title"
+              lines={['Stories beyond the ordinary']}
+              style={{ marginTop: 18 }}
+            />
           </div>
-          <p>A window into our creative universe. Film, form and feeling — explored through AI.</p>
+
+          <p>
+            A window into our creative universe.
+            Film, form and feeling, explored through AI.
+          </p>
         </div>
 
         <div className="archive__grid" data-skew>
           <div className="archive__col">
-            <Work item={archive[0]} />
-            <Work item={archive[2]} />
-            <Work item={archive[4]} />
+            {[0, 2, 4].map((i) => (
+              <Work key={i} item={archive[i]} />
+            ))}
           </div>
+
           <div className="archive__col">
-            <Work item={archive[1]} />
-            <Work item={archive[3]} />
+            {[1, 3].map((i) => (
+              <Work key={i} item={archive[i]} />
+            ))}
           </div>
         </div>
 
         <div className="archive__foot">
-          <span>Concept imagery / A glimpse of our visual language</span>
+          <span>
+            Concept imagery / A glimpse of our visual language
+          </span>
+
           <Link href="/portfolio">
             Explore the archive <ArrowUpRight size={12} />
           </Link>
         </div>
+
       </div>
     </section>
   );

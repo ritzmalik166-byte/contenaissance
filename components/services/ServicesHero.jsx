@@ -6,10 +6,10 @@ import gsap from 'gsap';
 import './ServicesHero.css';
 
 const services = [
-  { number: 'S1', title: 'AI Brand Films', href: '#service-1' },
-  { number: 'S2', title: 'Digital-First Content', href: '#service-2' },
-  { number: 'S3', title: 'AI-Powered Campaigns', href: '#service-3' },
-  { number: 'S4', title: 'Visual Identity Systems', href: '#service-4' },
+  { number: 'S1', title: 'AI Brand Films', href: '#service-detail-1' },
+  { number: 'S2', title: 'Digital-First Content', href: '#digital-content' },
+  { number: 'S3', title: 'AI-Powered Campaigns', href: '#service-campaigns' },
+  { number: 'S4', title: 'Visual Identity Systems', href: '#service-identity' },
 ];
 
 export default function ServicesHero() {

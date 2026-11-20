@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
+import './Rocket.css';
 
 const finalPanel = {
   num: 'All stages',
@@ -14,255 +15,29 @@ const finalPanel = {
 
 export default function Rocket() {
   const root = useRef(null);
-  const gridCanvas = useRef(null);
+  const spaceWrap = useRef(null);
+  const spaceSceneRef = useRef(null);
 
   useEffect(() => {
-    const section = root.current;
-    const canvas = gridCanvas.current;
+    const container = spaceWrap.current;
+    if (!container) return;
 
-    if (!section || !canvas) return;
+    let disposed = false;
 
-    // Disable on touch devices and reduced-motion preferences
-    if (
-      window.matchMedia('(hover: none)').matches ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      return;
-    }
+    import('../three/SpaceScene').then(({ createSpaceScene }) => {
+      if (disposed || !spaceWrap.current) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let width = 0;
-    let height = 0;
-    let animationFrame;
-
-    const gridSize = 78;
-    const spacing = 10;
-    const ripples = [];
-
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    const resize = () => {
-      const rect = section.getBoundingClientRect();
-
-      width = rect.width;
-      height = rect.height;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    const addRipple = (x, y, strength = 1) => {
-      ripples.push({
-        x,
-        y,
-        start: performance.now(),
-        strength,
-      });
-
-      if (ripples.length > 10) {
-        ripples.shift();
-      }
-    };
-
-    let lastPointer = null;
-
-    const handlePointerMove = (e) => {
-      const rect = section.getBoundingClientRect();
-
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      if (lastPointer) {
-        const distance = Math.hypot(
-          x - lastPointer.x,
-          y - lastPointer.y
-        );
-
-        if (distance > 5) {
-          addRipple(x, y, Math.min(distance / 35, 1.5));
-        }
-      } else {
-        addRipple(x, y, 0.8);
-      }
-
-      lastPointer = { x, y };
-    };
-
-    const handlePointerLeave = () => {
-      lastPointer = null;
-    };
-
-    // Calculate liquid displacement
-    const distort = (x, y, now) => {
-      let dx = 0;
-      let dy = 0;
-
-      ripples.forEach((ripple) => {
-        const age = (now - ripple.start) / 1000;
-
-        if (age > 1.7) return;
-
-        const diffX = x - ripple.x;
-        const diffY = y - ripple.y;
-
-        const distance = Math.hypot(diffX, diffY);
-
-        if (distance < 1) return;
-
-        // Expanding water wave
-        const radius = age * 300;
-
-        const waveDistance = distance - radius;
-
-        const wave =
-          Math.sin(waveDistance * 0.075) *
-          Math.exp(-Math.pow(waveDistance / 85, 2)) *
-          ripple.strength *
-          20 *
-          Math.exp(-age * 1.3);
-
-        // Gentle gravity pull around cursor
-        const gravity =
-          Math.exp(-distance / 95) *
-          ripple.strength *
-          5 *
-          Math.exp(-age * 2);
-
-        const displacement = wave + gravity;
-
-        dx += (diffX / distance) * displacement;
-        dy += (diffY / distance) * displacement;
-      });
-
-      return { x: x + dx, y: y + dy };
-    };
-
-    const draw = () => {
-      const now = performance.now();
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Keep only active ripples
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        if (now - ripples[i].start > 1700) {
-          ripples.splice(i, 1);
-        }
-      }
-
-      // Draw subtle cursor glow
-      if (ripples.length) {
-        const latest = ripples[ripples.length - 1];
-
-        const gradient = ctx.createRadialGradient(
-          latest.x,
-          latest.y,
-          0,
-          latest.x,
-          latest.y,
-          220
-        );
-
-        gradient.addColorStop(0, 'rgba(202,245,66,0.075)');
-        gradient.addColorStop(0.5, 'rgba(202,245,66,0.025)');
-        gradient.addColorStop(1, 'rgba(202,245,66,0)');
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      // Base grid lines
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.01)';
-      ctx.lineWidth = 1;
-
-      // Horizontal lines
-      for (let y = 0; y <= height + gridSize; y += gridSize) {
-        for (let x = 0; x <= width; x += spacing) {
-          const point = distort(x, y, now);
-
-          if (x === 0) {
-            ctx.moveTo(point.x, point.y);
-          } else {
-            ctx.lineTo(point.x, point.y);
-          }
-        }
-      }
-
-      // Vertical lines
-      for (let x = 0; x <= width + gridSize; x += gridSize) {
-        for (let y = 0; y <= height; y += spacing) {
-          const point = distort(x, y, now);
-
-          if (y === 0) {
-            ctx.moveTo(point.x, point.y);
-          } else {
-            ctx.lineTo(point.x, point.y);
-          }
-        }
-      }
-
-      ctx.stroke();
-
-      // Neon liquid highlights
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(237, 243, 220, 0.1)';
-      ctx.lineWidth = 1.2;
-
-      for (let y = 0; y <= height + gridSize; y += gridSize) {
-        for (let x = 0; x <= width; x += spacing) {
-          const point = distort(x, y, now);
-
-          if (x === 0) {
-            ctx.moveTo(point.x, point.y);
-          } else {
-            ctx.lineTo(point.x, point.y);
-          }
-        }
-      }
-
-      for (let x = 0; x <= width + gridSize; x += gridSize) {
-        for (let y = 0; y <= height; y += spacing) {
-          const point = distort(x, y, now);
-
-          if (y === 0) {
-            ctx.moveTo(point.x, point.y);
-          } else {
-            ctx.lineTo(point.x, point.y);
-          }
-        }
-      }
-
-      ctx.stroke();
-
-      animationFrame = requestAnimationFrame(draw);
-    };
-
-    resize();
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(section);
-
-    section.addEventListener('pointermove', handlePointerMove);
-    section.addEventListener('pointerleave', handlePointerLeave);
-
-    draw();
+      spaceSceneRef.current = createSpaceScene(spaceWrap.current);
+    });
 
     return () => {
-      cancelAnimationFrame(animationFrame);
-      observer.disconnect();
+      disposed = true;
 
-      section.removeEventListener('pointermove', handlePointerMove);
-      section.removeEventListener('pointerleave', handlePointerLeave);
+      spaceSceneRef.current?.destroy();
+      spaceSceneRef.current = null;
     };
   }, []);
+
   useGSAP(
     () => {
       const q = gsap.utils.selector(root);
@@ -314,8 +89,7 @@ export default function Rocket() {
           scaleY: 1.8,
           duration: 1.2,
         }, 5.6)
-        .to(q('.orbit--1'), { scale: 1.6, opacity: 0, duration: 1.6, ease: 'power2.in' }, 5.6)
-        .to(q('.orbit--2'), { scale: 0.5, opacity: 0, duration: 1.6, ease: 'power2.in' }, 5.6)
+        .call(() => spaceSceneRef.current?.pulse(), null, 5.6)
         .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
         .to({}, { duration: 0.4 });
 
@@ -358,10 +132,9 @@ export default function Rocket() {
           labels.forEach((l, i) => {
             l.classList.toggle('is-on', time >= i + 0.6);
           });
+          spaceSceneRef.current?.setProgress(this.progress());
         },
       }).add(tl);
-
-      gsap.to(q('.orbit--1'), { rotate: 360, duration: 40, repeat: -1, ease: 'none' });
     },
     { scope: root }
   );
@@ -380,34 +153,18 @@ export default function Rocket() {
       onPointerMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
 
-        e.currentTarget.style.setProperty(
-          '--grid-x',
-          `${e.clientX - rect.left}px`
+        spaceSceneRef.current?.setPointer(
+          ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          -(((e.clientY - rect.top) / rect.height) * 2 - 1)
         );
-
-        e.currentTarget.style.setProperty(
-          '--grid-y',
-          `${e.clientY - rect.top}px`
-        );
-
-        e.currentTarget.style.setProperty('--grid-opacity', '1');
       }}
-      onPointerLeave={(e) => {
-        e.currentTarget.style.setProperty('--grid-opacity', '0');
+      onPointerLeave={() => {
+        spaceSceneRef.current?.setPointer(0, 0);
       }}
     >
-      <canvas
-        ref={gridCanvas}
-        className="rocket-sec__grid"
-        aria-hidden="true"
-      />
+      <div ref={spaceWrap} className="rocket-sec__space" aria-hidden="true" />
       <div className="container rocket-sec__inner">
         <div className="rocket-stage">
-          <div className="orbit orbit--1">
-            <i className="orbit__sat" />
-          </div>
-          <div className="orbit orbit--2" />
-
           <div className="rocket">
 
             <div className="rocket__nose-wrap">
@@ -499,7 +256,12 @@ export default function Rocket() {
             </div>
 
             {stack.map((s, i) => (
-              <div className="rocket__module" key={s.id} data-stage={s.id}>
+              <div
+                className="rocket__module"
+                key={s.id}
+                data-stage={s.id}
+                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+              >
                 <small>{s.id}</small>
                 <StageIcon name={s.icon} />
                 <div className={`stage-label stage-label--${i % 2 === 0 ? 'right' : 'left'}`}>
@@ -545,7 +307,12 @@ export default function Rocket() {
               <p className="rocket-panel__num">{finalPanel.num}</p>
               <h3>{finalPanel.title}</h3>
               <p>{finalPanel.body}</p>
-              <Link href="/services" className="btn btn--ghost rocket-panel__button" style={{ marginTop: 22 }}>
+              <Link
+                href="/services"
+                className="btn btn--ghost rocket-panel__button"
+                style={{ marginTop: 22 }}
+                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+              >
                 See every stage <ArrowRight />
               </Link>
             </article>
