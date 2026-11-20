@@ -48,6 +48,33 @@ function createRocket(kit, sunDir) {
   band.position.y = 0.3;
   group.add(band);
 
+  // Brand livery: dark band around the mid-body carrying the gold
+  // Contenaissance logo, wrapped on the curved hull facing camera.
+  const livery = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.1615, 0.1615, 0.22, 48, 1, true),
+    hullMaterial(kit, { color: 0x14161b, metalness: 0.5, roughness: 0.7, repeat: [1.5, 0.5], sunDir })
+  );
+  livery.position.y = -0.07;
+  group.add(livery);
+
+  const LOGO_ASPECT = 274 / 133; // public/images/logo.png
+  const LOGO_ARC = 2.0; // radians of hull the logo wraps across
+  const LOGO_R = 0.1635;
+  const logo = new THREE.Mesh(
+    new THREE.CylinderGeometry(LOGO_R, LOGO_R, (LOGO_ARC * LOGO_R) / LOGO_ASPECT, 48, 1, true, -LOGO_ARC / 2, LOGO_ARC),
+    new THREE.MeshStandardMaterial({
+      map: kit.publicImage('/images/logo.png'),
+      transparent: true,
+      alphaTest: 0.08,
+      metalness: 0.85,
+      roughness: 0.35,
+      envMap: kit.environment(sunDir),
+      envMapIntensity: 1.4,
+    })
+  );
+  logo.position.y = -0.07;
+  group.add(logo);
+
   const porthole = new THREE.Mesh(new THREE.SphereGeometry(0.055, 24, 16), glassMaterial(kit, { sunDir }));
   porthole.position.set(0, 0.12, 0.145);
   porthole.scale.z = 0.5;
@@ -562,15 +589,15 @@ export function createShowreelScene(container) {
   const rocket = createRocket(kit, sunDir);
 
   // Flight loop: centre, radii (world units) and angular speed
-  const ROCKET_X = -16;
-  const ROCKET_Y = 0.6;
-  const ROCKET_RX = 2.8;
-  const ROCKET_RY = 3.4;
+  const ROCKET_X = -16.5;
+  const ROCKET_Y = -0.6;
+  const ROCKET_RX = 2.6;
+  const ROCKET_RY = 3.0;
   const ROCKET_SPEED = 0.42;
 
   rocket.position.set(ROCKET_X + ROCKET_RX, ROCKET_Y, -3);
   rocket.rotation.z = ROCKET_TILT;
-  rocket.scale.setScalar(2.2);
+  rocket.scale.setScalar(2.8);
   rocket.userData.flames.forEach((f) => (f.material.rotation = ROCKET_TILT));
 
   flankLeft.add(rocket);

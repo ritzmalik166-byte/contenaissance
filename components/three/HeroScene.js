@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { createTextureKit, makeRealPlanet, makePlanetRing } from './spaceMaterials';
 
 class Lemniscate extends THREE.Curve {
   constructor(scale = 1) {
@@ -318,6 +319,78 @@ export function createHeroScene(container) {
 
   scene.add(infinityGroup);
 
+  // Side planets — real surfaces, kept in the left/right margins so
+  // they frame the headline without covering it.
+  const kit = createTextureKit(renderer, { mobile });
+  kit.loadWhenNear(container);
+
+  const sunDir = key.position.clone().normalize();
+
+  // side: -1 left / 1 right · edge: fraction of the visible half-width
+  // at that depth · par: pointer parallax strength · spin: rad/s
+  const PLANET_DEFS = [
+    {
+      side: -1, edge: 0.66, y: 1.9, z: -6, par: 0.6, spin: 0.05,
+      opts: { radius: 1.05, surface: 'mars', tint: 0xb89a80, atmosphere: { color: '#f0a868', intensity: 0.8 }, glowColor: '#e0a65e', glowOpacity: 0.16 },
+    },
+    {
+      side: -1, edge: 0.6, y: -2.6, z: -1, par: 1.1, spin: -0.08,
+      opts: { radius: 0.36, surface: 'mercury', tint: 0x9e968c, atmosphere: { color: '#e8d2b0', intensity: 0.3 }, glowOpacity: 0 },
+    },
+    {
+      side: 1, edge: 0.66, y: -1.5, z: -7, par: 0.5, spin: 0.06, ring: true,
+      opts: { radius: 0.95, surface: 'saturn', tint: 0xa8957a, atmosphere: { color: '#ffc879', intensity: 0.7 }, glowColor: '#ffc879', glowOpacity: 0.14 },
+    },
+    {
+      side: 1, edge: 0.6, y: 2.9, z: -10, par: 0.3, spin: -0.07,
+      opts: { radius: 0.55, surface: 'neptune', tint: 0x9fb2cc, atmosphere: { color: '#7fb6ff', intensity: 1.0 }, glowColor: '#83b9ed', glowOpacity: 0.16 },
+    },
+  ];
+
+  const sidePlanets = PLANET_DEFS.map((def) => {
+    const planet = makeRealPlanet(kit, {
+      sunDir,
+      segments: mobile ? 40 : 72,
+      glowScale: 2.6,
+      ...def.opts,
+    });
+
+    // Keep the night side dark (no studio env light); the hero fog is
+    // left on so the planets sit in the same warm haze as the scene.
+    planet.userData.body.material.envMapIntensity = 0;
+
+    if (def.ring) {
+      const ring = makePlanetRing(kit, {
+        inner: def.opts.radius * 1.3,
+        outer: def.opts.radius * 2.15,
+        tint: 0xf0dcb8,
+        opacity: 0.9,
+      });
+      ring.material.envMapIntensity = 0;
+      ring.rotation.x = Math.PI / 2 - 0.42;
+      ring.rotation.y = -0.25;
+      planet.add(ring);
+    }
+
+    scene.add(planet);
+
+    return { def, planet, baseX: 0, scale: 1 };
+  });
+
+  // Place planets from the current viewport so they stay in the side
+  // margins at any aspect ratio (peeking from the edges on mobile).
+  const layoutPlanets = () => {
+    const tanHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+
+    for (const item of sidePlanets) {
+      const { side, edge, z } = item.def;
+      const halfW = (9 - z) * tanHalf * camera.aspect;
+
+      item.baseX = side * halfW * (mobile ? 0.98 : edge);
+      item.scale = mobile ? 0.55 : 1;
+    }
+  };
+
   // Animation state
   const state = {
     progress: 0,
@@ -364,6 +437,8 @@ export function createHeroScene(container) {
     );
 
     renderer.setSize(w, h, false);
+
+    layoutPlanets();
 
     // Recalculate infinity scale
     const scrollScale = mobile
@@ -484,6 +559,27 @@ export function createHeroScene(container) {
     shardMat.opacity =
       0.55 * (0.4 + Math.sin(t * 1.3) * 0.1 + 0.5);
 
+    // Side planets
+    //  scroll: drift outward + rise, spin faster (camera also flies
+    //          forward, so the near ones sweep past)
+    //  pointer: depth-weighted parallax and a tilt toward the cursor
+    for (let i = 0; i < sidePlanets.length; i++) {
+      const { def, planet, baseX, scale } = sidePlanets[i];
+
+      planet.position.set(
+        baseX + def.side * p * 3.5 - state.px * def.par,
+        def.y + p * (1.5 + def.par) - state.py * def.par * 0.6 +
+          Math.sin(t * 0.35 + i * 1.7) * 0.12,
+        def.z
+      );
+
+      planet.scale.setScalar(scale * (0.75 + intro * 0.25));
+
+      const body = planet.userData.body;
+      body.rotation.y = t * def.spin + p * def.side * 2.2 + state.px * 0.6;
+      body.rotation.x = state.py * -0.35;
+    }
+
     renderer.render(scene, camera);
   };
 
@@ -525,6 +621,7 @@ export function createHeroScene(container) {
         }
       });
 
+      kit.dispose();
       environment.dispose();
       pmrem.dispose();
 

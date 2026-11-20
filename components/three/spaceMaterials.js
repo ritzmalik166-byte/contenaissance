@@ -129,6 +129,12 @@ export function createTextureKit(renderer, { mobile = false } = {}) {
       return texture(`${BASE}/${file}`);
     },
 
+    // Colour texture from anywhere under /public (e.g. brand assets),
+    // so existing images are reused instead of duplicated.
+    publicImage(url) {
+      return texture(url);
+    },
+
     // Tiling PBR set → { map, normalMap, arm }
     pbr(name, repeat = [1, 1]) {
       const opts = { tile: true, repeat };

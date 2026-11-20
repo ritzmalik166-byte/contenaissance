@@ -13,26 +13,6 @@ import {
   solarPanelMaterial,
 } from './spaceMaterials';
 
-function flameTexture() {
-  const c = document.createElement('canvas');
-  c.width = 64;
-  c.height = 128;
-  const ctx = c.getContext('2d');
-  const grd = ctx.createLinearGradient(0, 0, 0, 128);
-
-  grd.addColorStop(0, 'rgba(255,245,210,0.95)');
-  grd.addColorStop(0.3, 'rgba(242,226,27,0.8)');
-  grd.addColorStop(0.65, 'rgba(217,119,43,0.45)');
-  grd.addColorStop(1, 'rgba(217,119,43,0)');
-
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, 64, 128);
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
-
 // Floating space dust
 function makeDustField(count, bounds) {
   const positions = new Float32Array(count * 3);
@@ -107,43 +87,6 @@ function makeAtmosphereGlow(
 
   sprite.scale.setScalar(scale);
   return sprite;
-}
-
-// Moving comets
-function makeComet() {
-  const group = new THREE.Group();
-
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.045, 8, 8),
-    new THREE.MeshBasicMaterial({
-      color: 0xffe5b0,
-    })
-  );
-
-  group.add(head);
-
-  const points = [
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(-0.55, -0.16, 0),
-    new THREE.Vector3(-1.25, -0.34, 0),
-  ];
-
-  const geometry = new THREE.BufferGeometry()
-    .setFromPoints(points);
-
-  const tail = new THREE.Line(
-    geometry,
-    new THREE.LineBasicMaterial({
-      color: 0x9dbbff,
-      transparent: true,
-      opacity: 0.52,
-      blending: THREE.AdditiveBlending,
-    })
-  );
-
-  group.add(tail);
-
-  return group;
 }
 
 // Space station
@@ -251,80 +194,6 @@ function makeSatellite(glow, kit, sunDir) {
 
   group.add(blip);
   group.userData.blip = blip;
-
-  return group;
-}
-
-// Small drifting rocket
-function makeDriftRocket(flameTex, kit, sunDir) {
-  const group = new THREE.Group();
-
-  // Painted white hull panels — semi-metallic lacquer
-  const bodyMat = hullMaterial(kit, {
-    color: 0xeef1ec,
-    metalness: 0.35,
-    repeat: [1.5, 1],
-    sunDir,
-  });
-
-  const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.1, 0.1, 0.5, 40),
-    bodyMat
-  );
-
-  group.add(body);
-
-  const nose = new THREE.Mesh(
-    new THREE.ConeGeometry(0.1, 0.26, 40),
-    bodyMat
-  );
-
-  nose.position.y = 0.38;
-  group.add(nose);
-
-  const finMat = hullMaterial(kit, {
-    color: 0xd9772b,
-    metalness: 0.3,
-    repeat: [0.5, 0.5],
-    sunDir,
-  });
-
-  for (let i = 0; i < 3; i++) {
-    const fin = new THREE.Mesh(
-      new THREE.ConeGeometry(0.07, 0.16, 3),
-      finMat
-    );
-
-    const angle = (i / 3) * Math.PI * 2;
-
-    fin.position.set(
-      Math.cos(angle) * 0.1,
-      -0.24,
-      Math.sin(angle) * 0.1
-    );
-
-    fin.rotation.x = Math.PI;
-    fin.lookAt(0, -0.4, 0);
-
-    group.add(fin);
-  }
-
-  const flame = new THREE.Sprite(
-    new THREE.SpriteMaterial({
-      map: flameTex,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-  );
-
-  flame.scale.set(0.2, 0.55, 1);
-  flame.position.y = -0.52;
-
-  group.add(flame);
-
-  group.rotation.z = Math.PI;
-  group.userData.flame = flame;
 
   return group;
 }
@@ -589,32 +458,6 @@ export function createSpaceScene(container) {
   satellite.position.set(2.7, 0.25, 0);
   satOrbit.add(satellite);
 
-  // Drifting rocket
-  const driftRocket = makeDriftRocket(flameTexture(), kit, sunDir);
-
-  driftRocket.position.set(-8, -3.4, -7);
-  driftRocket.scale.setScalar(1.7);
-
-  scene.add(driftRocket);
-
-  // Comets
-  const comets = [
-    makeComet(),
-    makeComet(),
-    makeComet(),
-  ];
-
-  comets.forEach((comet, i) => {
-    comet.position.set(
-      -10 + i * 8,
-      3.8 - i * 2.8,
-      -11 - i * 3
-    );
-
-    comet.scale.setScalar(0.55 + i * 0.18);
-    scene.add(comet);
-  });
-
   // Interaction state
   const state = {
     progress: 0,
@@ -672,8 +515,6 @@ export function createSpaceScene(container) {
 
   io.observe(container);
 
-  const DRIFT_SPAN = 14;
-
   // Animation loop
   const render = () => {
     if (destroyed) return;
@@ -728,22 +569,6 @@ export function createSpaceScene(container) {
       nearStars.rotation.y = t * -0.006;
       dust.rotation.y = t * 0.004;
 
-      // Comet movement
-      comets.forEach((comet, i) => {
-        const cycle =
-          (t * (0.12 + i * 0.035) + i * 0.38) % 1;
-
-        comet.position.x = -13 + cycle * 26;
-
-        comet.position.y =
-          4.8 - cycle * 9 + Math.sin(t * 0.4 + i) * 0.25;
-
-        comet.rotation.z = -0.22;
-
-        comet.children[1].material.opacity =
-          0.18 + Math.sin(t * 1.4 + i) * 0.12;
-      });
-
       // Station lights
       station.userData.lights.forEach((light, i) => {
         light.material.opacity =
@@ -752,29 +577,6 @@ export function createSpaceScene(container) {
 
       satellite.userData.blip.material.opacity =
         0.5 + Math.sin(t * 3) * 0.4;
-
-      // Drifting rocket
-      driftRocket.position.x =
-        ((t * 0.35) % DRIFT_SPAN) -
-        DRIFT_SPAN / 2 - 5;
-
-      driftRocket.position.y =
-        -3.2 + Math.sin(t * 0.5) * 0.3;
-
-      driftRocket.rotation.z =
-        Math.PI + Math.sin(t * 0.4) * 0.08;
-
-      // Engine flame
-      const flameMat = driftRocket.userData.flame.material;
-
-      flameMat.opacity =
-        0.75 + Math.sin(t * 12) * 0.2;
-
-      driftRocket.userData.flame.scale.set(
-        0.2,
-        0.5 + Math.sin(t * 10) * 0.08,
-        1
-      );
 
       // Asteroid movement
       updateAsteroidBelt(asteroids, t);
