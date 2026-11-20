@@ -1,12 +1,17 @@
-
 import * as THREE from 'three';
 import {
   glowTexture,
   makeStars,
-  makePlanet,
-  makeAsteroidBelt,
   updateAsteroidBelt,
 } from './spaceCommon';
+import {
+  createTextureKit,
+  makeRealPlanet,
+  makePlanetRing,
+  makeAsteroidBelt,
+  hullMaterial,
+  solarPanelMaterial,
+} from './spaceMaterials';
 
 function flameTexture() {
   const c = document.createElement('canvas');
@@ -26,74 +31,6 @@ function flameTexture() {
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
-}
-
-// Cinematic nebula background
-function makeNebulaTexture() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 2048;
-  canvas.height = 1024;
-
-  const ctx = canvas.getContext('2d');
-
-  const clouds = [
-    [360, 390, 430, 'rgba(92,55,145,0.34)'],
-    [760, 560, 390, 'rgba(35,100,158,0.28)'],
-    [1240, 330, 470, 'rgba(151,77,48,0.22)'],
-    [1640, 650, 390, 'rgba(72,53,137,0.30)'],
-    [1030, 820, 300, 'rgba(194,126,55,0.13)'],
-  ];
-
-  ctx.globalCompositeOperation = 'screen';
-
-  clouds.forEach(([x, y, radius, color]) => {
-    const gradient = ctx.createRadialGradient(
-      x, y, 0, x, y, radius
-    );
-
-    gradient.addColorStop(0, color);
-    gradient.addColorStop(0.38, color.replace(/[\d.]+\)$/, '0.10)'));
-    gradient.addColorStop(1, 'rgba(0,0,0,0)');
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(
-      x - radius,
-      y - radius,
-      radius * 2,
-      radius * 2
-    );
-  });
-
-  for (let i = 0; i < 95; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    const radius = 18 + Math.random() * 70;
-
-    const gradient = ctx.createRadialGradient(
-      x, y, 0, x, y, radius
-    );
-
-    gradient.addColorStop(
-      0,
-      `rgba(155,167,255,${0.025 + Math.random() * 0.045})`
-    );
-    gradient.addColorStop(1, 'rgba(100,120,190,0)');
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(
-      x - radius,
-      y - radius,
-      radius * 2,
-      radius * 2
-    );
-  }
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-
-  return texture;
 }
 
 // Floating space dust
@@ -210,39 +147,26 @@ function makeComet() {
 }
 
 // Space station
-function makeStation(glow) {
+function makeStation(glow, kit, sunDir) {
   const group = new THREE.Group();
 
   const hull = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.22, 0.22, 1.4, 10),
-    new THREE.MeshStandardMaterial({
-      color: 0xcfd3cf,
-      metalness: 0.6,
-      roughness: 0.4,
-    })
+    new THREE.CylinderGeometry(0.22, 0.22, 1.4, 48, 1),
+    hullMaterial(kit, { color: 0xe4e7e6, repeat: [2, 1.4], sunDir })
   );
 
   hull.rotation.z = Math.PI / 2.4;
   group.add(hull);
 
   const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(1.1, 0.045, 8, 48),
-    new THREE.MeshStandardMaterial({
-      color: 0x8a8f86,
-      metalness: 0.5,
-      roughness: 0.5,
-    })
+    new THREE.TorusGeometry(1.1, 0.045, 16, 128),
+    hullMaterial(kit, { color: 0x9ea39b, repeat: [24, 0.5], sunDir })
   );
 
   ring.rotation.x = Math.PI / 2.6;
   group.add(ring);
 
-  const panelMat = new THREE.MeshStandardMaterial({
-    color: 0x16202a,
-    metalness: 0.3,
-    roughness: 0.6,
-    emissive: 0x0d1720,
-  });
+  const panelMat = solarPanelMaterial(kit, { sunDir });
 
   [-1, 1].forEach((side) => {
     const panel = new THREE.Mesh(
@@ -288,26 +212,18 @@ function makeStation(glow) {
 }
 
 // Satellite
-function makeSatellite(glow) {
+function makeSatellite(glow, kit, sunDir) {
   const group = new THREE.Group();
 
+  // Gold-anodised bus — reuses the hull PBR set, tinted
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(0.22, 0.16, 0.4),
-    new THREE.MeshStandardMaterial({
-      color: 0xe7eee9,
-      metalness: 0.4,
-      roughness: 0.5,
-    })
+    hullMaterial(kit, { color: 0xffc35a, metalness: 1, roughness: 0.75, sunDir })
   );
 
   group.add(body);
 
-  const panelMat = new THREE.MeshStandardMaterial({
-    color: 0x1b2630,
-    metalness: 0.2,
-    roughness: 0.55,
-    emissive: 0x0a1016,
-  });
+  const panelMat = solarPanelMaterial(kit, { sunDir });
 
   [-1, 1].forEach((side) => {
     const panel = new THREE.Mesh(
@@ -340,34 +256,37 @@ function makeSatellite(glow) {
 }
 
 // Small drifting rocket
-function makeDriftRocket(flameTex) {
+function makeDriftRocket(flameTex, kit, sunDir) {
   const group = new THREE.Group();
 
-  const bodyMat = new THREE.MeshStandardMaterial({
-    color: 0xcfd6cc,
-    metalness: 0.3,
-    roughness: 0.5,
+  // Painted white hull panels — semi-metallic lacquer
+  const bodyMat = hullMaterial(kit, {
+    color: 0xeef1ec,
+    metalness: 0.35,
+    repeat: [1.5, 1],
+    sunDir,
   });
 
   const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.1, 0.1, 0.5, 12),
+    new THREE.CylinderGeometry(0.1, 0.1, 0.5, 40),
     bodyMat
   );
 
   group.add(body);
 
   const nose = new THREE.Mesh(
-    new THREE.ConeGeometry(0.1, 0.26, 12),
+    new THREE.ConeGeometry(0.1, 0.26, 40),
     bodyMat
   );
 
   nose.position.y = 0.38;
   group.add(nose);
 
-  const finMat = new THREE.MeshStandardMaterial({
+  const finMat = hullMaterial(kit, {
     color: 0xd9772b,
-    metalness: 0.2,
-    roughness: 0.6,
+    metalness: 0.3,
+    repeat: [0.5, 0.5],
+    sunDir,
   });
 
   for (let i = 0; i < 3; i++) {
@@ -446,6 +365,9 @@ export function createSpaceScene(container) {
 
   container.appendChild(renderer.domElement);
 
+  const kit = createTextureKit(renderer, { mobile });
+  kit.loadWhenNear(container);
+
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(
@@ -470,6 +392,10 @@ export function createSpaceScene(container) {
   key.position.set(-4, 5, 6);
   scene.add(key);
 
+  // World-space direction toward the key light; drives atmosphere
+  // scattering and the environment's sun highlight.
+  const sunDir = key.position.clone().normalize();
+
   const rim = new THREE.PointLight(
     0xc8f04a,
     8,
@@ -481,15 +407,19 @@ export function createSpaceScene(container) {
 
   const RIM_BASE = rim.intensity;
 
-  // Nebula background
-  const nebulaTexture = makeNebulaTexture();
+  // Milky Way backdrop (ESO all-sky panorama, galactic core crop)
+  const nebulaTexture = kit.color(
+    `backgrounds/milkyway_${mobile ? '1k' : '1536'}.webp`
+  );
 
   const nebula = new THREE.Mesh(
     new THREE.PlaneGeometry(46, 25),
     new THREE.MeshBasicMaterial({
       map: nebulaTexture,
       transparent: true,
-      opacity: 0.82,
+      // Additive blend: opacity acts as brightness. Kept low so the
+      // Milky Way reads as atmosphere and the copy stays legible.
+      opacity: 0.4,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     })
@@ -497,6 +427,28 @@ export function createSpaceScene(container) {
 
   nebula.position.set(0, 0, -27);
   scene.add(nebula);
+
+  // Scale the backdrop to always overfill the frustum ("cover"), so
+  // its edges never show as a rectangle on wide or tall screens.
+  // Sized for the farthest camera position (z = 12), with margin for
+  // the pointer/scroll parallax.
+  const NEBULA_W = 46;
+  const NEBULA_H = 25;
+  const NEBULA_MARGIN = 1.3;
+
+  const fitNebula = () => {
+    const dist = 12 - nebula.position.z;
+    const viewH =
+      2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const viewW = viewH * camera.aspect;
+
+    nebula.scale.setScalar(
+      Math.max(
+        (viewW * NEBULA_MARGIN) / NEBULA_W,
+        (viewH * NEBULA_MARGIN) / NEBULA_H
+      )
+    );
+  };
 
   // Layered stars
   const stars = makeStars(
@@ -523,7 +475,7 @@ export function createSpaceScene(container) {
   scene.add(dust);
 
   // Asteroid field
-  const asteroids = makeAsteroidBelt({
+  const asteroids = makeAsteroidBelt(kit, {
     count: mobile ? 22 : 52,
     radiusRange: [4.5, 13],
     arc: Math.PI * 1.55,
@@ -536,12 +488,16 @@ export function createSpaceScene(container) {
   scene.add(asteroids);
 
   // Main planet
-  const planetA = makePlanet({
+  // Rust-red rocky world: real Mars albedo + relief, thin dusty air
+  const planetA = makeRealPlanet(kit, {
     radius: 2.05,
-    color: 0x66513b,
-    emissive: 0x302016,
+    surface: 'mars',
+    tint: 0xe9d2bd,
+    sunDir,
+    atmosphere: { color: '#f0a868', intensity: 0.9, thickness: 0.05, power: 3.6 },
     glowColor: '#e0a65e',
     glowScale: 3.1,
+    glowOpacity: 0.3,
   });
 
   planetA.position.set(-7.1, 2.8, -14);
@@ -559,15 +515,15 @@ export function createSpaceScene(container) {
   scene.add(planetAHalo);
 
   // Planet ring
-  const planetARing = new THREE.Mesh(
-    new THREE.TorusGeometry(2.75, 0.055, 8, 120),
-    new THREE.MeshBasicMaterial({
-      color: 0xc9a879,
-      transparent: true,
-      opacity: 0.42,
-      depthWrite: false,
-    })
-  );
+  // Ice-and-dust ring system (real Saturn ring radial profile).
+  // RingGeometry lies in XY like the old torus, so the same
+  // rotation/animation applies.
+  const planetARing = makePlanetRing(kit, {
+    inner: 2.45,
+    outer: 3.15,
+    tint: 0xe2c49a,
+    opacity: 0.75,
+  });
 
   planetARing.position.copy(planetA.position);
   planetARing.rotation.set(1.18, 0.18, -0.28);
@@ -575,12 +531,16 @@ export function createSpaceScene(container) {
   scene.add(planetARing);
 
   // Secondary blue planet
-  const planetB = makePlanet({
+  // Ice giant: real Neptune cloud bands, deep blue scattering
+  const planetB = makeRealPlanet(kit, {
     radius: 1.15,
-    color: 0x344b61,
-    emissive: 0x142333,
+    surface: 'neptune',
+    tint: 0xc8d8ee,
+    sunDir,
+    atmosphere: { color: '#7fb6ff', intensity: 1.25, thickness: 0.07, power: 2.8 },
     glowColor: '#83b9ed',
     glowScale: 3.2,
+    glowOpacity: 0.3,
   });
 
   planetB.position.set(7.3, -3.1, -12);
@@ -600,7 +560,7 @@ export function createSpaceScene(container) {
   // Space station
   const lightGlow = glowTexture('#c8f04a');
 
-  const station = makeStation(lightGlow);
+  const station = makeStation(lightGlow, kit, sunDir);
 
   station.position.set(8.0, 3.2, -9);
   station.scale.setScalar(1.75);
@@ -624,13 +584,13 @@ export function createSpaceScene(container) {
   satOrbit.position.copy(station.position);
   scene.add(satOrbit);
 
-  const satellite = makeSatellite(lightGlow);
+  const satellite = makeSatellite(lightGlow, kit, sunDir);
 
   satellite.position.set(2.7, 0.25, 0);
   satOrbit.add(satellite);
 
   // Drifting rocket
-  const driftRocket = makeDriftRocket(flameTexture());
+  const driftRocket = makeDriftRocket(flameTexture(), kit, sunDir);
 
   driftRocket.position.set(-8, -3.4, -7);
   driftRocket.scale.setScalar(1.7);
@@ -686,6 +646,7 @@ export function createSpaceScene(container) {
 
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    fitNebula();
 
     renderer.setPixelRatio(
       Math.min(
@@ -873,7 +834,7 @@ export function createSpaceScene(container) {
       });
 
       lightGlow.dispose();
-      nebulaTexture.dispose();
+      kit.dispose();
 
       renderer.dispose();
       renderer.domElement.remove();

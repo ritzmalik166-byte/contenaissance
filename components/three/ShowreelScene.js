@@ -3,8 +3,12 @@ import * as THREE from 'three';
 import {
   glowTexture,
   makeStars,
-  makePlanet,
 } from './spaceCommon';
+import {
+  createTextureKit,
+  makeRealPlanet,
+  makePlanetRing,
+} from './spaceMaterials';
 
 /* =====================================================
    CINEMATIC GALAXY — SHOWREEL BACKGROUND
@@ -269,6 +273,9 @@ export function createShowreelScene(container) {
 
   container.appendChild(renderer.domElement);
 
+  const kit = createTextureKit(renderer, { mobile });
+  kit.loadWhenNear(container);
+
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(
@@ -309,6 +316,14 @@ export function createShowreelScene(container) {
 
   purpleLight.position.set(10, 5, -5);
   scene.add(purpleLight);
+
+  // Distant "sun" so the textured planets get a real terminator.
+  // Only lit meshes (the planets) respond — the galaxy is unlit.
+  const sunLight = new THREE.DirectionalLight(0xfff0d8, 2.4);
+  sunLight.position.set(6, 3, 8);
+  scene.add(sunLight);
+
+  const sunDir = sunLight.position.clone().normalize();
 
 
   // Main universe
@@ -409,12 +424,16 @@ export function createShowreelScene(container) {
 
 
   // Main blue planet
-  const planet1 = makePlanet({
+  // Ice giant — real Neptune cloud bands
+  const planet1 = makeRealPlanet(kit, {
     radius: 2.4,
-    color: 0x526c91,
-    emissive: 0x101b39,
+    surface: 'neptune',
+    tint: 0xbfd0ec,
+    sunDir,
+    atmosphere: { color: '#719dff', intensity: 1.2, thickness: 0.07, power: 2.8 },
     glowColor: '#719dff',
     glowScale: 2.7,
+    glowOpacity: 0.28,
   });
 
   planet1.position.set(-10, 8, -7);
@@ -425,25 +444,30 @@ export function createShowreelScene(container) {
   // Saturn-like planet
   const saturnGroup = new THREE.Group();
 
-  const planet2 = makePlanet({
+  // Gas giant — real Saturn bands
+  const planet2 = makeRealPlanet(kit, {
     radius: 0.95,
-    color: 0xc69b6a,
-    emissive: 0x33200e,
+    surface: 'saturn',
+    sunDir,
+    atmosphere: { color: '#ffc879', intensity: 0.8, thickness: 0.06, power: 3.2 },
     glowColor: '#ffc879',
     glowScale: 2.6,
+    glowOpacity: 0.28,
   });
 
   saturnGroup.add(planet2);
 
-  const saturnRing = createOrbit(
-    1.65,
-    0.8,
-    0xd9b879
-  );
+  // Real ring system. Tilted (rather than squashed) to the same
+  // on-screen ellipse as the old 0.55-scaled orbit line, so it now
+  // passes correctly in front of and behind the planet.
+  const saturnRing = makePlanetRing(kit, {
+    inner: 1.25,
+    outer: 2.05,
+    tint: 0xf0dcb8,
+    opacity: 0.9,
+  });
 
-  saturnRing.scale.set(1, 0.55, 1);
-
-  saturnRing.rotation.x = 0.35;
+  saturnRing.rotation.x = Math.acos(0.55) + 0.35;
 
   saturnGroup.add(saturnRing);
 
@@ -453,12 +477,16 @@ export function createShowreelScene(container) {
 
 
   // Small distant planet
-  const planet3 = makePlanet({
+  // Small cratered rocky world, cool-tinted to keep the palette
+  const planet3 = makeRealPlanet(kit, {
     radius: 0.65,
-    color: 0x547ba9,
-    emissive: 0x101c32,
+    surface: 'mercury',
+    tint: 0xb9cdee,
+    sunDir,
+    atmosphere: { color: '#79aaff', intensity: 0.7, thickness: 0.05, power: 3.6 },
     glowColor: '#79aaff',
     glowScale: 2.5,
+    glowOpacity: 0.26,
   });
 
   planet3.position.set(12, -1, -6);
@@ -678,6 +706,8 @@ export function createShowreelScene(container) {
           });
         }
       });
+
+      kit.dispose();
 
       renderer.dispose();
 

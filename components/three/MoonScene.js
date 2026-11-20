@@ -1,154 +1,17 @@
 import * as THREE from 'three';
-import { glowTexture, random, makeStars } from './spaceCommon';
+import { glowTexture, makeStars } from './spaceCommon';
+import { createTextureKit } from './spaceMaterials';
 
 /* =====================================================
    Cinematic moon backdrop for the Showreel section.
-   A massive, procedurally-textured lunar sphere (craters +
-   bump depth) lit from one side with a warm golden rim, so
+   A massive lunar sphere using real lunar maps — LRO colour
+   mosaic plus LOLA elevation (with fine crater relief folded in)
+   as the bump map — lit from one side with a warm golden rim, so
    it reads as a huge moon partially hidden behind the video
    frame. Same public API as the previous ShowreelScene
    (setPointer / setParallax / pulse) so the section's GSAP
    wiring and markup don't need to change.
 ===================================================== */
-
-// Draw a circle-bounded shape, repeating it across the canvas edges so
-// the texture tiles seamlessly when repeated on the sphere.
-function wrapped(ctx, x, y, r, draw) {
-  const { width: w, height: h } = ctx.canvas;
-  const xs = [0];
-  const ys = [0];
-
-  if (x - r < 0) xs.push(w);
-  if (x + r > w) xs.push(-w);
-  if (y - r < 0) ys.push(h);
-  if (y + r > h) ys.push(-h);
-
-  for (const dx of xs) {
-    for (const dy of ys) draw(x + dx, y + dy);
-  }
-}
-
-function radial(ctx, x, y, r, stops) {
-  wrapped(ctx, x, y, r, (px, py) => {
-    const g = ctx.createRadialGradient(px, py, 0, px, py, r);
-    for (const [at, color] of stops) g.addColorStop(at, color);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-function softBlob(ctx, x, y, r, rgba) {
-  radial(ctx, x, y, r, [
-    [0, rgba],
-    [1, rgba.replace(/[\d.]+\)$/, '0)')],
-  ]);
-}
-
-// Equirectangular texture: the canvas is 2:1 so craters stay round on
-// the sphere's equator band, which is the part facing the camera.
-function generateMoonTextures(size, repeat) {
-  const w = size * 2;
-  const h = size;
-
-  const colorCanvas = document.createElement('canvas');
-  colorCanvas.width = w;
-  colorCanvas.height = h;
-  const cctx = colorCanvas.getContext('2d');
-
-  const bumpCanvas = document.createElement('canvas');
-  bumpCanvas.width = w;
-  bumpCanvas.height = h;
-  const bctx = bumpCanvas.getContext('2d');
-
-  cctx.fillStyle = '#8f8b85';
-  cctx.fillRect(0, 0, w, h);
-
-  bctx.fillStyle = '#808080';
-  bctx.fillRect(0, 0, w, h);
-
-  // Highland / lowland mottling
-  for (let i = 0; i < 260; i++) {
-    const light = Math.random() > 0.5;
-    softBlob(
-      cctx,
-      random(0, w),
-      random(0, h),
-      random(h * 0.02, h * 0.12),
-      light ? 'rgba(200,196,188,0.06)' : 'rgba(40,38,36,0.07)'
-    );
-  }
-
-  // Irregular dark maria, each built from a cluster of soft blobs
-  for (let m = 0; m < 9; m++) {
-    const cx = random(0, w);
-    const cy = random(0, h);
-    const spread = random(h * 0.06, h * 0.16);
-
-    for (let i = 0; i < 14; i++) {
-      softBlob(
-        cctx,
-        cx + random(-spread, spread) * 1.6,
-        cy + random(-spread, spread),
-        random(spread * 0.3, spread * 0.8),
-        'rgba(34,33,32,0.16)'
-      );
-    }
-  }
-
-  // Craters with a power-law size spread: lots of small ones, few big
-  const craterCount = Math.round(size * 0.9);
-
-  for (let i = 0; i < craterCount; i++) {
-    const x = random(0, w);
-    const y = random(0, h);
-    const r = h * (0.002 + 0.055 * Math.pow(Math.random(), 3.2));
-    const big = r > h * 0.018;
-
-    // Color: darker floor, faint bright rim
-    radial(cctx, x, y, r * 1.15, [
-      [0, 'rgba(28,27,26,0.32)'],
-      [0.72, 'rgba(28,27,26,0.14)'],
-      [0.86, 'rgba(225,220,210,0.16)'],
-      [1, 'rgba(225,220,210,0)'],
-    ]);
-
-    // Bump: bowl-shaped floor, thin raised rim
-    radial(bctx, x, y, r * 1.2, [
-      [0, 'rgba(45,45,45,0.85)'],
-      [0.7, 'rgba(85,85,85,0.6)'],
-      [0.84, 'rgba(225,225,225,0.85)'],
-      [1, 'rgba(128,128,128,0)'],
-    ]);
-
-    if (big) {
-      // Central peak + light ejecta halo on the larger craters
-      softBlob(bctx, x, y, r * 0.18, 'rgba(200,200,200,0.7)');
-      softBlob(cctx, x, y, r * 2.2, 'rgba(210,206,198,0.05)');
-    }
-  }
-
-  // Fine regolith speckle
-  for (let i = 0; i < w * 3; i++) {
-    const v = Math.round(random(30, 230));
-    cctx.fillStyle = `rgba(${v},${v},${v},0.06)`;
-    cctx.fillRect(random(0, w), random(0, h), 1.5, 1.5);
-  }
-
-  const colorTex = new THREE.CanvasTexture(colorCanvas);
-  colorTex.colorSpace = THREE.SRGBColorSpace;
-
-  const bumpTex = new THREE.CanvasTexture(bumpCanvas);
-
-  for (const tex of [colorTex, bumpTex]) {
-    tex.anisotropy = 4;
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(repeat, repeat);
-  }
-
-  return { colorTex, bumpTex };
-}
 
 const GLOW_VERTEX = `
   varying vec3 vNormal;
@@ -251,7 +114,8 @@ const DEFAULTS = {
   ambient: 0.9,
   sunColor: 0xffdca0,
   rimIntensity: 4,
-  texRepeat: 1,
+  // Relief strength of the real elevation map
+  bumpScale: 1.6,
   // Per unit of setParallax(0..1): positive shift moves the moon up
   scrollShift: -1.8,
   scrollSpin: 0.35,
@@ -279,6 +143,9 @@ export function createMoonScene(container, options = {}) {
   renderer.setClearColor(0x000000, 0);
 
   container.appendChild(renderer.domElement);
+
+  const kit = createTextureKit(renderer, { mobile });
+  kit.loadWhenNear(container);
 
   const scene = new THREE.Scene();
 
@@ -315,15 +182,19 @@ export function createMoonScene(container, options = {}) {
   moon.position.set(baseX, baseY, baseZ);
   scene.add(moon);
 
-  const { colorTex, bumpTex } = generateMoonTextures(mobile ? 640 : 1024, opts.texRepeat);
+  // Real equirectangular maps wrap the sphere exactly once, so the
+  // legacy `texRepeat` option no longer applies.
+  // Hero moon is the one 2k map on the site (1k on mobile)
+  const colorTex = kit.planet('moon', mobile ? '1k' : '2k');
+  const bumpTex = kit.data('planets/moon_height_1k.webp');
 
   const body = new THREE.Mesh(
-    new THREE.SphereGeometry(RADIUS, mobile ? 40 : 72, mobile ? 40 : 72),
+    new THREE.SphereGeometry(RADIUS, mobile ? 64 : 128, mobile ? 48 : 96),
     new THREE.MeshStandardMaterial({
       map: colorTex,
       bumpMap: bumpTex,
-      bumpScale: 1.2,
-      roughness: 1,
+      bumpScale: opts.bumpScale,
+      roughness: 0.96,
       metalness: 0,
     })
   );
@@ -471,8 +342,7 @@ export function createMoonScene(container, options = {}) {
         }
       });
 
-      colorTex.dispose();
-      bumpTex.dispose();
+      kit.dispose();
 
       renderer.dispose();
       renderer.domElement.remove();
