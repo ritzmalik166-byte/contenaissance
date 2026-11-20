@@ -1,0 +1,246 @@
+/* ---------- archive ---------- */
+
+.archive {
+  position: relative;
+  padding: clamp(100px, 10vw, 150px) 0 clamp(100px, 7vw, 100px);
+  background: var(--panel);
+}
+
+/* .archive__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 40px;
+  margin-bottom: clamp(40px, 5vw, 70px);
+}
+
+.archive__head p {
+  max-width: 280px;
+  font-size: 14px;
+  color: var(--muted);
+} */
+
+
+.archive__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 40px;
+
+  position: relative;
+  z-index: 3;
+  top: auto;
+
+  /* Important */
+  background: transparent;
+  padding: 22px 0;
+  margin-bottom: clamp(40px, 5vw, 70px);
+  pointer-events: none;
+}
+
+.archive__head a,
+.archive__head button {
+  pointer-events: auto;
+}
+
+.archive__head p {
+  max-width: 280px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.archive__grid {
+  display: grid;
+  grid-template-columns: 1.44fr 1fr;
+  gap: 18px clamp(14px, 1.4vw, 20px);
+  perspective: 1600px;
+}
+
+.archive__col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 3vw, 44px);
+}
+
+.work {
+  display: block;
+  transform-style: preserve-3d;
+    width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.work__media {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  transform-style: preserve-3d;
+}
+
+.work__media video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 1.2s var(--ease), filter 0.6s;
+  filter: saturate(0.9) brightness(0.88);
+}
+
+.work:hover .work__media video {
+  transform: scale(1.06);
+  filter: saturate(1.1) brightness(1);
+}
+
+.work__tag {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  color: #e7e2d8;
+  font-size: 9px;
+}
+
+.work__arrow {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 0.4s, color 0.4s, transform 0.5s var(--ease);
+}
+
+.work:hover .work__arrow {
+  background: var(--gold);
+  color: var(--ink);
+  transform: rotate(45deg);
+}
+
+.work__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 16px;
+}
+
+.work__foot h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(20px, 1.8vw, 26px);
+}
+
+.archive__foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 44px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.archive__foot a {
+  color: var(--text);
+  text-transform: none;
+  font-size: 13px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.archive__foot a:hover {
+  color: var(--gold);
+}
+
+@media (max-width: 760px) {
+  .archive__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .archive__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .archive__foot {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+/* ---------- cinematic space background ---------- */
+
+.archive {
+  isolation: isolate;
+}
+
+.archive > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Spans the whole section; `clip` (not `hidden`) so the sticky child
+   below still sticks to the viewport. */
+
+.archive {
+  position: relative;
+  isolation: isolate;
+}
+
+.archive > .container {
+  position: relative;
+  z-index: 2;
+}
+
+.archive__space {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.archive__space-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.archive__space-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: none;
+}
+
+.archive__space::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.38);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .archive__space-view canvas {
+    opacity: 0.85;
+  }
+
+   .archive__space::after {
+    background: rgba(0, 0, 0, 0.32);
+  }
+}
