@@ -5,7 +5,7 @@
   isolation: isolate;
   height: 100svh;
   overflow: hidden;
-  background: var(--panel);
+  background: transparent; /* shared universe shows through */
 }
 
 .reel__space {

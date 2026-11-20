@@ -9,6 +9,7 @@ import Testimonials from '@/components/home/Testimonials';
 import Journal from '@/components/home/Journal';
 import Quote from '@/components/home/Quote';
 import Cta from '@/components/Cta';
+import UniverseCanvas from '@/components/home/journey/UniverseCanvas';
 import { getPosts } from '@/lib/user/blog';
 export const revalidate = 3600;
 
@@ -38,7 +39,7 @@ export default async function Home() {
     }));
 
   return (
-    <>
+    <div className="journey">
       <Hero />
       <Rocket />
       <About />
@@ -50,6 +51,8 @@ export default async function Home() {
       <Journal posts={latest} />
       <Quote />
       <Cta />
-    </>
+      {/* Shared 3D universe behind every section (fixed, z-index -1) */}
+      <UniverseCanvas />
+    </div>
   );
 }

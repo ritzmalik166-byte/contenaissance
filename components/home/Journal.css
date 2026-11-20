@@ -7,7 +7,7 @@
   position: relative;
   padding: clamp(80px, 7vw, 120px) 0;
   overflow: hidden;
-  background: #090807;
+  background: transparent; /* shared universe shows through */
   color: #f5f2ec;
 }
 

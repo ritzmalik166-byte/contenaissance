@@ -844,7 +844,7 @@ textarea {
 .about {
   position: relative;
   padding: clamp(100px, 14vw, 150px) 0 0;
-  background: var(--bg);
+  background: transparent;
 }
 
 .about__grid {
@@ -882,7 +882,8 @@ textarea {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   overflow: hidden;
-  background: #070605;
+  background: rgba(7, 6, 5, 0.55);
+  backdrop-filter: blur(6px);
 }
 
 .caps__track {
@@ -1162,7 +1163,7 @@ textarea {
   position: relative;
   padding-top: 150px;
   padding-bottom: 100px;
-  background: var(--bg);
+  background: transparent;
   overflow: hidden;
 }
 

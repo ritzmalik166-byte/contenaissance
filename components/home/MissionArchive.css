@@ -3,7 +3,7 @@
 .archive {
   position: relative;
   padding: clamp(100px, 10vw, 150px) 0 clamp(100px, 7vw, 100px);
-  background: var(--panel);
+  background: transparent; /* shared universe shows through */
 }
 
 /* .archive__head {

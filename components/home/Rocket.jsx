@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
+import { getUniverse } from '@/lib/user/universe';
 import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
 import './Rocket.css';
@@ -15,28 +16,9 @@ const finalPanel = {
 
 export default function Rocket() {
   const root = useRef(null);
-  const spaceWrap = useRef(null);
-  const spaceSceneRef = useRef(null);
 
-  useEffect(() => {
-    const container = spaceWrap.current;
-    if (!container) return;
-
-    let disposed = false;
-
-    import('../three/SpaceScene').then(({ createSpaceScene }) => {
-      if (disposed || !spaceWrap.current) return;
-
-      spaceSceneRef.current = createSpaceScene(spaceWrap.current);
-    });
-
-    return () => {
-      disposed = true;
-
-      spaceSceneRef.current?.destroy();
-      spaceSceneRef.current = null;
-    };
-  }, []);
+  // The space backdrop is the shared homepage universe
+  // (components/home/journey/UniverseCanvas.jsx).
 
   useGSAP(
     () => {
@@ -89,7 +71,7 @@ export default function Rocket() {
           scaleY: 1.8,
           duration: 1.2,
         }, 5.6)
-        .call(() => spaceSceneRef.current?.pulse(), null, 5.6)
+        .call(() => getUniverse()?.pulse(), null, 5.6)
         .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
         .to({}, { duration: 0.4 });
 
@@ -132,7 +114,6 @@ export default function Rocket() {
           labels.forEach((l, i) => {
             l.classList.toggle('is-on', time >= i + 0.6);
           });
-          spaceSceneRef.current?.setProgress(this.progress());
         },
       }).add(tl);
     },
@@ -150,19 +131,7 @@ export default function Rocket() {
       ref={root}
       className="rocket-sec"
       id="stages"
-      onPointerMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        spaceSceneRef.current?.setPointer(
-          ((e.clientX - rect.left) / rect.width) * 2 - 1,
-          -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-        );
-      }}
-      onPointerLeave={() => {
-        spaceSceneRef.current?.setPointer(0, 0);
-      }}
     >
-      <div ref={spaceWrap} className="rocket-sec__space" aria-hidden="true" />
       <div className="container rocket-sec__inner">
         <div className="rocket-stage">
           <div className="rocket">
@@ -260,7 +229,7 @@ export default function Rocket() {
                 className="rocket__module"
                 key={s.id}
                 data-stage={s.id}
-                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+                onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
                 <small>{s.id}</small>
                 <StageIcon name={s.icon} />
@@ -311,7 +280,7 @@ export default function Rocket() {
                 href="/services"
                 className="btn btn--ghost rocket-panel__button"
                 style={{ marginTop: 22 }}
-                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+                onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
                 See every stage <ArrowRight />
               </Link>

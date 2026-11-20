@@ -5,7 +5,7 @@
   height: 100svh;
   min-height: 720px;
   overflow: hidden;
-  background: var(--bg);
+  background: transparent;
 }
 
 .rocket-sec__grid {
@@ -1831,7 +1831,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: #090807;
+  background: transparent; /* shared universe shows through */
 }
 
 .rocket-sec__grid {
