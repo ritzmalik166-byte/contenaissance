@@ -70,7 +70,8 @@ function createNebula(color) {
   const material = new THREE.SpriteMaterial({
     map: texture,
     transparent: true,
-    opacity: 0.65,
+    // Kept subtle so the purple wash doesn't compete with the copy
+    opacity: 0.4,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });

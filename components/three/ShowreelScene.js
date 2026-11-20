@@ -3,11 +3,15 @@ import * as THREE from 'three';
 import {
   glowTexture,
   makeStars,
+  updateAsteroidBelt,
 } from './spaceCommon';
 import {
   createTextureKit,
   makeRealPlanet,
   makePlanetRing,
+  makeAsteroidBelt,
+  hullMaterial,
+  glassMaterial,
 } from './spaceMaterials';
 
 /* =====================================================
@@ -16,12 +20,91 @@ import {
    Full-screen spiral galaxy
    Nebula clouds
    Layered starfield
-   Glowing planets
-   Orbital rings
+   Real-surface planets + rocket flanking the video
    Mouse interaction
-   Scroll parallax
+   Scroll: camera pulls back (zoom out) as the video zooms in
    Performance optimized
 ===================================================== */
+
+// Rocket built from the shared PBR hull set: lathe-turned body,
+// gold band, glass porthole, swept fins, dark nozzle and a two-layer
+// additive flame.
+function createRocket(kit, sunDir) {
+  const group = new THREE.Group();
+
+  const white = hullMaterial(kit, { color: 0xeef1ec, metalness: 0.35, repeat: [1.5, 1], sunDir });
+  const orange = hullMaterial(kit, { color: 0xd9772b, metalness: 0.3, repeat: [0.5, 0.5], sunDir });
+  const gold = hullMaterial(kit, { color: 0xe0b060, metalness: 1, roughness: 0.7, repeat: [0.5, 0.5], sunDir });
+  const steel = hullMaterial(kit, { color: 0x3c4046, metalness: 1, roughness: 0.6, repeat: [0.5, 0.5], sunDir });
+
+  const profile = [
+    [0.0, -0.45], [0.15, -0.45], [0.16, -0.2], [0.16, 0.25],
+    [0.145, 0.42], [0.11, 0.57], [0.06, 0.69], [0.0, 0.76],
+  ].map(([x, y]) => new THREE.Vector2(x, y));
+
+  group.add(new THREE.Mesh(new THREE.LatheGeometry(profile, 48), white));
+
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(0.165, 0.165, 0.05, 48), gold);
+  band.position.y = 0.3;
+  group.add(band);
+
+  const porthole = new THREE.Mesh(new THREE.SphereGeometry(0.055, 24, 16), glassMaterial(kit, { sunDir }));
+  porthole.position.set(0, 0.12, 0.145);
+  porthole.scale.z = 0.5;
+  group.add(porthole);
+
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.16, 32, 1, true), steel);
+  nozzle.position.y = -0.53;
+  group.add(nozzle);
+
+  const finShape = new THREE.Shape()
+    .moveTo(0, 0)
+    .lineTo(0.17, -0.12)
+    .lineTo(0.17, -0.26)
+    .lineTo(0, -0.14)
+    .closePath();
+  const finGeo = new THREE.ExtrudeGeometry(finShape, { depth: 0.02, bevelEnabled: false });
+  finGeo.translate(0, 0, -0.01);
+
+  for (let i = 0; i < 4; i++) {
+    const pivot = new THREE.Group();
+    const fin = new THREE.Mesh(finGeo, orange);
+    fin.position.set(0.15, -0.16, 0);
+    pivot.add(fin);
+    pivot.rotation.y = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    group.add(pivot);
+  }
+
+  const flameOuter = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: glowTexture('#ff9a3c'),
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+  flameOuter.scale.set(0.34, 0.95, 1);
+  flameOuter.position.y = -0.95;
+  group.add(flameOuter);
+
+  const flameCore = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: glowTexture('#fff3c4'),
+      transparent: true,
+      opacity: 0.95,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+  flameCore.scale.set(0.16, 0.5, 1);
+  flameCore.position.y = -0.75;
+  group.add(flameCore);
+
+  group.userData.flames = [flameOuter, flameCore];
+
+  return group;
+}
 
 function createGalaxy(count = 16000) {
   const group = new THREE.Group();
@@ -154,35 +237,6 @@ function createNebula(color, size, opacity) {
   sprite.scale.set(size, size * 0.65, 1);
 
   return sprite;
-}
-
-
-// Orbital paths
-function createOrbit(radius, opacity, color = 0xd6b87a) {
-  const points = [];
-
-  for (let i = 0; i <= 180; i++) {
-    const angle = (i / 180) * Math.PI * 2;
-
-    points.push(
-      new THREE.Vector3(
-        Math.cos(angle) * radius,
-        Math.sin(angle) * radius * 0.43,
-        0
-      )
-    );
-  }
-
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-  const material = new THREE.LineBasicMaterial({
-    color,
-    transparent: true,
-    opacity,
-    depthWrite: false,
-  });
-
-  return new THREE.LineLoop(geometry, material);
 }
 
 
@@ -409,18 +463,11 @@ export function createShowreelScene(container) {
   universe.add(nebulaGroup);
 
 
-  // Galaxy orbit rings
-  const orbitGroup = new THREE.Group();
-
-  orbitGroup.position.set(0, -5, -8);
-
-  const orbit1 = createOrbit(12, 0.17);
-  const orbit2 = createOrbit(15, 0.12);
-  const orbit3 = createOrbit(18, 0.07, 0x7789ba);
-
-  orbitGroup.add(orbit1, orbit2, orbit3);
-
-  universe.add(orbitGroup);
+  // Side groups framing the video. They drift outward as the camera
+  // pulls back, so the edges stay populated while the video grows.
+  const flankLeft = new THREE.Group();
+  const flankRight = new THREE.Group();
+  universe.add(flankLeft, flankRight);
 
 
   // Main blue planet
@@ -438,7 +485,7 @@ export function createShowreelScene(container) {
 
   planet1.position.set(-10, 8, -7);
 
-  universe.add(planet1);
+  flankLeft.add(planet1);
 
 
   // Saturn-like planet
@@ -473,7 +520,7 @@ export function createShowreelScene(container) {
 
   saturnGroup.position.set(11, 3, -8);
 
-  universe.add(saturnGroup);
+  flankRight.add(saturnGroup);
 
 
   // Small distant planet
@@ -491,7 +538,71 @@ export function createShowreelScene(container) {
 
   planet3.position.set(12, -1, -6);
 
-  universe.add(planet3);
+  flankRight.add(planet3);
+
+
+  // Left: rust-red rocky world low in the frame
+  const marsPlanet = makeRealPlanet(kit, {
+    radius: 1.8,
+    surface: 'mars',
+    tint: 0xe9d2bd,
+    sunDir,
+    atmosphere: { color: '#f0a868', intensity: 0.9, thickness: 0.05, power: 3.6 },
+    glowColor: '#e0a65e',
+    glowScale: 2.8,
+    glowOpacity: 0.24,
+  });
+
+  marsPlanet.position.set(-20, -8, -12);
+  flankLeft.add(marsPlanet);
+
+
+  // Left: rocket climbing up and to the right
+  const ROCKET_TILT = -0.5;
+  const rocket = createRocket(kit, sunDir);
+
+  // Flight loop: centre, radii (world units) and angular speed
+  const ROCKET_X = -16;
+  const ROCKET_Y = 0.6;
+  const ROCKET_RX = 2.8;
+  const ROCKET_RY = 3.4;
+  const ROCKET_SPEED = 0.42;
+
+  rocket.position.set(ROCKET_X + ROCKET_RX, ROCKET_Y, -3);
+  rocket.rotation.z = ROCKET_TILT;
+  rocket.scale.setScalar(2.2);
+  rocket.userData.flames.forEach((f) => (f.material.rotation = ROCKET_TILT));
+
+  flankLeft.add(rocket);
+
+
+  // Right: airless cratered moon
+  const sideMoon = makeRealPlanet(kit, {
+    radius: 0.95,
+    surface: 'moon',
+    tint: 0xe2dfe6,
+    sunDir,
+    segments: mobile ? 32 : 64,
+    atmosphere: { intensity: 0.15, color: '#d9d4e6' },
+    glowOpacity: 0,
+  });
+
+  sideMoon.position.set(19, -7, -5);
+  flankRight.add(sideMoon);
+
+
+  // Sparse asteroids around the edges
+  const asteroids = makeAsteroidBelt(kit, {
+    count: mobile ? 8 : 18,
+    radiusRange: [15, 23],
+    y: -2,
+    ySpread: 7,
+    z: -8,
+    zSpread: 4,
+    scaleRange: [0.08, 0.24],
+  });
+
+  universe.add(asteroids);
 
 
   // State
@@ -564,6 +675,10 @@ export function createShowreelScene(container) {
   io.observe(container);
 
 
+  // Scroll zoom tuning (world units at full video reveal)
+  const ZOOM_OUT = 10;
+  const FLANK_SPREAD = 4;
+
   // Animation
   const render = () => {
     if (destroyed) return;
@@ -596,8 +711,16 @@ export function createShowreelScene(container) {
     camera.position.x = state.px * 0.25;
     camera.position.y = state.py * 0.2;
 
+    // Zoom out as the video zooms in: the camera pulls back so stars
+    // and planets shrink, while the side groups spread toward the
+    // edges to keep framing the growing video.
+    const zoom = state.parallax * state.parallax * (3 - 2 * state.parallax);
+
     camera.position.z =
-      20 - state.hover * 0.45 + state.parallax * 0.8;
+      20 - state.hover * 0.45 + zoom * ZOOM_OUT;
+
+    flankLeft.position.x = -zoom * FLANK_SPREAD;
+    flankRight.position.x = zoom * FLANK_SPREAD;
 
     camera.lookAt(0, -1.5, -7);
 
@@ -612,9 +735,6 @@ export function createShowreelScene(container) {
       nebulaGroup.rotation.z = Math.sin(t * 0.08) * 0.025;
 
       nebulaGroup.position.x = Math.sin(t * 0.1) * 0.25;
-
-      // Orbit animation
-      orbitGroup.rotation.z = t * 0.008;
 
       // Planet movement
       planet1.rotation.y = t * 0.035;
@@ -634,6 +754,31 @@ export function createShowreelScene(container) {
         Math.sin(t * 0.18) * 0.08;
 
       planet3.rotation.y = -t * 0.05;
+
+      marsPlanet.rotation.y = t * 0.04;
+      sideMoon.rotation.y = -t * 0.03;
+
+      // Rocket: flies a slow elliptical loop through the empty left
+      // area (clear of the video frame), nose following its velocity,
+      // banking into the turns, with a flickering engine.
+      const a = t * ROCKET_SPEED;
+      rocket.position.set(
+        ROCKET_X + Math.cos(a) * ROCKET_RX,
+        ROCKET_Y + Math.sin(a) * ROCKET_RY,
+        -3 + Math.sin(a * 2) * 0.8
+      );
+
+      const vx = -Math.sin(a) * ROCKET_RX;
+      const vy = Math.cos(a) * ROCKET_RY;
+      rocket.rotation.z = Math.atan2(vy, vx) - Math.PI / 2;
+      rocket.rotation.y = Math.cos(a) * 0.5;
+      const [flameOuter, flameCore] = rocket.userData.flames;
+      flameOuter.material.rotation = flameCore.material.rotation = rocket.rotation.z;
+      flameOuter.scale.y = 0.95 + Math.sin(t * 11) * 0.1;
+      flameOuter.material.opacity = 0.75 + Math.sin(t * 17) * 0.12;
+      flameCore.scale.y = 0.5 + Math.sin(t * 13 + 1) * 0.06;
+
+      updateAsteroidBelt(asteroids, t);
 
       farStars.rotation.y = t * 0.002;
 

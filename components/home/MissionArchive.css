@@ -231,7 +231,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(0, 0, 0, 0.55);
   pointer-events: none;
 }
 
@@ -241,6 +241,6 @@
   }
 
    .archive__space::after {
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(0, 0, 0, 0.5);
   }
 }

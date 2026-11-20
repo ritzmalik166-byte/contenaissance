@@ -87,7 +87,10 @@ export function createTextureKit(renderer, { mobile = false } = {}) {
       tex = entry.base.clone();
       tex.repeat.set(repeat[0], repeat[1]);
       entry.variants.push(tex);
-      if (entry.base.image) tex.needsUpdate = true;
+
+      // clone() flags the copy for upload; with no image yet that
+      // would warn every frame. The load callback re-flags it.
+      if (!entry.base.image) tex.version = 0;
     }
 
     textures.set(key, tex);
