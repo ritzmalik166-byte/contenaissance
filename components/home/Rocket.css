@@ -1046,47 +1046,6 @@
 
 
 /* SMALL MOBILE - BOTTOM CONTENT FIX */
-@media (max-width: 380px) {
-  .rocket-sec__inner {
-    height: auto !important;
-    min-height: 0 !important;
-    grid-template-rows: 430px auto !important;
-    overflow: visible !important;
-    padding-bottom: 30px !important;
-  }
-
-  .rocket-copy {
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    padding-bottom: 25px !important;
-  }
-
-  .rocket-panels {
-    min-height: 170px !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  .rocket-panel {
-    overflow: visible !important;
-  }
-
-  .rocket-panel--final .rocket-panel__button {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    margin-bottom: 20px !important;
-  }
-
-  .rocket-progress {
-    position: relative !important;
-    margin-top: 15px !important;
-    margin-bottom: 15px !important;
-  }
-}
-
-
 /* ==========================================
    SURFACE DUO & SMALL TABLET FIX
    Viewports: 481px - 700px
@@ -1426,12 +1385,6 @@
   }
 }
 
-/* Small Mobile */
-@media (max-width: 380px) {
-  .rocket-sec__inner {
-    grid-template-rows: 590px auto !important;
-  }
-}
 
 /* Six Stage Mobile Labels */
 @media (max-width: 480px) {
@@ -1937,5 +1890,108 @@
 @media (max-width: 760px) {
   .stage-label {
     display: none;
+  }
+}
+
+
+/* =========================================
+   SMALL PHONES (< 381px) — FIT IN ONE SCREEN
+   The section is pinned, so rocket + copy must fit 100svh.
+   The rocket scales with viewport height instead of using a
+   fixed 590px row, leaving room for the copy and progress bar.
+========================================= */
+
+@media (max-width: 380px) {
+  .rocket-sec {
+    height: 100svh !important;
+    min-height: 0 !important;
+  }
+
+  .rocket-sec__inner {
+    height: 100svh !important;
+    min-height: 0 !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    padding: 56px 14px 16px !important;
+  }
+
+  .rocket-stage {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  /* Rocket sized from viewport height */
+  .rocket {
+    width: clamp(44px, 8svh, 64px) !important;
+  }
+
+  .rocket__module {
+    height: clamp(30px, 6svh, 50px) !important;
+  }
+
+  .rocket__module svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rocket__module small {
+    font-size: 8px;
+  }
+
+  .rocket__nozzle {
+    width: 34px;
+    height: 12px;
+    min-height: 12px;
+  }
+
+  .rocket__flame {
+    width: 20px;
+    height: clamp(28px, 6svh, 46px);
+  }
+
+  /* Copy: compact, and reserve height for the tallest panel
+     (panels are absolutely positioned and crossfade) */
+  .rocket-copy {
+    padding-bottom: 0 !important;
+  }
+
+  .rocket-copy__head .kicker {
+    margin-bottom: 8px;
+  }
+
+  .rocket-copy__head h2 {
+    font-size: 20px;
+  }
+
+  .rocket-panels {
+    min-height: 205px !important;
+    height: auto !important;
+  }
+
+  .rocket-panel h3 {
+    font-size: 16px;
+    margin: 6px 0 8px;
+  }
+
+  .rocket-panel p {
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  .rocket-panel--final {
+    padding-bottom: 0;
+  }
+
+  .rocket-panel__button,
+  .rocket-panel--final .rocket-panel__button {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1;
+    margin: 10px 0 0 !important;
+    padding: 9px 12px;
+    font-size: 11px;
+  }
+
+  .rocket-progress {
+    margin: 10px 0 0 !important;
   }
 }

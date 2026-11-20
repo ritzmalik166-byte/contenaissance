@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { createTextureKit, makeRealPlanet, makePlanetRing } from './spaceMaterials';
+import { makeStars } from './spaceCommon';
 
 class Lemniscate extends THREE.Curve {
   constructor(scale = 1) {
@@ -151,76 +152,36 @@ export function createHeroScene(container) {
   const points = new THREE.Points(pGeo, pMat);
   scene.add(points);
 
-  // Constellation lines
-  const NODES = mobile ? 110 : 190;
-  const nodes = [];
+  // Starfield — two depth layers of real-looking stars. They span
+  // in front of the camera too, so the scroll fly-through passes
+  // between them. Fog is off so distant stars stay visible.
+  const farStars = makeStars(mobile ? 1100 : 2600, { x: 34, y: 20, z: 48, near: 4 });
+  farStars.material.size = 0.045;
+  farStars.material.fog = false;
+  scene.add(farStars);
 
-  for (let i = 0; i < NODES; i++) {
-    nodes.push(
-      new THREE.Vector3(
-        (Math.random() - 0.5) * 26,
-        (Math.random() - 0.5) * 15,
-        -Math.random() * 26 + 4
-      )
-    );
-  }
+  const nearStars = makeStars(mobile ? 220 : 520, { x: 22, y: 13, z: 14, near: -8 });
+  nearStars.material.size = 0.075;
+  nearStars.material.fog = false;
+  scene.add(nearStars);
 
-  const linePos = [];
+  // Interactive sparkle stars — brighter, larger stars in three depth
+  // layers. Each layer reacts by depth: near layers shift more with
+  // the cursor and rush toward the camera faster on scroll.
+  const SPARKLE_LAYERS = [
+    { count: mobile ? 60 : 140, size: 0.11, depth: [10, 22], spread: [30, 17], par: 0.35, rush: 3 },
+    { count: mobile ? 30 : 70, size: 0.17, depth: [5, 12], spread: [19, 11], par: 0.8, rush: 5 },
+    { count: mobile ? 12 : 28, size: 0.26, depth: [1, 6], spread: [12, 7], par: 1.4, rush: 7 },
+  ];
 
-  for (let i = 0; i < NODES; i++) {
-    let links = 0;
-
-    for (let j = i + 1; j < NODES && links < 2; j++) {
-      if (nodes[i].distanceTo(nodes[j]) < 3.1) {
-        linePos.push(
-          nodes[i].x,
-          nodes[i].y,
-          nodes[i].z,
-          nodes[j].x,
-          nodes[j].y,
-          nodes[j].z
-        );
-
-        links++;
-      }
-    }
-  }
-
-  const lGeo = new THREE.BufferGeometry();
-
-  lGeo.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(linePos, 3)
-  );
-
-  const lines = new THREE.LineSegments(
-    lGeo,
-    new THREE.LineBasicMaterial({
-      color: 0xffa94a,
-      transparent: true,
-      opacity: 0.32,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-  );
-
-  scene.add(lines);
-
-  const nGeo = new THREE.BufferGeometry().setFromPoints(nodes);
-
-  const nodePts = new THREE.Points(
-    nGeo,
-    new THREE.PointsMaterial({
-      size: 0.22,
-      map: pMat.map,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      color: 0xffd28a,
-    })
-  );
-
-  scene.add(nodePts);
+  const sparkles = SPARKLE_LAYERS.map((cfg, i) => {
+    const layer = makeStars(cfg.count, { x: cfg.spread[0], y: cfg.spread[1], z: cfg.depth[1], near: cfg.depth[0] });
+    layer.material.size = cfg.size;
+    layer.material.fog = false;
+    layer.material.color.set(i === 2 ? 0xfff1d0 : 0xffffff);
+    scene.add(layer);
+    return { layer, cfg };
+  });
 
   // Glowing triangular shards
   const shardGeo = new THREE.BufferGeometry();
@@ -302,18 +263,6 @@ export function createHeroScene(container) {
   const infinity = new THREE.Mesh(tube, gold);
   infinityGroup.add(infinity);
 
-  const halo = new THREE.Mesh(
-    new THREE.TorusGeometry(3.4, 0.006, 8, 220),
-    new THREE.MeshBasicMaterial({
-      color: 0xffc46a,
-      transparent: true,
-      opacity: 0.35,
-    })
-  );
-
-  halo.rotation.x = Math.PI / 2.3;
-  infinityGroup.add(halo);
-
   infinityGroup.position.set(0, 0.35, -1.5);
   infinityGroup.scale.setScalar(baseInfinityScale);
 
@@ -331,19 +280,19 @@ export function createHeroScene(container) {
   const PLANET_DEFS = [
     {
       side: -1, edge: 0.66, y: 1.9, z: -6, par: 0.6, spin: 0.05,
-      opts: { radius: 1.05, surface: 'mars', tint: 0xb89a80, atmosphere: { color: '#f0a868', intensity: 0.8 }, glowColor: '#e0a65e', glowOpacity: 0.16 },
+      opts: { radius: 0.55, surface: 'mars', tint: 0xb89a80, atmosphere: { color: '#f0a868', intensity: 0.8 }, glowColor: '#e0a65e', glowOpacity: 0.16 },
     },
     {
       side: -1, edge: 0.6, y: -2.6, z: -1, par: 1.1, spin: -0.08,
-      opts: { radius: 0.36, surface: 'mercury', tint: 0x9e968c, atmosphere: { color: '#e8d2b0', intensity: 0.3 }, glowOpacity: 0 },
+      opts: { radius: 0.22, surface: 'mercury', tint: 0x9e968c, atmosphere: { color: '#e8d2b0', intensity: 0.3 }, glowOpacity: 0 },
     },
     {
       side: 1, edge: 0.66, y: -1.5, z: -7, par: 0.5, spin: 0.06, ring: true,
-      opts: { radius: 0.95, surface: 'saturn', tint: 0xa8957a, atmosphere: { color: '#ffc879', intensity: 0.7 }, glowColor: '#ffc879', glowOpacity: 0.14 },
+      opts: { radius: 0.5, surface: 'saturn', tint: 0xa8957a, atmosphere: { color: '#ffc879', intensity: 0.7 }, glowColor: '#ffc879', glowOpacity: 0.14 },
     },
     {
       side: 1, edge: 0.6, y: 2.9, z: -10, par: 0.3, spin: -0.07,
-      opts: { radius: 0.55, surface: 'neptune', tint: 0x9fb2cc, atmosphere: { color: '#7fb6ff', intensity: 1.0 }, glowColor: '#83b9ed', glowOpacity: 0.16 },
+      opts: { radius: 0.3, surface: 'neptune', tint: 0x9fb2cc, atmosphere: { color: '#7fb6ff', intensity: 1.0 }, glowColor: '#83b9ed', glowOpacity: 0.16 },
     },
   ];
 
@@ -523,13 +472,30 @@ export function createHeroScene(container) {
       scrollScale
     );
 
-    halo.rotation.z = t * 0.15;
-    halo.material.opacity = 0.35 * intro * (1 - p);
-
     points.rotation.z = t * 0.01;
 
-    lines.position.y = Math.sin(t * 0.3) * 0.15;
-    nodePts.position.y = lines.position.y;
+    // Gentle star twinkle and drift
+    farStars.material.opacity = 0.75 + Math.sin(t * 0.9) * 0.12;
+    nearStars.material.opacity = 0.8 + Math.sin(t * 1.7 + 1.3) * 0.18;
+    farStars.rotation.z = t * 0.004;
+    nearStars.position.x = state.px * -0.25;
+
+    // Sparkle stars: cursor parallax by depth; on scroll they rush
+    // toward the camera, rise and swirl
+    for (let i = 0; i < sparkles.length; i++) {
+      const { layer, cfg } = sparkles[i];
+
+      layer.position.set(
+        -state.px * cfg.par,
+        -state.py * cfg.par * 0.6 + p * cfg.par * 1.5,
+        p * cfg.rush
+      );
+
+      layer.rotation.z = t * 0.006 * (i + 1) + p * 0.25 * (i + 1);
+
+      layer.material.opacity =
+        (0.55 + intro * 0.45) * (0.82 + Math.sin(t * (1.1 + i * 0.7) + i * 2.1) * 0.18);
+    }
 
     pMat.opacity = 0.35 + intro * 0.65;
 
