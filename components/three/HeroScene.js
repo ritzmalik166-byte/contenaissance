@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { createTextureKit, makeRealPlanet, makePlanetRing } from './spaceMaterials';
-import { makeStars } from './spaceCommon';
+import { createTextureKit, makeRealPlanet, makePlanetRing, makeAtmosphere } from './spaceMaterials';
+import { makeStars, glowTexture } from './spaceCommon';
 
 class Lemniscate extends THREE.Curve {
   constructor(scale = 1) {
@@ -46,6 +46,111 @@ function dotTexture() {
  * progress (0..1) is driven by scroll.
  * Pointer is driven by mouse movement.
  */
+// Soft-edged nebula: a real Milky Way photo, converted to luminance,
+// tinted, and faded to nothing toward its edges so no rectangle shows.
+function makeNebulaPlane(map, tint, width, height, opacity) {
+  return new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: map },
+        tint: { value: new THREE.Color(tint) },
+        opacity: { value: opacity },
+      },
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D map;
+        uniform vec3 tint;
+        uniform float opacity;
+        varying vec2 vUv;
+        void main() {
+          vec3 c = texture2D(map, vUv).rgb;
+          float lum = dot(c, vec3(0.3, 0.59, 0.11));
+          vec2 d = (vUv - 0.5) * vec2(1.0, 1.6);
+          float fall = smoothstep(0.5, 0.08, length(d));
+          gl_FragColor = vec4(tint * lum * fall * opacity * 2.2, 1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+}
+
+// Distant two-armed spiral galaxy (points + glowing core).
+function makeSpiralGalaxy(count) {
+  const group = new THREE.Group();
+  const pos = [];
+  const col = [];
+  const c = new THREE.Color();
+  const palette = [0xbcd4ff, 0x6f9bff, 0xffffff, 0xd2c4ff];
+
+  for (let i = 0; i < count; i++) {
+    const arm = i % 2;
+    const r = Math.pow(Math.random(), 1.35) * 3;
+    const a = arm * Math.PI + r * 1.9 + (Math.random() - 0.5) * 0.6;
+    const spread = 0.18 + r * 0.16;
+
+    pos.push(
+      Math.cos(a) * r + (Math.random() - 0.5) * spread,
+      (Math.random() - 0.5) * 0.14 * (1 - r / 3.2),
+      Math.sin(a) * r + (Math.random() - 0.5) * spread
+    );
+
+    c.set(r < 0.6 ? 0xfff0d6 : palette[Math.floor(Math.random() * palette.length)]);
+    c.multiplyScalar(0.55 + Math.random() * 0.6);
+    col.push(c.r, c.g, c.b);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+
+  group.add(
+    new THREE.Points(
+      geo,
+      new THREE.PointsMaterial({
+        size: 0.06,
+        vertexColors: true,
+        map: glowTexture('#ffffff'),
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        fog: false,
+      })
+    )
+  );
+
+  const sprite = (hex, scale, opacity) => {
+    const sp = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: glowTexture(hex),
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        fog: false,
+      })
+    );
+    sp.scale.setScalar(scale);
+    group.add(sp);
+  };
+
+  sprite('#4f7dff', 7.5, 0.32);
+  sprite('#e4ecff', 1.8, 0.95);
+
+  return group;
+}
+
 export function createHeroScene(container) {
   if (!container) return null;
 
@@ -183,62 +288,6 @@ export function createHeroScene(container) {
     return { layer, cfg };
   });
 
-  // Glowing triangular shards
-  const shardGeo = new THREE.BufferGeometry();
-
-  shardGeo.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(
-      [
-        0, 0.5, 0,
-        -0.42, -0.3, 0,
-        0.42, -0.3, 0,
-      ],
-      3
-    )
-  );
-
-  shardGeo.computeVertexNormals();
-
-  const shardMat = new THREE.MeshBasicMaterial({
-    color: 0xff9a2e,
-    transparent: true,
-    opacity: 0.55,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-
-  const SHARDS = mobile ? 26 : 48;
-
-  const shards = new THREE.InstancedMesh(
-    shardGeo,
-    shardMat,
-    SHARDS
-  );
-
-  const shardData = [];
-  const dummy = new THREE.Object3D();
-
-  for (let i = 0; i < SHARDS; i++) {
-    shardData.push({
-      p: new THREE.Vector3(
-        (Math.random() - 0.5) * 24,
-        (Math.random() - 0.5) * 14,
-        -Math.random() * 30 + 5
-      ),
-      r: new THREE.Euler(
-        Math.random() * 6,
-        Math.random() * 6,
-        Math.random() * 6
-      ),
-      s: 0.25 + Math.random() * 0.7,
-      v: 0.2 + Math.random() * 0.6,
-    });
-  }
-
-  scene.add(shards);
-
   // Gold infinity
   const infinityGroup = new THREE.Group();
 
@@ -279,20 +328,16 @@ export function createHeroScene(container) {
   // at that depth · par: pointer parallax strength · spin: rad/s
   const PLANET_DEFS = [
     {
-      side: -1, edge: 0.66, y: 1.9, z: -6, par: 0.6, spin: 0.05,
-      opts: { radius: 0.55, surface: 'mars', tint: 0xb89a80, atmosphere: { color: '#f0a868', intensity: 0.8 }, glowColor: '#e0a65e', glowOpacity: 0.16 },
+      side: -1, edge: 0.7, y: 1.6, z: -6, par: 0.6, spin: 0.05,
+      opts: { radius: 0.8, surface: 'mars', tint: 0xc8a68a, atmosphere: { color: '#f0a868', intensity: 0.8 }, glowColor: '#e0a65e', glowOpacity: 0.14 },
     },
     {
-      side: -1, edge: 0.6, y: -2.6, z: -1, par: 1.1, spin: -0.08,
-      opts: { radius: 0.22, surface: 'mercury', tint: 0x9e968c, atmosphere: { color: '#e8d2b0', intensity: 0.3 }, glowOpacity: 0 },
+      side: -1, edge: 0.74, y: -2.1, z: -3, par: 1.0, spin: -0.08,
+      opts: { radius: 0.24, surface: 'mercury', tint: 0xb0aaa4, atmosphere: { color: '#d8d0c8', intensity: 0.3 }, glowOpacity: 0 },
     },
     {
-      side: 1, edge: 0.66, y: -1.5, z: -7, par: 0.5, spin: 0.06, ring: true,
-      opts: { radius: 0.5, surface: 'saturn', tint: 0xa8957a, atmosphere: { color: '#ffc879', intensity: 0.7 }, glowColor: '#ffc879', glowOpacity: 0.14 },
-    },
-    {
-      side: 1, edge: 0.6, y: 2.9, z: -10, par: 0.3, spin: -0.07,
-      opts: { radius: 0.3, surface: 'neptune', tint: 0x9fb2cc, atmosphere: { color: '#7fb6ff', intensity: 1.0 }, glowColor: '#83b9ed', glowOpacity: 0.16 },
+      side: 1, edge: 0.76, y: -0.3, z: -6, par: 0.5, spin: 0.06, ring: true,
+      opts: { radius: 0.52, surface: 'saturn', tint: 0xf2e2c4, atmosphere: { color: '#ffc879', intensity: 0.7 }, glowColor: '#ffc879', glowOpacity: 0.12 },
     },
   ];
 
@@ -304,27 +349,136 @@ export function createHeroScene(container) {
       ...def.opts,
     });
 
-    // Keep the night side dark (no studio env light); the hero fog is
-    // left on so the planets sit in the same warm haze as the scene.
-    planet.userData.body.material.envMapIntensity = 0;
+    // scene.environment (studio room) ignores material.envMapIntensity,
+    // so give planets the dark space environment explicitly to keep
+    // their night sides dark. Hero fog stays on for the warm haze.
+    const bodyMat = planet.userData.body.material;
+    bodyMat.envMap = kit.environment(sunDir);
+    bodyMat.envMapIntensity = 1.2;
+    bodyMat.emissive.set(0x1a120a);
+    bodyMat.emissiveIntensity = 1;
 
     if (def.ring) {
       const ring = makePlanetRing(kit, {
         inner: def.opts.radius * 1.3,
-        outer: def.opts.radius * 2.15,
+        outer: def.opts.radius * 2.45,
         tint: 0xf0dcb8,
         opacity: 0.9,
       });
-      ring.material.envMapIntensity = 0;
-      ring.rotation.x = Math.PI / 2 - 0.42;
-      ring.rotation.y = -0.25;
-      planet.add(ring);
+      ring.material.envMap = kit.environment(sunDir);
+      ring.material.envMapIntensity = 1.4;
+      ring.material.emissive.set(0x2a2016);
+      ring.rotation.x = Math.PI / 2 - 0.55;
+
+      const ringTilt = new THREE.Group();
+      ringTilt.rotation.z = 0.38;
+      ringTilt.add(ring);
+      planet.add(ringTilt);
     }
 
     scene.add(planet);
 
     return { def, planet, baseX: 0, scale: 1 };
   });
+
+  // Earth on the horizon — night side with real city lights, a golden
+  // sunrise blazing on the limb and a thin blue upper atmosphere.
+  // Solved so the horizon sits ~78% down the frame as a wide arc
+  const EARTH_R = 70;
+  const HORIZON_Y = -83.84;
+  const HORIZON_Z = -35;
+  const horizon = new THREE.Group();
+  horizon.position.set(0, HORIZON_Y, HORIZON_Z);
+  scene.add(horizon);
+
+  const earth = new THREE.Mesh(
+    new THREE.SphereGeometry(EARTH_R, mobile ? 128 : 220, mobile ? 64 : 110),
+    new THREE.MeshStandardMaterial({
+      color: 0x04070d,
+      roughness: 1,
+      metalness: 0,
+      emissive: 0xffc685,
+      emissiveIntensity: 3,
+      emissiveMap: kit.planet('earth_night', mobile ? '1k' : '2k'),
+      envMap: kit.environment(sunDir),
+      envMapIntensity: 0.2,
+      fog: false,
+    })
+  );
+  // Tilt so mid-latitude city lights (not the pole) face the camera
+  earth.rotation.x = -1.13;
+  horizon.add(earth);
+
+  // Sun rising behind the planet → scattering brightest on the far limb
+  const goldAtmo = makeAtmosphere(EARTH_R, {
+      color: '#ffb257',
+      sunDir: new THREE.Vector3(0, 0.55, -0.83).normalize(),
+      intensity: 2.2,
+      thickness: 0.012,
+      power: 3.2,
+      nightGlow: 0.08,
+      segments: 128,
+    });
+  horizon.add(goldAtmo);
+  const blueAtmo = makeAtmosphere(EARTH_R * 1.002, {
+      color: '#5f8cff',
+      sunDir: new THREE.Vector3(0, 1, 0.2).normalize(),
+      intensity: 0.6,
+      thickness: 0.01,
+      power: 3,
+      nightGlow: 0.3,
+      segments: 128,
+    });
+  horizon.add(blueAtmo);
+
+  // The cap is seen almost edge-on, so the front-face fresnel would
+  // wash it grey: keep it faint and let the limb halo carry the glow.
+  goldAtmo.userData.materials[0].uniforms.intensity.value = 0.18;
+  blueAtmo.userData.materials[0].uniforms.intensity.value = 0.08;
+
+  // Sunrise flare sitting just behind the silhouette (depth-tested so
+  // the planet occludes its lower half)
+  const flare = (hex, sx, sy, opacity) => {
+    const sp = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: glowTexture(hex),
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        fog: false,
+      })
+    );
+    sp.scale.set(sx, sy, 1);
+    sp.position.set(0, EARTH_R * 0.962, -EARTH_R * 0.27);
+    horizon.add(sp);
+    return sp;
+  };
+
+  const flareWide = flare('#ffb050', 80, 6, 0.75);
+  const flareCore = flare('#fff1d2', 26, 4.2, 1);
+
+  // Nebulae (real Milky Way photo, tinted) and a distant spiral galaxy
+  const milkyWay = kit.color(`backgrounds/milkyway_${mobile ? '1k' : '1536'}.webp`);
+
+  const nebulaGold = makeNebulaPlane(milkyWay, 0xffa83c, 26, 14, 0.65);
+  nebulaGold.rotation.z = -1.15;
+  scene.add(nebulaGold);
+
+  const nebulaBlue = makeNebulaPlane(milkyWay, 0x3f78ff, 24, 13, 0.6);
+  nebulaBlue.rotation.z = 1.05;
+  scene.add(nebulaBlue);
+
+  const galaxy = makeSpiralGalaxy(mobile ? 1400 : 3200);
+  galaxy.rotation.set(1.12, 0, 0.45);
+  scene.add(galaxy);
+
+  // Backdrop items placed from the viewport like the planets
+  const BACKDROP = [
+    { node: nebulaGold, side: -1, edge: 0.92, y: 4.2, z: -14, par: 0.25 },
+    { node: nebulaBlue, side: 1, edge: 0.92, y: -4.6, z: -14, par: 0.25 },
+    { node: galaxy, side: 1, edge: 0.66, y: 6.8, z: -16, par: 0.2 },
+  ].map((d) => ({ ...d, baseX: 0 }));
 
   // Place planets from the current viewport so they stay in the side
   // margins at any aspect ratio (peeking from the edges on mobile).
@@ -337,6 +491,11 @@ export function createHeroScene(container) {
 
       item.baseX = side * halfW * (mobile ? 0.98 : edge);
       item.scale = mobile ? 0.55 : 1;
+    }
+
+    for (const item of BACKDROP) {
+      const halfW = (9 - item.z) * tanHalf * camera.aspect;
+      item.baseX = item.side * halfW * (mobile ? 0.9 : item.edge);
     }
   };
 
@@ -499,32 +658,6 @@ export function createHeroScene(container) {
 
     pMat.opacity = 0.35 + intro * 0.65;
 
-    for (let i = 0; i < SHARDS; i++) {
-      const d = shardData[i];
-
-      dummy.position.set(
-        d.p.x,
-        d.p.y + Math.sin(t * d.v + i) * 0.4,
-        d.p.z
-      );
-
-      dummy.rotation.set(
-        d.r.x + t * d.v * 0.5,
-        d.r.y + t * d.v * 0.3,
-        d.r.z
-      );
-
-      dummy.scale.setScalar(d.s);
-      dummy.updateMatrix();
-
-      shards.setMatrixAt(i, dummy.matrix);
-    }
-
-    shards.instanceMatrix.needsUpdate = true;
-
-    shardMat.opacity =
-      0.55 * (0.4 + Math.sin(t * 1.3) * 0.1 + 0.5);
-
     // Side planets
     //  scroll: drift outward + rise, spin faster (camera also flies
     //          forward, so the near ones sweep past)
@@ -545,6 +678,25 @@ export function createHeroScene(container) {
       body.rotation.y = t * def.spin + p * def.side * 2.2 + state.px * 0.6;
       body.rotation.x = state.py * -0.35;
     }
+
+    // Backdrop: gentle cursor parallax, scroll sink/drift
+    for (const item of BACKDROP) {
+      item.node.position.set(
+        item.baseX - state.px * item.par,
+        item.y - state.py * item.par * 0.6 + p * 1.2,
+        item.z
+      );
+    }
+
+    galaxy.rotation.y = t * 0.03;
+    nebulaGold.material.uniforms.opacity.value = 0.65 * (0.6 + intro * 0.4);
+    nebulaBlue.material.uniforms.opacity.value = 0.6 * (0.6 + intro * 0.4);
+
+    // Horizon sinks away on scroll; slow planet rotation; flare breathes
+    horizon.position.set(-state.px * 0.35, HORIZON_Y - p * 4 - state.py * 0.25, HORIZON_Z);
+    earth.rotation.y = -0.15 + t * 0.002;
+    flareWide.material.opacity = (0.65 + Math.sin(t * 0.7) * 0.1) * intro;
+    flareCore.material.opacity = (0.85 + Math.sin(t * 1.1) * 0.1) * intro;
 
     renderer.render(scene, camera);
   };
