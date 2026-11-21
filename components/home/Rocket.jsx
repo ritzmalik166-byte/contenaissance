@@ -75,6 +75,10 @@ export default function Rocket() {
         .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
         .to({}, { duration: 0.4 });
 
+      // Where in the pin the launch happens — the journey actors
+      // (camera follow + astronaut eject) start from this point.
+      root.current.dataset.launch = String(5.6 / tl.duration());
+
       const markers = [
         0.6,  // S1
         1.6,  // S2

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { glowTexture, makeStars, updateAsteroidBelt } from './spaceCommon';
+import { createAstronaut } from './Astronaut';
 import {
   createTextureKit,
   makeRealPlanet,
@@ -309,6 +310,203 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     anchors[`station:${name}`] = g;
   });
 
+  /* ---------- journey actor: 3D astronaut + holo beam ---------- */
+  // Camera-attached so it can be placed in screen space (NDC + height
+  // as a fraction of the viewport) regardless of where the camera is
+  // on its flight path. Driven by JourneyActors.jsx.
+  const ACTOR_DEPTH = 9;
+  const astro = createAstronaut(kit, { sunDir });
+  const rig = new THREE.Group();
+  rig.visible = false;
+  rig.add(astro.group);
+  camera.add(rig);
+
+  // dedicated studio lighting for the actor (moves with the camera)
+  const actorKey = new THREE.DirectionalLight(0xfff1dc, 2.4);
+  actorKey.position.set(-4, 5, 4);
+  actorKey.target.position.set(0, 0, -ACTOR_DEPTH);
+  const actorRim = new THREE.DirectionalLight(0x9fd8ff, 2.2);
+  actorRim.position.set(5, 2, -14);
+  actorRim.target.position.set(0, 0, -ACTOR_DEPTH);
+  const actorFill = new THREE.DirectionalLight(0xe9b949, 0.6);
+  actorFill.position.set(2, -4, 2);
+  actorFill.target.position.set(0, 0, -ACTOR_DEPTH);
+  [actorKey, actorRim, actorFill].forEach((l) => {
+    l.visible = false;
+    camera.add(l, l.target);
+  });
+
+  const actor = {
+    vis: 0, x: 0.6, y: 0, h: 0.5, rx: 0, ry: 0, rz: 0, arm: 0, glow: 0,
+  };
+  const wristNDC = { x: 0, y: 0 };
+
+  // Projector beam: apex at the wrist lens, base on the holo panel's
+  // four corners (given in NDC). Vertex alpha fades toward the panel.
+  const beamGeo = new THREE.BufferGeometry();
+  beamGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(5 * 3), 3));
+  beamGeo.setAttribute('alpha', new THREE.BufferAttribute(new Float32Array([1, 0.22, 0.22, 0.22, 0.22]), 1));
+  beamGeo.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1]);
+  const beamMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color(0x6ff7ff) }, uStrength: { value: 0 } },
+    vertexShader: /* glsl */ `
+      attribute float alpha;
+      varying float vAlpha;
+      void main() {
+        vAlpha = alpha;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uColor;
+      uniform float uStrength;
+      varying float vAlpha;
+      void main() {
+        gl_FragColor = vec4(uColor, vAlpha * uStrength * 0.55);
+      }`,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+  });
+  const beam = new THREE.Mesh(beamGeo, beamMat);
+  beam.frustumCulled = false;
+  beam.visible = false;
+  beam.renderOrder = 20;
+  camera.add(beam);
+  const beamState = { strength: 0, corners: null };
+
+  const vTmp = new THREE.Vector3();
+  const frustumAt = (d) => {
+    const halfH = d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    return { halfH, halfW: halfH * camera.aspect };
+  };
+
+  // Thruster puffs: pooled soft sprites in camera space, so they stay
+  // behind as a trail when the astronaut moves.
+  const puffTex = glowTexture('#e8f1ff');
+  const puffs = Array.from({ length: mobile ? 18 : 36 }, () => {
+    const sp = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: puffTex,
+        color: 0xdfeaff,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    sp.visible = false;
+    sp.userData = { life: 0, max: 1, vel: new THREE.Vector3(), size: 0.1 };
+    camera.add(sp);
+    return sp;
+  });
+  let puffCursor = 0;
+  let puffAcc = 0;
+  const emitPuff = (pos, dir, scale) => {
+    const sp = puffs[puffCursor];
+    puffCursor = (puffCursor + 1) % puffs.length;
+    sp.position.copy(pos);
+    sp.userData.life = 0;
+    sp.userData.max = 0.55 + Math.random() * 0.35;
+    sp.userData.size = scale * (0.35 + Math.random() * 0.25);
+    sp.userData.vel
+      .copy(dir)
+      .multiplyScalar(scale * (2.2 + Math.random()))
+      .add(new THREE.Vector3((Math.random() - 0.5) * scale, (Math.random() - 0.5) * scale, 0));
+    sp.visible = true;
+  };
+  const updatePuffs = (dt) => {
+    for (const sp of puffs) {
+      if (!sp.visible) continue;
+      const u = sp.userData;
+      u.life += dt;
+      const k = u.life / u.max;
+      if (k >= 1) {
+        sp.visible = false;
+        continue;
+      }
+      sp.position.addScaledVector(u.vel, dt);
+      u.vel.multiplyScalar(1 - 1.8 * dt);
+      sp.scale.setScalar(u.size * (0.4 + k * 1.8));
+      sp.material.opacity = (1 - k) * (1 - k) * 0.55;
+    }
+  };
+
+  const prevActor = { x: actor.x, y: actor.y, ok: false };
+  const vPuff = new THREE.Vector3();
+  const vDir = new THREE.Vector3();
+
+  const updateActor = (t, dt) => {
+    updatePuffs(dt);
+    const on = actor.vis > 0.001;
+    rig.visible = on;
+    actorKey.visible = actorRim.visible = actorFill.visible = on;
+    if (!on) {
+      beam.visible = false;
+      prevActor.ok = false;
+      return;
+    }
+
+    const { halfH, halfW } = frustumAt(ACTOR_DEPTH);
+    rig.position.set(actor.x * halfW, actor.y * halfH, -ACTOR_DEPTH);
+    const s = ((actor.h * 2 * halfH) / astro.height) * actor.vis;
+    rig.scale.setScalar(Math.max(s, 1e-4));
+    const idle = reducedMotion ? 0 : 1;
+    rig.rotation.set(
+      actor.rx + Math.sin(t * 0.5) * 0.04 * idle,
+      actor.ry + Math.sin(t * 0.33) * 0.08 * idle,
+      actor.rz + Math.sin(t * 0.41) * 0.03 * idle
+    );
+    astro.group.position.y = Math.sin(t * 0.8) * 0.04 * idle;
+
+    // screen velocity → secondary motion (lean, trailing limbs)
+    const vx = prevActor.ok && dt > 0 ? (actor.x - prevActor.x) / dt : 0;
+    const vy = prevActor.ok && dt > 0 ? (actor.y - prevActor.y) / dt : 0;
+    prevActor.x = actor.x;
+    prevActor.y = actor.y;
+    prevActor.ok = true;
+    astro.setMotion(vx, vy);
+
+    astro.setPose({ arm: actor.arm, glow: actor.glow, tap: actor.tap ?? 0 });
+    astro.update(idle ? t : 0, dt);
+
+    // thrusters fire while it manoeuvres (opposite the motion)
+    if (idle && astro.speed > 0.12) {
+      puffAcc += dt * Math.min(40, astro.speed * 30);
+      const md = astro.motionDir;
+      vDir.set(-md.x, -md.y, 0).normalize();
+      while (puffAcc >= 1) {
+        puffAcc -= 1;
+        const n = astro.nozzles[(Math.random() * astro.nozzles.length) | 0];
+        n.getWorldPosition(vPuff);
+        camera.worldToLocal(vPuff);
+        emitPuff(vPuff, vDir, s * 0.6);
+      }
+    }
+
+    // wrist lens → camera space (for the beam) and NDC (for the DOM panel)
+    rig.updateMatrixWorld(true);
+    astro.wrist.getWorldPosition(vTmp);
+    const wristLocal = camera.worldToLocal(vTmp.clone());
+    vTmp.project(camera);
+    wristNDC.x = vTmp.x;
+    wristNDC.y = vTmp.y;
+
+    if (beamState.corners && beamState.strength > 0.001) {
+      const pos = beamGeo.attributes.position;
+      pos.setXYZ(0, wristLocal.x, wristLocal.y, wristLocal.z);
+      beamState.corners.forEach(([nx, ny], i) => {
+        pos.setXYZ(i + 1, nx * halfW, ny * halfH, -ACTOR_DEPTH);
+      });
+      pos.needsUpdate = true;
+      beamMat.uniforms.uStrength.value = beamState.strength * (0.9 + Math.sin(t * 23) * 0.06 * idle);
+      beam.visible = true;
+    } else {
+      beam.visible = false;
+    }
+  };
+
   /* ---------- state ---------- */
   const state = {
     station: 0, // target (from scroll)
@@ -318,6 +516,8 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     tx: 0,
     ty: 0,
     pulse: 0,
+    lift: 0, // 0..1 camera tilts up to follow the rocket launch
+    liftS: 0,
     active: true,
     hidden: document.hidden,
   };
@@ -350,6 +550,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
 
   /* ---------- loop ---------- */
   const start = performance.now();
+  let lastT = 0;
   let raf = 0;
 
   const render = () => {
@@ -358,6 +559,8 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     if (!state.active || state.hidden) return;
 
     const t = (performance.now() - start) / 1000;
+    const dt = Math.min(0.1, Math.max(0, t - lastT));
+    lastT = t;
 
     // Scroll is already smoothed by Lenis; a light extra ease keeps
     // jumps (anchor links, refresh) from teleporting the camera.
@@ -369,14 +572,16 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
 
     const p = state.pos;
     const shake = state.pulse * 0.12;
+    state.liftS += (state.lift - state.liftS) * (reducedMotion ? 1 : 0.1);
+    const lift = state.liftS;
     camera.position.set(
       pathX(p) + state.px * 0.8 + (Math.random() - 0.5) * shake,
-      pathY(p) + state.py * 0.55 + (Math.random() - 0.5) * shake,
+      pathY(p) + state.py * 0.55 + (Math.random() - 0.5) * shake + lift * 3.5,
       12 + stationZ(p)
     );
     camera.lookAt(
       pathX(p + 0.25) + state.px * 0.25,
-      pathY(p + 0.25) + state.py * 0.18,
+      pathY(p + 0.25) + state.py * 0.18 + lift * 12,
       camera.position.z - 20
     );
 
@@ -397,6 +602,9 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     state.pulse *= 0.93;
     rim.intensity = RIM_BASE + state.pulse * 16;
 
+    camera.updateMatrixWorld();
+    updateActor(t, dt);
+
     renderer.render(scene, camera);
   };
   render();
@@ -415,8 +623,33 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       state.ty = y;
     },
 
+    setLift(v) {
+      state.lift = v;
+    },
+
     setActive(on) {
       state.active = on;
+    },
+
+    // Journey actor (screen-space): { vis, x, y (NDC), h (viewport
+    // fraction), rx, ry, rz, arm 0..1, glow 0..1 }
+    setAstronaut(p) {
+      Object.assign(actor, p);
+    },
+
+    // Holo beam to a DOM panel: corners = 4 × [ndcX, ndcY] or null
+    setBeam(corners, strength = 1) {
+      beamState.corners = corners;
+      beamState.strength = corners ? strength : 0;
+    },
+
+    // Time-based astronaut gesture, e.g. 'wave'
+    playAstronaut(name) {
+      astro.play(name);
+    },
+
+    getWristNDC() {
+      return wristNDC;
     },
 
     pulse(amount = 1) {

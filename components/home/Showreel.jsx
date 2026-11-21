@@ -3,6 +3,7 @@
 
 import { useRef, useEffect } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
+import { applyHolo, lerpHolo, holoMid, holoFull } from '@/lib/user/journey';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
@@ -44,7 +45,6 @@ export default function Showreel() {
 
   // Cinematic scroll animation
   useGSAP(() => {
-    const mobile = window.innerWidth < 760;
     const section = root.current;
 
     if (!section) return;
@@ -53,7 +53,6 @@ export default function Showreel() {
     const video = section.querySelector('.reel__frame video');
     const head = section.querySelectorAll('.reel__head span');
     const ui = section.querySelector('.reel__ui');
-    const stage = section.querySelector('.reel__stage');
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -61,34 +60,43 @@ export default function Showreel() {
         start: 'top top',
         end: '+=180%',
         pin: true,
-        scrub: 1.2,
+        // no lag: the hologram hand-off with JourneyActors must stay
+        // locked to the scroll position (Lenis already smooths it)
+        scrub: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
       },
     });
 
-    // Video cinematic reveal
+    // Video cinematic reveal — the astronaut's wrist hologram (a
+    // floating 16:9 panel, see lib/user/journey.js) expands into the
+    // full-bleed showreel and loses its holographic look.
+    const holo = { k: 0 };
+    const renderHolo = () =>
+      applyHolo(frame, lerpHolo(holoMid(), holoFull(frame), holo.k), 0);
+    renderHolo();
+
     tl.fromTo(
-      frame,
+      holo,
+      { k: 0 },
       {
-        clipPath: mobile
-          ? 'inset(34% 6% 30% 6% round 18px)'
-          : 'inset(30% 24% 16% 24% round 28px)',
-        rotateX: 22,
-        scale: 0.88,
-        y: 50,
-      },
-      {
-        clipPath: 'inset(0% 0% 0% 0% round 0px)',
-        rotateX: 0,
-        scale: 1,
-        y: 0,
+        k: 1,
         ease: 'power2.inOut',
         duration: 1,
         onUpdate() {
+          renderHolo();
           spaceSceneRef.current?.setParallax(this.progress());
         },
       }
+    );
+
+    // The section's own planets fade in around the growing panel
+    // (hidden while the astronaut presents the hologram).
+    tl.fromTo(
+      section.querySelector('.reel__space'),
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5, ease: 'none' },
+      0.05
     );
 
     // Heading exits in opposite directions
@@ -117,14 +125,6 @@ export default function Showreel() {
         0
       );
     }
-
-    // Stage movement
-    tl.fromTo(
-      stage,
-      { y: 35 },
-      { y: 0, ease: 'none', duration: 1 },
-      0
-    );
 
     // Show video controls
     tl.fromTo(

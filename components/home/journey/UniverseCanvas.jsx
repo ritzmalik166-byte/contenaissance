@@ -11,7 +11,7 @@ import './Universe.css';
 const STATIONS = [
   { name: 'hero', sel: '.hero', veil: 0 },
   { name: 'stages', sel: '.rocket-sec', veil: 0 },
-  { name: 'about', sel: '.about', veil: 0.35 },
+  { name: 'about', sel: '.about', veil: 0.12 },
   { name: 'reel', sel: '.reel', veil: 0 },
   { name: 'solutions', sel: '.solutions', veil: 0 },
   { name: 'work', sel: '.archive', veil: 0.4 },
