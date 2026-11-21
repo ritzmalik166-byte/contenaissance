@@ -517,6 +517,8 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     ty: 0,
     pulse: 0,
     lift: 0, // 0..1 camera tilts up to follow the rocket launch
+    dive: 0, // 0..1 camera swoops onto Mars
+    diveS: 0,
     liftS: 0,
     active: true,
     hidden: document.hidden,
@@ -549,6 +551,10 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   document.addEventListener('visibilitychange', onVisibility);
 
   /* ---------- loop ---------- */
+  const lookV = new THREE.Vector3();
+  const marsV = new THREE.Vector3();
+  const diveCam = new THREE.Vector3();
+  const marsNDC = { x: 0, y: 0, z: 2 };
   const start = performance.now();
   let lastT = 0;
   let raf = 0;
@@ -579,13 +585,34 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       pathY(p) + state.py * 0.55 + (Math.random() - 0.5) * shake + lift * 3.5,
       12 + stationZ(p)
     );
-    camera.lookAt(
+    lookV.set(
       pathX(p + 0.25) + state.px * 0.25,
       pathY(p + 0.25) + state.py * 0.18 + lift * 12,
       camera.position.z - 20
     );
 
+    // Dive: swoop the camera down onto Mars (Showreel → Solutions)
+    state.diveS += (state.dive - state.diveS) * (reducedMotion ? 1 : 0.1);
+    if (state.diveS > 0.001 && anchors.mars) {
+      const d = THREE.MathUtils.smootherstep(state.diveS, 0, 1);
+      anchors.mars.getWorldPosition(marsV);
+      diveCam.set(marsV.x - 1.2 + state.px * 0.3, marsV.y + 0.9 + state.py * 0.2, marsV.z + 9.5);
+      camera.position.lerp(diveCam, d);
+      lookV.lerp(marsV, d);
+    }
+    camera.lookAt(lookV);
+
     recycleStars(camera.position.z);
+
+    // Mars on screen (for the atmosphere bloom in Solutions)
+    if (anchors.mars) {
+      anchors.mars.getWorldPosition(marsV);
+      camera.updateMatrixWorld();
+      marsV.project(camera);
+      marsNDC.x = marsV.x;
+      marsNDC.y = marsV.y;
+      marsNDC.z = marsV.z;
+    }
 
     if (!reducedMotion) {
       for (const s of spinners) s.obj.rotation.y = t * s.speed;
@@ -621,6 +648,14 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     setPointer(x, y) {
       state.tx = x;
       state.ty = y;
+    },
+
+    setDive(v) {
+      state.dive = v;
+    },
+
+    getMarsNDC() {
+      return marsNDC;
     },
 
     setLift(v) {

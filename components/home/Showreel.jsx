@@ -58,7 +58,8 @@ export default function Showreel() {
       scrollTrigger: {
         trigger: section,
         start: 'top top',
-        end: '+=180%',
+        // 180% for the hologram → film, +150% for the slice exit
+        end: '+=330%',
         pin: true,
         // no lag: the hologram hand-off with JourneyActors must stay
         // locked to the scroll position (Lenis already smooths it)
@@ -144,6 +145,67 @@ export default function Showreel() {
     );
 
     tl.to({}, { duration: 0.3 });
+
+    /* ---------- exit: the film slices open onto Mars ----------
+       A seam of light cuts the frame horizontally, then the two
+       halves part like blast doors (top half = the frame itself,
+       bottom half = a synced clone of the video) to reveal the
+       universe behind — and Mars, which the camera dives into
+       as Solutions arrives (see JourneyActors). */
+    const clone = section.querySelector('.reel__slice');
+    const cloneVideo = clone?.querySelector('video');
+    const seam = section.querySelector('.reel__seam');
+    const slice = { s: 0 };
+    const easeSlice = gsap.parseEase('power3.inOut');
+    let cloneLive = false;
+
+    const syncClone = () => {
+      if (!cloneVideo || !video) return;
+      const src = video.currentSrc || video.src;
+      if (src && cloneVideo.src !== src) cloneVideo.src = src;
+      try {
+        cloneVideo.currentTime = video.currentTime || 0;
+      } catch { /* not seekable yet */ }
+      cloneVideo.play().catch(() => {});
+    };
+
+    const renderSlice = () => {
+      const s = slice.s;
+      if (s <= 0.0001) {
+        if (cloneLive) {
+          cloneLive = false;
+          gsap.set(clone, { autoAlpha: 0 });
+          gsap.set(seam, { autoAlpha: 0 });
+          cloneVideo?.pause();
+          renderHolo(); // back to the plain full-bleed film
+        }
+        return;
+      }
+      if (!cloneLive) {
+        cloneLive = true;
+        syncClone();
+        gsap.set(clone, { autoAlpha: 1 });
+      }
+      const h = frame.offsetHeight;
+      const half = h / 2;
+      // 0 → 0.25: the seam ignites; 0.2 → 1: the halves part
+      const glow = Math.min(1, s / 0.15) * (1 - gsap.utils.clamp(0, 1, (s - 0.45) / 0.4));
+      const open = easeSlice(gsap.utils.clamp(0, 1, (s - 0.18) / 0.82));
+      const dy = open * h * 0.62;
+      const tilt = open * 14;
+
+      frame.style.clipPath = `inset(0px 0px ${half}px 0px)`;
+      frame.style.transform = `translate3d(0, ${-dy}px, 0) perspective(1400px) rotateX(${tilt}deg)`;
+      frame.style.opacity = '1';
+      clone.style.clipPath = `inset(${half}px 0px 0px 0px)`;
+      clone.style.transform = `translate3d(0, ${dy}px, 0) perspective(1400px) rotateX(${-tilt}deg)`;
+      gsap.set(seam, { autoAlpha: glow, scaleX: 0.2 + Math.min(1, s / 0.12) * 0.8, y: 0 });
+    };
+
+    tl.to([ui, section.querySelector('.reel__num')], { opacity: 0, duration: 0.15 }, '>-0.05')
+      .fromTo(slice, { s: 0 }, { s: 1, duration: 0.8, ease: 'none', onUpdate: renderSlice }, '<')
+      .to(section.querySelector('.reel__space'), { opacity: 0, duration: 0.5, ease: 'none' }, '<+0.25')
+      .to({}, { duration: 0.15 });
 
     // Initial cinematic entrance
     gsap.fromTo(
@@ -286,6 +348,12 @@ export default function Showreel() {
             <Play />
           </button>
         </div>
+
+        {/* exit slice: bottom half of the film (synced clone) + light seam */}
+        <div className="reel__slice" aria-hidden="true">
+          <video muted playsInline loop preload="none" />
+        </div>
+        <div className="reel__seam" aria-hidden="true" />
       </div>
     </section>
   );

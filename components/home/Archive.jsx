@@ -50,6 +50,26 @@ export default function Archive() {
 
   // GSAP animations
   useGSAP((ctx, contextSafe) => {
+    // Journey: the camera is pulling back out of Mars' atmosphere
+    // (end of Solutions) — the archive settles in from slightly
+    // oversized, like the lens zooming out.
+    gsap.fromTo(
+      '.archive__head',
+      { scale: 1.18, opacity: 0, filter: 'blur(6px)' },
+      {
+        scale: 1,
+        opacity: 1,
+        filter: 'blur(0px)',
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top bottom',
+          end: 'top 35%',
+          scrub: true,
+        },
+      }
+    );
+
     gsap.from('.archive__title .split-char', {
       yPercent: 100,
       opacity: 0,

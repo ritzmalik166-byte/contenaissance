@@ -928,7 +928,7 @@ textarea {
   height: 100svh;
   min-height: 700px;
   overflow: hidden;
-  background: linear-gradient(100deg, #8a4614 0%, #c47716 30%, #e08b17 55%, #f08a2a 75%, #ff6d38 100%);
+  background: transparent; /* the orange lives on .solutions__atmo (Mars atmosphere) */
   color: var(--paper);
 }
 

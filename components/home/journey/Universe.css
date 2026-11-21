@@ -181,3 +181,50 @@
   transform-origin: 50% 50%;
   will-change: transform, clip-path, opacity;
 }
+
+/* =====================================================
+   SOLUTIONS — Mars atmosphere
+   The orange gradient blooms out of Mars' screen position
+   (--ax / --ay set by Solutions.jsx) as --atmo goes 0 → 1,
+   and collapses back into it on the way out.
+===================================================== */
+.solutions {
+  --atmo: 0;
+  --ax: 62%;
+  --ay: 55%;
+}
+
+.solutions__atmo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--ax) var(--ay), rgba(255, 214, 150, 0.55), transparent 32%),
+    linear-gradient(100deg, #8a4614 0%, #c47716 30%, #e08b17 55%, #f08a2a 75%, #ff6d38 100%);
+  -webkit-mask-image: radial-gradient(
+    circle at var(--ax) var(--ay),
+    #000 calc(var(--atmo) * 150vmax - 12vmax),
+    transparent calc(var(--atmo) * 150vmax + 6vmax)
+  );
+  mask-image: radial-gradient(
+    circle at var(--ax) var(--ay),
+    #000 calc(var(--atmo) * 150vmax - 12vmax),
+    transparent calc(var(--atmo) * 150vmax + 6vmax)
+  );
+}
+
+/* hot rim where the atmosphere meets space */
+.solutions__atmo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--ax) var(--ay),
+    transparent calc(var(--atmo) * 150vmax - 14vmax),
+    rgba(255, 230, 180, 0.65) calc(var(--atmo) * 150vmax - 4vmax),
+    transparent calc(var(--atmo) * 150vmax + 4vmax)
+  );
+  mix-blend-mode: screen;
+  opacity: calc(1 - var(--atmo) * 0.9);
+}

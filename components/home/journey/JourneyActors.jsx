@@ -73,7 +73,14 @@ export default function JourneyActors() {
 
       /* ---------- astronaut state → universe ---------- */
       const A = { ...POSES.desktop.start(0), vis: 0, tap: 0 };
-      const push = () => getUniverse()?.setAstronaut(A);
+      // Timelines can update in any order when the page jumps (anchor
+      // links, refresh mid-page), so visibility is also derived from the
+      // scroll position: once the drift-away phase is over, it's gone.
+      let drift = null;
+      const push = () => {
+        const gone = drift?.scrollTrigger && drift.scrollTrigger.progress >= 1;
+        getUniverse()?.setAstronaut(gone ? { ...A, vis: 0 } : A);
+      };
 
       // The universe loads asynchronously — hand it the current pose
       // as soon as it exists.
@@ -191,6 +198,8 @@ export default function JourneyActors() {
       let flicker = false;
       function renderPanel(p) {
         const top = reel.getBoundingClientRect().top;
+        // Once the Showreel is pinned, its own timeline owns the frame.
+        if (top <= 0.5 && p >= 1) return;
         const hp = clamp01((p - SPARK_AT) / (1 - SPARK_AT));
         const mid = holoMid();
 
@@ -223,7 +232,7 @@ export default function JourneyActors() {
       }
 
       /* ---------- 3. drift away while the film takes over ---------- */
-      gsap.timeline({
+      drift = gsap.timeline({
         defaults: { ease: 'none', immediateRender: false },
         onUpdate: push,
         scrollTrigger: {

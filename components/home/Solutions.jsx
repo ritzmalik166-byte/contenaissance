@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { formats } from '@/lib/user/content';
 import { openVideo } from '../VideoModal';
+import { getUniverse } from '@/lib/user/universe';
 
 export default function Solutions() {
   const root = useRef(null);
@@ -17,21 +18,6 @@ export default function Solutions() {
         root.current
       );
       const videos = cards.map((card) => card.querySelector('video'));
-
-
-      console.table(
-        cards.map((card, i) => ({
-          card: i,
-          title: formats[i]?.title,
-          videoSrc: videos[i]?.currentSrc || videos[i]?.src,
-          readyState: videos[i]?.readyState,
-          paused: videos[i]?.paused,
-          opacity: getComputedStyle(card).opacity,
-          visibility: getComputedStyle(card).visibility,
-          width: videos[i]?.getBoundingClientRect().width,
-          height: videos[i]?.getBoundingClientRect().height,
-        }))
-      );
 
       let currentIndex = -1;
 
@@ -121,29 +107,76 @@ export default function Solutions() {
 
       tl.to({}, { duration: 0.4 });
 
+      /* ---------- Mars atmosphere (journey) ----------
+         The section is see-through while it scrolls in: the camera
+         dives onto Mars in the shared universe. Once pinned, the
+         orange "atmosphere" blooms out from Mars on screen, the
+         content arrives, the cards flip, and on the way out the
+         atmosphere contracts back into Mars as the camera pulls away
+         toward the Archive. */
+      const section = root.current;
+      const content = gsap.utils.toArray(
+        '.solutions__label, .solutions__count, .solutions__marquee, .solutions__stage, .solutions__list, .solutions__desc',
+        section
+      );
+      const atmo = { v: 0 };
+      const dive = { v: 0 };
+      const ENTRY = 0.9;
+      const EXIT = 0.9;
+
+      const renderAtmo = () => {
+        const m = getUniverse()?.getMarsNDC();
+        const onScreen = m && m.z < 1;
+        const ax = onScreen ? ((m.x + 1) / 2) * 100 : 62;
+        const ay = onScreen ? ((1 - m.y) / 2) * 100 : 55;
+        section.style.setProperty('--ax', `${gsap.utils.clamp(-20, 120, ax).toFixed(2)}%`);
+        section.style.setProperty('--ay', `${gsap.utils.clamp(-20, 120, ay).toFixed(2)}%`);
+        section.style.setProperty('--atmo', atmo.v.toFixed(4));
+      };
+      const pushDive = () => getUniverse()?.setDive(dive.v);
+      renderAtmo();
+
+      // approach: Showreel has sliced open, Solutions scrolls in unseen
+      gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      }).fromTo(dive, { v: 0 }, { v: 0.65, ease: 'power1.in', onUpdate: pushDive });
+
       // Scroll animation
+      const total = ENTRY + tl.duration() + EXIT;
       const master = gsap.timeline({
         scrollTrigger: {
-          trigger: root.current,
+          trigger: section,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 3.2}`,
+          end: () => `+=${window.innerHeight * 3.2 * (total / tl.duration())}`,
           pin: true,
-          scrub: 1,
+          scrub: true, // atmosphere must track Mars without lag
           invalidateOnRefresh: true,
         },
 
         onUpdate() {
           const index = Math.min(
             cards.length - 1,
-            Math.max(0, Math.round(this.time() - 0.25))
+            Math.max(0, Math.round(this.time() - ENTRY - 0.25))
           );
 
           activateVideo(index);
+          renderAtmo();
         },
       });
 
       master
-        .add(tl, 0)
+        // atmosphere entry: the last of the dive, then the bloom
+        .fromTo(dive, { v: 0.65 }, { v: 1, duration: ENTRY * 0.6, ease: 'power2.out', onUpdate: pushDive }, 0)
+        .fromTo(atmo, { v: 0 }, { v: 1, duration: ENTRY, ease: 'power2.in' }, 0)
+        .fromTo(content, { autoAlpha: 0, scale: 1.08 }, { autoAlpha: 1, scale: 1, duration: ENTRY * 0.5, ease: 'power2.out' }, ENTRY * 0.55)
+        .add(tl, ENTRY)
         .fromTo(
           '.solutions__marquee',
           { xPercent: 0 },
@@ -152,7 +185,7 @@ export default function Solutions() {
             ease: 'none',
             duration: tl.duration(),
           },
-          0
+          ENTRY
         )
         .fromTo(
           '.sel-frame',
@@ -163,19 +196,21 @@ export default function Solutions() {
             ease: 'none',
             duration: tl.duration(),
           },
-          0
-        );
+          ENTRY
+        )
+        // exit: content leaves, atmosphere collapses back into Mars,
+        // camera pulls out toward the Archive
+        .to(content, { autoAlpha: 0, scale: 0.94, duration: EXIT * 0.4, ease: 'power2.in' }, ENTRY + tl.duration())
+        .to(atmo, { v: 0, duration: EXIT, ease: 'power2.inOut' }, ENTRY + tl.duration())
+        .to(dive, { v: 0, duration: EXIT, ease: 'power2.inOut', onUpdate: pushDive }, ENTRY + tl.duration() + EXIT * 0.25);
 
-      gsap.from('.solutions__label, .solutions__count', {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top 70%',
-        },
-      });
+      // Mars keeps drifting (camera easing, pointer parallax) even when
+      // the scroll is still — keep the bloom centred on it.
+      const follow = () => {
+        if (atmo.v > 0 && atmo.v < 1) renderAtmo();
+      };
+      gsap.ticker.add(follow);
+      return () => gsap.ticker.remove(follow);
 
     },
     { scope: root }
@@ -189,7 +224,11 @@ export default function Solutions() {
       className={`solutions ${formats[active]?.title === 'Documentary' ? 'solutions--documentary' : ''}`}
       id="solutions"
     >
-      <div className="solutions__noise" />
+      {/* Mars atmosphere: the orange gradient, revealed by a radial
+          mask that grows from Mars' screen position (--ax/--ay/--atmo) */}
+      <div className="solutions__atmo" aria-hidden="true">
+        <div className="solutions__noise" />
+      </div>
 
       <p className="solutions__label">
         04 / AI services
