@@ -5309,15 +5309,11 @@ textarea {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  /* The rule above gives every element `transition: all 0.01ms`. GSAP pin
-     spacers and pinned sections must change size/position instantly, or
-     ScrollTrigger measures them mid-transition and every later pin lands
-     in the wrong place (sections overlap). */
-  .pin-spacer,
-  .pin-spacer > * {
+    /* No transitions at all (not a 0.01ms one): a near-zero duration still
+       creates a transition on every element (`transition-property` defaults
+       to `all`), and GSAP/ScrollTrigger then read mid-transition computed
+       styles — pinned sections get measured at the wrong size and from()
+       tweens record a hidden end state, leaving content invisible. */
     transition: none !important;
   }
 }

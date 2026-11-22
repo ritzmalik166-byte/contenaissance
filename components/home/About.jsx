@@ -17,11 +17,14 @@ export default function About() {
 
   useGSAP(
     () => {
-      gsap.from('.about__title .split-char', {
-        yPercent: 110,
-        rotate: 6,
+      // The title is a plain two-line heading now (the per-character
+      // <Split> version is commented out below), so animate it as a block.
+      gsap.from('.about__title', {
+        yPercent: 40,
+        rotation: 2,
+        opacity: 0,
+        transformOrigin: '0% 100%',
         duration: 1.1,
-        stagger: 0.018,
         ease: 'power4.out',
         scrollTrigger: { trigger: '.about__title', start: 'top 82%' },
       });
@@ -60,7 +63,7 @@ export default function About() {
         </div>
         <div>
           {/* <Split as="p" className="display about__title" lines={['Turning Vision ', 'Into Reality.']} /> */}
-                     <p className="display h-md">
+                     <p className="display h-md about__title">
               Turning Vision{" "}
               <br />
               Into Reality.

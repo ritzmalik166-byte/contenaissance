@@ -42,14 +42,23 @@ export default function Rocket() {
       modules.forEach((m, i) => {
         const side = i % 2 === 0 ? -1 : 1;
         tl.addLabel(`s${i}`, i)
-          .from(m, { x: side * 220, y: -60, rotate: side * 28, opacity: 0, duration: 0.8 }, i)
+          // fromTo (not from): with invalidateOnRefresh, a from() tween
+          // re-reads its end state on refresh — if that happens while the
+          // module is still in its hidden start pose, it freezes there.
+          .fromTo(
+            m,
+            { x: side * 220, y: -60, rotation: side * 28, opacity: 0 },
+            { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.8 },
+            i
+          )
           .to(bars[i], { scaleX: 1, duration: 1, ease: 'none' }, i);
       });
 
       tl.addLabel('nose', noseAt)
-        .from(
+        .fromTo(
           q('.rocket__nose'),
-          { y: -260, opacity: 0, duration: 0.6 },
+          { y: -260, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6 },
           noseAt
         )
         .to(
@@ -57,7 +66,6 @@ export default function Rocket() {
           { scaleX: 1, duration: 1, ease: 'none' },
           noseAt
         )
-        .from(q('.rocket__fins'), { scaleX: 0.2, opacity: 0, duration: 0.5 }, 0.2)
         .addLabel('final', finalAt)
         .to(flame, {
           scaleY: 1.35,

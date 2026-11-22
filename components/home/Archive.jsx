@@ -86,7 +86,7 @@ export default function Archive() {
       gsap.from(card, {
         y: 100,
         opacity: 0,
-        rotateX: 15,
+        rotationX: 15,
         duration: 1,
         ease: 'power2.out',
         scrollTrigger: {
@@ -120,12 +120,12 @@ export default function Archive() {
     const cards = gsap.utils.toArray('.work__media', root.current);
 
     const cleanups = cards.map((card) => {
-      const rotateX = gsap.quickTo(card, 'rotateX', {
+      const rotateX = gsap.quickTo(card, 'rotationX', {
         duration: 0.5,
         ease: 'power2.out',
       });
 
-      const rotateY = gsap.quickTo(card, 'rotateY', {
+      const rotateY = gsap.quickTo(card, 'rotationY', {
         duration: 0.5,
         ease: 'power2.out',
       });
