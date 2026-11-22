@@ -2,7 +2,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { gsap, useGSAP } from '@/lib/user/gsap';
+import { gsap, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
 import { applyHolo, lerpHolo, holoMid, holoFull } from '@/lib/user/journey';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
@@ -72,9 +72,11 @@ export default function Showreel() {
     // Video cinematic reveal — the astronaut's wrist hologram (a
     // floating 16:9 panel, see lib/user/journey.js) expands into the
     // full-bleed showreel and loses its holographic look.
+    // Reduced motion: no astronaut/hologram — the film is simply there.
+    const reduced = prefersReducedMotion();
     const holo = { k: 0 };
     const renderHolo = () =>
-      applyHolo(frame, lerpHolo(holoMid(), holoFull(frame), holo.k), 0);
+      applyHolo(frame, reduced ? holoFull(frame) : lerpHolo(holoMid(), holoFull(frame), holo.k), 0);
     renderHolo();
 
     tl.fromTo(
@@ -170,6 +172,7 @@ export default function Showreel() {
     };
 
     const renderSlice = () => {
+      if (reduced) return; // no slice: the film just scrolls away
       const s = slice.s;
       if (s <= 0.0001) {
         if (cloneLive) {

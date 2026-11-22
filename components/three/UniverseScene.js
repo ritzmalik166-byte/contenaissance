@@ -6,6 +6,8 @@ import {
   makeRealPlanet,
   makePlanetRing,
   makeAsteroidBelt,
+  hullMaterial,
+  solarPanelMaterial,
 } from './spaceMaterials';
 
 /* =====================================================
@@ -269,6 +271,32 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       const a = halo('#e9b949', 22, 0.09);
       a.position.set(10, 5, -28);
       g.add(a);
+
+      // a satellite drifting across the Testimonials → Journal leg
+      const orbit = new THREE.Group();
+      orbit.position.set(6.5, 2.6, -14);
+      const sat = new THREE.Group();
+      const bus = new THREE.Mesh(
+        new THREE.BoxGeometry(0.34, 0.24, 0.6),
+        hullMaterial(kit, { color: 0xffc35a, metalness: 1, roughness: 0.75, sunDir })
+      );
+      sat.add(bus);
+      const panelMat = solarPanelMaterial(kit, { sunDir });
+      [-1, 1].forEach((side) => {
+        const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.34), panelMat);
+        panel.position.x = side * 0.64;
+        panel.rotation.y = Math.PI / 2;
+        sat.add(panel);
+      });
+      const blip = halo('#ff5a4a', 0.22, 0.9);
+      blip.position.z = 0.34;
+      sat.add(blip);
+      sat.position.set(2.4, 0, 0);
+      orbit.add(sat);
+      g.add(orbit);
+      anchors.satOrbit = orbit;
+      anchors.sat = sat;
+      anchors.satBlip = blip;
     },
 
     quote(g) {
@@ -279,6 +307,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       corona.position.copy(core.position);
       g.add(corona, core);
       anchors.star = core;
+      anchors.corona = corona;
     },
 
     contact(g) {
@@ -507,6 +536,115 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     }
   };
 
+  /* ---------- Web3D moon (camera-attached, screen-space) ---------- */
+  // Replaces the section's own MoonScene: it lives in the universe, so
+  // it rises out of the Archive as the Web3D section scrolls in.
+  // Driven by Web3D.jsx via setMoon({ vis, crestY, size, spin, px, py }).
+  const MOON_DEPTH = 34;
+  const moonRig = new THREE.Group();
+  moonRig.visible = false;
+  camera.add(moonRig);
+  const moon = makeRealPlanet(kit, {
+    radius: 1,
+    surface: 'moon',
+    // dimmed + desaturated like the original Web3D moon (it was drawn at
+    // opacity .42, brightness .55) so the video ring stays the hero
+    tint: 0x6f6a62,
+    sunDir,
+    segments: mobile ? 64 : 128,
+    atmosphere: { color: '#ffe2a8', intensity: 0.3, thickness: 0.035, power: 3.4 },
+    glowColor: '#e9b949',
+    glowScale: 2.4,
+    glowOpacity: 0.1,
+  });
+  moon.rotation.z = 0.35;
+  moonRig.add(moon);
+  const moonState = { vis: 0, crestY: 0.3, size: 0.82, spin: 0, px: 0, py: 0, sx: 0, sy: 0 };
+
+  const updateMoon = (t, dt) => {
+    const on = moonState.vis > 0.001;
+    moonRig.visible = on;
+    if (!on) return;
+    const { halfH, halfW } = frustumAt(MOON_DEPTH);
+    const R = moonState.size * halfW; // size = diameter / viewport width
+    moonState.sx += (moonState.px - moonState.sx) * Math.min(1, dt * 3);
+    moonState.sy += (moonState.py - moonState.sy) * Math.min(1, dt * 3);
+    const crest = (1 - 2 * moonState.crestY) * halfH; // viewport y → world y
+    moonRig.position.set(moonState.sx * 0.6, crest - R + moonState.sy * 0.3, -MOON_DEPTH);
+    moonRig.scale.setScalar(R * Math.max(0.001, moonState.vis));
+    moon.userData.body.rotation.y = (reducedMotion ? 0 : t * 0.025) + moonState.spin;
+  };
+
+  /* ---------- hyperspace warp field ---------- */
+  // Streaks around the camera axis that stretch with setWarp(v);
+  // the FOV kicks wider at the peak.
+  const WARP_N = mobile ? 200 : 520;
+  const warpGeo = new THREE.BufferGeometry();
+  const warpPos = new Float32Array(WARP_N * 6);
+  const warpSeed = Array.from({ length: WARP_N }, () => {
+    const a = Math.random() * Math.PI * 2;
+    const r = 1.2 + Math.pow(Math.random(), 0.6) * 9;
+    return { x: Math.cos(a) * r, y: Math.sin(a) * r, z: -2 - Math.random() * 60, len: 0.6 + Math.random() * 1.4 };
+  });
+  warpGeo.setAttribute('position', new THREE.BufferAttribute(warpPos, 3));
+  const warpMat = new THREE.LineBasicMaterial({
+    color: 0xcfe4ff,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const warpLines = new THREE.LineSegments(warpGeo, warpMat);
+  warpLines.frustumCulled = false;
+  warpLines.visible = false;
+  camera.add(warpLines);
+  const warpState = { v: 0, s: 0 };
+  const BASE_FOV = 50;
+
+  const updateWarp = (dt) => {
+    warpState.s += (warpState.v - warpState.s) * Math.min(1, dt * 8);
+    const w = reducedMotion ? 0 : warpState.s;
+    const fov = BASE_FOV + w * 18;
+    if (Math.abs(camera.fov - fov) > 0.01) {
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+      fitNebula();
+    }
+    nebula.scale.y = nebula.scale.x * (1 + w * 0.6);
+    if (w < 0.01) {
+      warpLines.visible = false;
+      return;
+    }
+    warpLines.visible = true;
+    warpMat.opacity = Math.min(1, w * 1.4) * 0.85;
+    const speed = 30 + w * 140;
+    for (let i = 0; i < WARP_N; i++) {
+      const s = warpSeed[i];
+      s.z += speed * dt;
+      if (s.z > -1) s.z -= 60;
+      const len = s.len * (0.5 + w * 14);
+      const o = i * 6;
+      warpPos[o] = s.x;
+      warpPos[o + 1] = s.y;
+      warpPos[o + 2] = s.z;
+      warpPos[o + 3] = s.x;
+      warpPos[o + 4] = s.y;
+      warpPos[o + 5] = s.z - len;
+    }
+    warpGeo.attributes.position.needsUpdate = true;
+  };
+
+  // generic screen position of a named anchor (mars, star, earth…)
+  const anchorV = new THREE.Vector3();
+  const anchorNDC = (name) => {
+    const a = anchors[name];
+    if (!a) return null;
+    a.getWorldPosition(anchorV);
+    anchorV.project(camera);
+    return { x: anchorV.x, y: anchorV.y, z: anchorV.z };
+  };
+  const flare = { v: 0, s: 0 };
+
   /* ---------- state ---------- */
   const state = {
     station: 0, // target (from scroll)
@@ -521,6 +659,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     diveS: 0,
     liftS: 0,
     active: true,
+    occluders: new Set(), // opaque sections currently covering the whole viewport
     hidden: document.hidden,
   };
 
@@ -562,7 +701,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   const render = () => {
     if (destroyed) return;
     raf = requestAnimationFrame(render);
-    if (!state.active || state.hidden) return;
+    if (!state.active || state.hidden || state.occluders.size) return;
 
     const t = (performance.now() - start) / 1000;
     const dt = Math.min(0.1, Math.max(0, t - lastT));
@@ -620,11 +759,28 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
         updateAsteroidBelt(b, t);
       }
       nebula.rotation.z = Math.sin(t * 0.025) * 0.015;
-      if (anchors.star) {
-        const s = 3.2 + Math.sin(t * 2.2) * 0.25;
-        anchors.star.scale.setScalar(s);
+      if (anchors.satOrbit) {
+        anchors.satOrbit.rotation.y = t * 0.22;
+        anchors.satOrbit.rotation.z = 0.3;
+        anchors.sat.rotation.set(t * 0.1, t * 0.35, 0);
+        anchors.satBlip.material.opacity = (t % 1.4) < 0.15 ? 0.95 : 0.1;
       }
     }
+
+    // the Quote star: twinkle + flare before the bloom
+    flare.s += (flare.v - flare.s) * Math.min(1, dt * 6);
+    if (anchors.star) {
+      const tw = reducedMotion ? 0 : Math.sin(t * 2.2) * 0.25;
+      anchors.star.scale.setScalar(3.2 + tw + flare.s * 4);
+      anchors.corona.scale.setScalar(14 + flare.s * 12);
+      // the flight path passes through the star: fade it out up close
+      anchors.star.getWorldPosition(anchorV);
+      const near = THREE.MathUtils.clamp((anchorV.distanceTo(camera.position) - 5) / 14, 0, 1);
+      anchors.corona.material.opacity = (0.35 + flare.s * 0.3) * near;
+      anchors.star.material.opacity = 0.95 * near;
+    }
+    updateMoon(t, dt);
+    updateWarp(dt);
 
     state.pulse *= 0.93;
     rim.intensity = RIM_BASE + state.pulse * 16;
@@ -658,8 +814,32 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       return marsNDC;
     },
 
+    // Screen position (NDC, z > 1 = behind camera) of a named anchor
+    getAnchorNDC(name) {
+      return anchorNDC(name);
+    },
+
+    setMoon(p) {
+      Object.assign(moonState, p);
+    },
+
+    setWarp(v) {
+      warpState.v = v;
+    },
+
+    setStarFlare(v) {
+      flare.v = v;
+    },
+
     setLift(v) {
       state.lift = v;
+    },
+
+    // An opaque section (e.g. full Solutions atmosphere, bloomed Quote)
+    // covers the viewport: nothing to draw.
+    setOccluded(id, on) {
+      if (on) state.occluders.add(id);
+      else state.occluders.delete(id);
     },
 
     setActive(on) {

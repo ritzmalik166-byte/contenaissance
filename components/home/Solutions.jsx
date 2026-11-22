@@ -132,6 +132,12 @@ export default function Solutions() {
         section.style.setProperty('--ax', `${gsap.utils.clamp(-20, 120, ax).toFixed(2)}%`);
         section.style.setProperty('--ay', `${gsap.utils.clamp(-20, 120, ay).toFixed(2)}%`);
         section.style.setProperty('--atmo', atmo.v.toFixed(4));
+        // fully orange and filling the screen → the universe can rest
+        const r = section.getBoundingClientRect();
+        getUniverse()?.setOccluded(
+          'solutions',
+          atmo.v >= 0.999 && r.top <= 0.5 && r.bottom >= window.innerHeight - 0.5
+        );
       };
       const pushDive = () => getUniverse()?.setDive(dive.v);
       renderAtmo();

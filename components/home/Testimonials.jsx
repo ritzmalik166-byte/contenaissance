@@ -42,6 +42,20 @@ useVelocityMarquee(rowB, { speed: 1, direction: -1 });
 useVelocityMarquee(rowA, { speed: 1, direction: -1 });
   useGSAP(
     () => {
+      // Journey: dropping out of the hyperspace warp (see JourneyActors)
+      // — the heading resolves from a stretched, blurred streak.
+      gsap.fromTo(
+        '.voices__head',
+        { scaleX: 1.35, scaleY: 0.8, opacity: 0, filter: 'blur(14px)' },
+        {
+          scaleX: 1,
+          scaleY: 1,
+          opacity: 1,
+          filter: 'blur(0px)',
+          ease: 'power3.out',
+          scrollTrigger: { trigger: root.current, start: 'top 85%', end: 'top 35%', scrub: true },
+        }
+      );
       gsap.from('.voices__head .split-char', {
         yPercent: 110,
         duration: 1,

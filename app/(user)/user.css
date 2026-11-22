@@ -5311,6 +5311,15 @@ textarea {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* The rule above gives every element `transition: all 0.01ms`. GSAP pin
+     spacers and pinned sections must change size/position instantly, or
+     ScrollTrigger measures them mid-transition and every later pin lands
+     in the wrong place (sections overlap). */
+  .pin-spacer,
+  .pin-spacer > * {
+    transition: none !important;
+  }
 }
 
 

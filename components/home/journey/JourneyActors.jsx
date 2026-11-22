@@ -1,7 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { gsap, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
+import { gsap, useGSAP, prefersReducedMotion, ScrollTrigger } from '@/lib/user/gsap';
+import RocketSprite from './RocketSprite';
 import { getUniverse } from '@/lib/user/universe';
 import {
   docTop,
@@ -268,10 +269,117 @@ export default function JourneyActors() {
         )
         .set(A, { vis: 0 }, 1);
 
+      /* ---------- 4. hyperspace: Web3D → Testimonials ---------- */
+      // Streaks + FOV kick in the universe, peaking as the Testimonials
+      // heading crosses mid-screen (it resolves out of the blur there).
+      const web = document.querySelector('.web3d');
+      const voices = document.querySelector('.voices');
+      if (web && voices) {
+        const warp = { v: 0 };
+        const pushWarp = () => getUniverse()?.setWarp(warp.v);
+        gsap
+          .timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+              trigger: voices,
+              start: () => {
+                const st = pinTriggerOf(web);
+                return st ? st.end - vh() * 0.15 : docTop(voices) - vh();
+              },
+              end: 'top 30%',
+              scrub: true,
+              invalidateOnRefresh: true,
+              refreshPriority: -1,
+            },
+          })
+          .fromTo(warp, { v: 0 }, { v: 1, duration: 0.55, ease: 'power2.in', onUpdate: pushWarp })
+          .to(warp, { v: 0, duration: 0.45, ease: 'power3.out', onUpdate: pushWarp });
+      }
+
+      /* ---------- 5. the rocket comes home: docks into the CTA orbit ---------- */
+      const cta = document.querySelector('.cta');
+      const orbit = cta?.querySelector('.cta__orbit');
+      const arrow = orbit?.querySelector('.cta__arrow');
+      const pulseRing = orbit?.querySelector('.cta__dock-pulse');
+      const rocketEl = root.current.querySelector('.actor-rocket');
+      const flameEl = rocketEl?.querySelector('.rsprite__flame');
+      if (cta && orbit && rocketEl) {
+        const ROCKET_H = 300; // base px height of .actor-rocket
+        const smooth = (a, b, x) => {
+          const t = clamp01((x - a) / (b - a));
+          return t * t * (3 - 2 * t);
+        };
+        let docked = false;
+
+        const dock = () => {
+          const r = cta.getBoundingClientRect();
+          const H = vh();
+          // 0 when the CTA's top is 85% down the viewport (the Quote has
+          // mostly folded away), 1 when its centre reaches 58%
+          const endTop = H * 0.58 - r.height / 2;
+          const d = clamp01((H * 0.85 - r.top) / Math.max(1, H * 0.85 - endTop));
+          if (d <= 0 || r.bottom < -40) {
+            gsap.set(rocketEl, { autoAlpha: 0 });
+            if (arrow) arrow.style.opacity = '';
+            docked = false;
+            return;
+          }
+          const o = orbit.getBoundingClientRect();
+          const ex = o.left + o.width / 2;
+          const ey = o.top + o.height / 2;
+          // swoop in from the upper left, curve up into the orbit
+          const sx = -vw() * 0.12;
+          const sy = H * 0.12;
+          const cx = ex - vw() * 0.28;
+          const cy = ey + H * 0.38;
+          const t = 1 - Math.pow(1 - d, 1.6);
+          const u = 1 - t;
+          const x = u * u * sx + 2 * u * t * cx + t * t * ex;
+          const y = u * u * sy + 2 * u * t * cy + t * t * ey;
+          const tx = 2 * u * (cx - sx) + 2 * t * (ex - cx);
+          const ty = 2 * u * (cy - sy) + 2 * t * (ey - cy);
+          const heading = (Math.atan2(tx, -ty) * 180) / Math.PI;
+          // ends pointing up-right — it becomes the CTA's ↗ arrow
+          const rot = heading + (45 - heading) * smooth(0.75, 1, d);
+          const size = H * 0.1 + (o.width * 0.62 - H * 0.1) * smooth(0, 1, d);
+          gsap.set(rocketEl, {
+            autoAlpha: 1,
+            x: x - (ROCKET_H * (184 / 330)) / 2,
+            y: y - ROCKET_H / 2,
+            rotation: rot,
+            scale: size / ROCKET_H,
+          });
+          if (flameEl) gsap.set(flameEl, { scaleY: 1 - smooth(0.82, 1, d) * 0.92, transformOrigin: '50% 0%' });
+          if (arrow) arrow.style.opacity = String(1 - smooth(0.7, 0.95, d));
+
+          // touchdown: gold pulse on the orbit + a light flash in space
+          if (d >= 0.99 && !docked) {
+            docked = true;
+            getUniverse()?.pulse(0.4);
+            if (pulseRing) {
+              gsap.fromTo(pulseRing, { scale: 0.35, opacity: 0.9 }, { scale: 1.25, opacity: 0, duration: 1.1, ease: 'power2.out' });
+            }
+          } else if (d < 0.9) {
+            docked = false;
+          }
+        };
+
+        ScrollTrigger.create({
+          trigger: cta,
+          start: 'top bottom',
+          end: 'bottom top',
+          onUpdate: dock,
+          onRefresh: dock,
+          onLeave: () => gsap.set(rocketEl, { autoAlpha: 0 }),
+          onLeaveBack: dock,
+        });
+      }
+
       return () => {
         gsap.ticker.remove(waitForUniverse);
         getUniverse()?.setAstronaut({ vis: 0 });
         getUniverse()?.setBeam(null);
+        getUniverse()?.setWarp(0);
       };
     },
     { scope: root }
@@ -292,6 +400,11 @@ export default function JourneyActors() {
           <b /> Incoming transmission
         </span>
         <span className="holo__meta">CH-03 · Showreel · Live</span>
+      </div>
+
+      {/* the section-01 rocket, returning to dock in the CTA orbit */}
+      <div className="actor-rocket">
+        <RocketSprite />
       </div>
     </div>
   );
