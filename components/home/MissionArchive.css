@@ -1,7 +1,10 @@
 /* =====================================================
-   05 / MISSION ARCHIVE — flight corridor (Archive.jsx)
-   One pinned viewport: films are positioned in 3D by GSAP
-   (x / y / z / rotateY) around the centre of .archive__world.
+   05 / MISSION ARCHIVE — rocket flight path (Archive.jsx)
+   One pinned viewport with a real CSS-3D camera:
+   .archive__viewport (perspective) → .archive__cam (pointer
+   tilt) → .archive__world (camera position, set per frame).
+   Everything inside the world is placed around its origin
+   (the centre of the screen) by GSAP in world-space px.
 ===================================================== */
 
 .archive {
@@ -16,51 +19,118 @@
 .archive__viewport {
   position: absolute;
   inset: 0;
-  perspective: 1100px;
-  perspective-origin: 50% 46%;
+  perspective: 1200px;
+  perspective-origin: 50% 42%;
+}
+
+/* soft vignette + horizon haze so the route reads as deep space */
+.archive__viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 30% at 50% 44%, rgba(233, 185, 73, 0.07), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(5, 4, 3, 0.55) 100%);
+}
+
+.archive__cam {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
 }
 
 .archive__world {
   position: absolute;
-  inset: 0;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
-/* ---------- heading (top left) ---------- */
-
-.archive__head {
+.archive__world > * {
   position: absolute;
-  z-index: 5;
-  top: clamp(92px, 13svh, 140px);
-  left: var(--pad);
-  max-width: min(520px, 40vw);
-  pointer-events: none;
+  left: 0;
+  top: 0;
 }
 
-.archive__title {
-  margin-top: 16px;
-  font-size: clamp(30px, 3.6vw, 58px);
-  perspective: 700px;
+/* ---------- the trajectory ---------- */
+
+.archive__dot {
+  width: 10px;
+  height: 22px;
+  margin: -11px 0 0 -5px;
+  border-radius: 6px;
+  background: rgba(244, 241, 234, 0.42);
+  box-shadow: 0 0 10px rgba(244, 241, 234, 0.15);
+  transition: background 0.35s, box-shadow 0.35s;
 }
 
-.archive__title .split-char {
+.archive__dot.is-lit {
+  background: var(--gold);
+  box-shadow: 0 0 14px rgba(233, 185, 73, 0.85), 0 0 34px rgba(255, 107, 53, 0.35);
+}
+
+.archive__dot.is-gone {
+  visibility: hidden;
+}
+
+/* ---------- stations ---------- */
+
+.astation {
   transform-style: preserve-3d;
+  visibility: hidden;
 }
 
-.archive__lede {
-  margin-top: 16px;
-  max-width: 300px;
-  font-size: 14px;
-  color: var(--muted);
+/* launch pad: lies flat on the floor under the film */
+.astation__pad {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--w, 820px) * 0.8);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateY(28px) rotateX(90deg);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 185, 73, 0.22), rgba(233, 185, 73, 0.05) 45%, transparent 68%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.astation__pad::before,
+.astation__pad i {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.astation__pad::before {
+  inset: 14%;
+  border: 2px solid rgba(233, 185, 73, 0.45);
+  box-shadow: 0 0 30px rgba(233, 185, 73, 0.25), inset 0 0 30px rgba(233, 185, 73, 0.2);
+}
+
+.astation__pad i {
+  inset: 24%;
+  border: 2px dashed rgba(233, 185, 73, 0.4);
+  animation: archive-spin 18s linear infinite;
+}
+
+.astation.is-near .astation__pad::before {
+  border-color: var(--gold);
+  box-shadow: 0 0 60px rgba(233, 185, 73, 0.55), inset 0 0 50px rgba(233, 185, 73, 0.4);
 }
 
 /* ---------- films ---------- */
 
 .afilm {
-  --w: min(42vw, 640px, calc(56svh * 16 / 9));
+  --w: min(52vw, 820px, calc(64svh * 16 / 9));
   position: absolute;
-  left: 50%;
-  top: 50%;
+  left: 0;
+  top: 0;
   width: var(--w);
   padding: 0;
   border: 0;
@@ -69,11 +139,18 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
   will-change: transform, opacity;
 }
 
-.afilm--portrait {
-  --w: min(24vw, calc(62svh * 9 / 16));
+.astation {
+  --w: min(52vw, 820px, calc(64svh * 16 / 9));
+}
+
+.astation--portrait,
+.astation--portrait .afilm {
+  --w: min(26vw, calc(70svh * 9 / 16));
 }
 
 .afilm__frame {
@@ -81,15 +158,35 @@
   display: block;
   aspect-ratio: var(--ratio, 16 / 9);
   overflow: hidden;
+  border-radius: 6px;
   background: #000;
-  border: 1px solid rgba(233, 185, 73, 0.22);
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(233, 185, 73, 0.25);
+  box-shadow:
+    0 50px 120px rgba(0, 0, 0, 0.65),
+    0 30px 60px -20px rgba(233, 185, 73, 0.12);
   transition: border-color 0.5s, box-shadow 0.5s;
 }
 
-.afilm.is-on .afilm__frame {
-  border-color: rgba(233, 185, 73, 0.6);
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), 0 0 60px rgba(233, 185, 73, 0.16);
+.astation.is-on .afilm__frame {
+  border-color: rgba(233, 185, 73, 0.75);
+  box-shadow:
+    0 50px 120px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(233, 185, 73, 0.25),
+    0 0 90px rgba(233, 185, 73, 0.22),
+    0 60px 80px -30px rgba(255, 107, 53, 0.3);
+}
+
+/* the film's metal edge — gives the panel thickness as it turns */
+.afilm__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  aspect-ratio: var(--ratio, 16 / 9);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #2a2418, #0d0b08);
+  transform: translateZ(-10px);
+  pointer-events: none;
 }
 
 .afilm__frame .afilm__video {
@@ -109,18 +206,34 @@
   height: 100%;
   object-fit: cover;
   transition: transform 1.2s var(--ease), filter 0.6s;
-  filter: saturate(0.85) brightness(0.8);
+  filter: saturate(0.7) brightness(0.7);
 }
 
-.afilm.is-on .afilm__frame video {
+.astation.is-on .afilm__frame video {
   filter: saturate(1.05) brightness(1);
 }
 
-.afilm.is-on:hover .afilm__frame video {
+.astation.is-on .afilm:hover .afilm__frame video {
   transform: scale(1.05);
 }
 
-/* darkens films further down the corridor (cheaper than a filter) */
+/* holographic scanlines on films not yet in focus */
+.afilm__scan {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(233, 185, 73, 0.08) 0 1px, transparent 1px 4px);
+  mix-blend-mode: screen;
+  opacity: 1;
+  transition: opacity 0.6s;
+}
+
+.astation.is-on .afilm__scan {
+  opacity: 0.25;
+}
+
+/* darkens films further down the route (cheaper than a filter) */
 .afilm__shade {
   position: absolute;
   inset: 0;
@@ -130,49 +243,70 @@
   pointer-events: none;
 }
 
+/* a light sweep crosses the film as it comes into focus */
+.afilm__glare {
+  position: absolute;
+  inset: -20% -60%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 240, 210, 0.18) 50%, transparent 58%);
+  transform: translateX(-60%);
+}
+
+.astation.is-on .afilm__glare {
+  animation: archive-glare 1.4s var(--ease) 0.1s both;
+}
+
+@keyframes archive-glare {
+  to {
+    transform: translateX(60%);
+  }
+}
+
 .afilm__tag,
 .afilm__num {
   position: absolute;
-  top: 14px;
-  z-index: 3;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  top: 16px;
+  z-index: 4;
+  font-size: 10px;
+  letter-spacing: 0.16em;
   color: #e7e2d8;
   text-transform: uppercase;
 }
 
 .afilm__tag {
-  left: 16px;
+  left: 20px;
 }
 
 .afilm__num {
-  right: 16px;
+  right: 20px;
   color: var(--gold);
 }
 
 .afilm__play {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
-  z-index: 3;
-  width: 42px;
-  height: 42px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 4;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.4);
   background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
   opacity: 0;
   transform: scale(0.7);
   transition: opacity 0.4s, transform 0.5s var(--ease), background 0.4s, color 0.4s;
 }
 
-.afilm.is-on .afilm__play {
+.astation.is-on .afilm__play {
   opacity: 1;
   transform: scale(1);
 }
 
-.afilm.is-on:hover .afilm__play {
+.astation.is-on .afilm:hover .afilm__play {
   background: var(--gold);
   color: var(--ink);
   transform: rotate(45deg);
@@ -181,85 +315,212 @@
 /* HUD corner brackets */
 .afilm__c {
   position: absolute;
-  z-index: 3;
-  width: 18px;
-  height: 18px;
+  z-index: 4;
+  width: 20px;
+  height: 20px;
   border-color: var(--gold);
   border-style: solid;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .afilm__c--tl {
-  top: 6px;
-  left: 6px;
+  top: 7px;
+  left: 7px;
   border-width: 1px 0 0 1px;
 }
 
+.afilm__c--tr {
+  top: 7px;
+  right: 7px;
+  border-width: 1px 1px 0 0;
+}
+
+.afilm__c--bl {
+  bottom: 7px;
+  left: 7px;
+  border-width: 0 0 1px 1px;
+}
+
 .afilm__c--br {
-  right: 6px;
-  bottom: 6px;
+  right: 7px;
+  bottom: 7px;
   border-width: 0 1px 1px 0;
 }
 
 .afilm__title {
-  display: block;
-  margin-top: 12px;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
   font-family: var(--font-heading);
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   color: #d8d1c2;
+  white-space: nowrap;
 }
 
-/* ---------- HUD for the film in front ---------- */
+/* ---------- rocket ---------- */
+
+.archive__rocket {
+  width: 140px;
+  height: calc(140px * 330 / 184);
+  pointer-events: none;
+  filter: drop-shadow(0 0 24px rgba(233, 185, 73, 0.25));
+}
+
+.archive__rocket .rsprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* light the rocket's flame throws on the route under it */
+.archive__rocket-glow {
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 140, 60, 0.4), rgba(233, 185, 73, 0.12) 35%, transparent 65%);
+}
+
+/* ---------- portal ring at the end of the route ---------- */
+
+.archive__ring {
+  width: min(980px, 150vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.archive__ring-a,
+.archive__ring-b,
+.archive__ring-core {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.archive__ring-a {
+  inset: 0;
+  border: 3px solid rgba(233, 185, 73, 0.7);
+  box-shadow: 0 0 80px rgba(233, 185, 73, 0.35), inset 0 0 80px rgba(233, 185, 73, 0.25);
+}
+
+.archive__ring-b {
+  inset: 6%;
+  border: 2px dashed rgba(233, 185, 73, 0.4);
+  animation: archive-spin 30s linear infinite reverse;
+}
+
+.archive__ring-core {
+  inset: 14%;
+  background: radial-gradient(circle, rgba(255, 220, 150, 0.22), rgba(233, 185, 73, 0.06) 50%, transparent 72%);
+  transition: background 0.6s, transform 0.8s var(--ease);
+}
+
+.archive__ring.is-open .archive__ring-core {
+  background: radial-gradient(circle, rgba(255, 236, 190, 0.5), rgba(233, 185, 73, 0.16) 45%, transparent 72%);
+  transform: scale(1.08);
+}
+
+@keyframes archive-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- heading (top left, hands over to the HUD) ---------- */
+
+.archive__head {
+  position: absolute;
+  z-index: 5;
+  top: clamp(92px, 13svh, 140px);
+  left: var(--pad);
+  max-width: min(520px, 40vw);
+  pointer-events: none;
+}
+
+.archive__title {
+  margin-top: 16px;
+  font-size: clamp(32px, 4vw, 64px);
+  perspective: 700px;
+}
+
+.archive__title .split-char {
+  transform-style: preserve-3d;
+}
+
+.archive__lede {
+  margin-top: 16px;
+  max-width: 320px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---------- HUD for the station in focus (top left) ---------- */
 
 .archive__hud {
   position: absolute;
   z-index: 5;
-  bottom: clamp(48px, 10svh, 110px);
-  width: min(340px, 28vw);
-}
-
-.archive__hud--right {
-  right: var(--pad);
-}
-
-.archive__hud--left {
+  top: clamp(92px, 13svh, 140px);
   left: var(--pad);
+  width: min(380px, 30vw);
+  opacity: 0;
+  visibility: hidden;
 }
 
 .archive__hud-body {
   display: flex;
   gap: 18px;
   align-items: flex-start;
+  perspective: 600px;
   animation: archive-hud-in 0.7s var(--ease) both;
 }
 
 @keyframes archive-hud-in {
   from {
     opacity: 0;
-    transform: translateY(18px) rotateX(-40deg);
+    transform: translateY(18px) rotateX(-50deg);
   }
 }
 
 .archive__index {
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: clamp(56px, 6vw, 96px);
+  font-size: clamp(60px, 6.4vw, 104px);
   line-height: 0.85;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(233, 185, 73, 0.75);
+  -webkit-text-stroke: 1px rgba(233, 185, 73, 0.8);
 }
 
 .archive__hud-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold);
 }
 
+.archive__hud-tag b {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+  animation: archive-blink 1.4s steps(2, end) infinite;
+}
+
+@keyframes archive-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
 .archive__hud-title {
-  margin-top: 8px;
-  font-size: clamp(18px, 1.6vw, 24px);
+  margin-top: 10px;
+  font-size: clamp(20px, 1.8vw, 28px);
   line-height: 1.15;
 }
 
@@ -283,86 +544,115 @@
   border-color: var(--gold);
 }
 
-.archive__ticks {
-  margin-top: 22px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+/* ---------- telemetry: route map (bottom centre) ---------- */
 
-.archive__ticks button {
-  width: 26px;
-  height: 14px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  position: relative;
-}
-
-.archive__ticks button::after {
-  content: '';
+.archive__tele {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 6px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.2);
-  transition: background 0.4s;
+  z-index: 5;
+  left: 50%;
+  bottom: clamp(24px, 5svh, 56px);
+  width: min(420px, 34vw);
+  margin-left: max(-210px, -17vw);
+  opacity: 0;
 }
 
-.archive__ticks button.is-on::after {
-  background: var(--gold);
-}
-
-.archive__ticks span {
-  margin-left: 10px;
+.archive__tele-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-/* ---------- portal at the end of the corridor ---------- */
+.archive__tele-row b {
+  font-weight: 500;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.archive__map {
+  position: relative;
+  height: 28px;
+  margin: 10px 0;
+}
+
+.archive__map-line,
+.archive__map-trail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+}
+
+.archive__map-line {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 6px, transparent 6px 10px);
+}
+
+.archive__map-trail {
+  background: linear-gradient(90deg, rgba(255, 107, 53, 0.6), var(--gold));
+  box-shadow: 0 0 10px rgba(233, 185, 73, 0.6);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.archive__map-stop {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 185, 73, 0.6);
+  background: var(--bg);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.4s var(--ease);
+}
+
+.archive__map-stop.is-on {
+  background: var(--gold);
+  transform: scale(1.4);
+}
+
+.archive__map-stop--end {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-width: 2px;
+  cursor: default;
+}
+
+.archive__map-rocket {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 14px solid var(--text);
+  transform: translate(-50%, -50%) rotate(90deg);
+  filter: drop-shadow(0 0 6px rgba(233, 185, 73, 0.8));
+}
+
+/* ---------- portal CTA (2D, opens as the rocket goes through) ---------- */
 
 .archive__portal {
   position: absolute;
+  z-index: 6;
   left: 50%;
-  top: 50%;
+  top: 46%;
   width: min(560px, 88vw);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 16px;
-}
-
-.archive__portal-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(520px, 90vw);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 1px solid rgba(233, 185, 73, 0.35);
-  background: radial-gradient(circle, rgba(233, 185, 73, 0.12), transparent 62%);
-  box-shadow: 0 0 80px rgba(233, 185, 73, 0.12) inset;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.archive__portal-ring::before {
-  content: '';
-  position: absolute;
-  inset: 22px;
-  border-radius: 50%;
-  border: 1px dashed rgba(233, 185, 73, 0.25);
-  animation: archive-spin 40s linear infinite;
-}
-
-@keyframes archive-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  opacity: 0;
+  visibility: hidden;
 }
 
 .archive__portal-kicker,
@@ -373,21 +663,33 @@
   color: var(--muted);
 }
 
+.archive__portal-kicker {
+  color: var(--gold);
+}
+
 .archive__portal-title {
-  font-size: clamp(28px, 3.2vw, 48px);
-  max-width: 420px;
+  font-size: clamp(30px, 3.6vw, 56px);
+  max-width: 460px;
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .archive__portal-ring::before,
-  .archive__hud-body {
+  .archive__ring-b,
+  .astation__pad i,
+  .archive__hud-body,
+  .archive__hud-tag b,
+  .astation.is-on .afilm__glare {
     animation: none;
   }
 }
 
-/* ---------- mobile: one centred corridor, HUD at the bottom ---------- */
+/* ---------- mobile: films centred over a straighter route ---------- */
 
 @media (max-width: 760px) {
+  .archive__viewport {
+    perspective-origin: 50% 40%;
+  }
+
   .archive__head {
     top: 84px;
     max-width: none;
@@ -395,36 +697,48 @@
   }
 
   .archive__title {
-    font-size: clamp(26px, 7.4vw, 34px);
+    font-size: clamp(28px, 8vw, 38px);
   }
 
   .archive__lede {
-    display: none;
+    max-width: 260px;
+    font-size: 13px;
   }
 
+  .astation,
   .afilm {
-    --w: 86vw;
-    top: 48%;
+    --w: 120vw;
   }
 
-  .afilm--portrait {
-    --w: calc(38svh * 9 / 16);
+  .astation--portrait,
+  .astation--portrait .afilm {
+    --w: calc(56svh * 9 / 16);
   }
 
-  .archive__hud,
-  .archive__hud--left,
-  .archive__hud--right {
-    left: var(--pad);
+  .afilm__title {
+    font-size: 22px;
+  }
+
+  .archive__rocket {
+    width: 110px;
+    height: calc(110px * 330 / 184);
+  }
+
+  .archive__hud {
+    top: 80px;
     right: var(--pad);
-    bottom: 24px;
     width: auto;
   }
 
   .archive__index {
-    font-size: 48px;
+    font-size: 52px;
   }
 
-  .archive__ticks {
-    margin-top: 14px;
+  .archive__tele {
+    left: var(--pad);
+    right: 84px; /* clear of the floating WhatsApp / call buttons */
+    bottom: 20px;
+    width: auto;
+    margin-left: 0;
   }
 }

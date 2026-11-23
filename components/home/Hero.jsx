@@ -5,17 +5,19 @@ import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { onSiteReady } from '@/lib/user/ready';
 import Split from '../Split';
-import { ArrowRight, Play } from '../Icons';
+import { ArrowUpRight } from '../Icons';
 
 /* =====================================================
-   HERO — centred headline over the 3D space backdrop
-   (three/HeroScene: gold infinity, planets, Earth's horizon,
-   nebulae), with the 3D rocket launching on the right.
+   HERO — copy on the left, a rocket climbing out of
+   Earth's sunrise on the right.
 
-   The rocket itself is drawn by journey/RocketFlight.jsx
-   into `.hero__stage`'s box; on scroll it flies into the
-   Rocket section while this copy folds away in 3D and the
-   Rocket section's heading rises into place.
+   - three/HeroScene: deep space, the diagonal Earth horizon
+     with its sunrise bloom, a crescent moon, stars.
+   - journey/RocketFlight: the 3D rocket, fitted into
+     `.hero__stage`, leaning into its climb.
+
+   On scroll the rocket blasts off into the Rocket section
+   while this copy folds away in 3D.
 ===================================================== */
 
 export default function Hero() {
@@ -25,12 +27,14 @@ export default function Hero() {
   useGSAP(
     (ctx, contextSafe) => {
       const q = gsap.utils.selector(root);
+      const hero = root.current;
       const chars = q('.hero__title .split-char');
       const fades = q('.hero__fade');
 
       /* ---------- 3D backdrop (loaded lazily, client only) ---------- */
       let scene = null;
       let dead = false;
+
       import('../three/HeroScene').then(({ createHeroScene }) => {
         if (dead || !canvasWrap.current) return;
         scene = createHeroScene(canvasWrap.current);
@@ -48,16 +52,17 @@ export default function Hero() {
         const s = { v: 0 };
         gsap
           .timeline({ defaults: { ease: 'power4.out' } })
-          // the 3D infinity grows into place and the scene settles
+          // the horizon rises and the sunrise blooms
           .to(s, { v: 1, duration: 2.6, ease: 'power3.out', onUpdate: () => scene && (scene.state.intro = s.v) }, 0)
-          .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.4, stagger: 0.025 })
+          .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.4, stagger: 0.025 }, 0.1)
           .to(fades, { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 0.5)
-          .fromTo(q('.hero__halo'), { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power2.out' }, 0);
+          .fromTo(q('.hero__halo'), { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power2.out' }, 0)
+          .fromTo(q('.hero__bars i'), { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 1);
       });
       const off = onSiteReady(intro);
 
       /* ---------- scroll: hero → Rocket section ---------- */
-      const next = root.current.nextElementSibling; // .rocket-sec
+      const next = hero.nextElementSibling; // .rocket-sec
       const nextHead = next?.querySelectorAll('.rocket-copy__head .kicker, .rocket-copy__head h2') || [];
       const nextPanel = next?.querySelector('.rocket-panels');
       const nextBars = next?.querySelector('.rocket-progress');
@@ -69,9 +74,9 @@ export default function Hero() {
       const tl = gsap.timeline({
         defaults: { ease: 'none', immediateRender: false },
         scrollTrigger: {
-          trigger: root.current,
+          trigger: hero,
           start: 'top top',
-          end: () => `+=${root.current.offsetHeight}`,
+          end: () => `+=${hero.offsetHeight}`,
           scrub: 1,
           pin: true,
           pinSpacing: false,
@@ -85,12 +90,11 @@ export default function Hero() {
         // the whole copy block tips back into depth
         .fromTo(
           q('.hero__content'),
-          { rotateX: 0, z: 0 },
-          { rotateX: 18, z: -260, ease: 'power1.in', duration: 0.5 },
+          { rotateY: 0, rotateX: 0, z: 0 },
+          { rotateY: 14, rotateX: 10, z: -260, ease: 'power1.in', duration: 0.5 },
           0
         )
-        // headline words flip back over, one after another (words, not
-        // letters: the letters belong to the intro tween)
+        // headline words flip back over, one after another
         .fromTo(
           q('.hero__title .split-word'),
           { yPercent: 0, rotateX: 0, opacity: 1 },
@@ -112,7 +116,10 @@ export default function Hero() {
           0.04
         )
         .fromTo(q('.hero__halo'), { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.6, duration: 0.5 }, 0)
-        .to(root.current, { autoAlpha: 0, duration: 0.05 }, 0.5);
+        // the hero's sky dissolves into the shared universe behind it (no
+        // hard cut) while the rocket swoops on into the next section
+        .fromTo(q('.hero__canvas, .hero__vignette'), { opacity: 1 }, { opacity: 0, duration: 0.32, ease: 'power1.inOut' }, 0.26)
+        .to(hero, { autoAlpha: 0, duration: 0.02 }, 0.6);
 
       if (next) {
         tl.fromTo(next, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0.3);
@@ -160,16 +167,23 @@ export default function Hero() {
     <section ref={root} className="hero" id="top">
       {/* 3D backdrop — three/HeroScene renders into this */}
       <div ref={canvasWrap} className="hero__canvas" aria-hidden="true" />
+
       <div className="hero__vignette" />
+
+      {/* Box the 3D rocket (journey/RocketFlight) is fitted into */}
+      <div className="hero__stage" aria-hidden="true">
+        <span className="hero__halo" />
+      </div>
 
       <div className="hero__inner">
         <div className="hero__content">
           <p className="hero__eyebrow hero__fade">
-            <Star /> AI Storytelling Agency &amp; AI Creative Studio
+            <span className="hero__eyebrow-line" aria-hidden="true" />
+            AI Storytelling Studio
           </p>
 
           <div className="hero__headline">
-            <Split as="p" className="display hero__title" lines={['Our AI Stages.', 'One Launch.']} />
+            <Split as="p" className="hero__title" lines={['Our AI Stages.', 'One Launch.']} />
           </div>
 
           <h1 className="hero__sub hero__fade">
@@ -178,49 +192,38 @@ export default function Hero() {
 
           <div className="hero__actions hero__fade">
             <Link href="/portfolio" className="btn hero__btn hero__btn--gold">
-              Explore The Work <ArrowRight />
+              Explore The Work <ArrowUpRight size={14} />
             </Link>
-            <Link href="/contact" className="btn hero__btn hero__btn--outline">
-              <span className="hero__play">
-                <Play size={12} />
+            <Link href="/contact" className="hero__mission">
+              <span className="hero__mission-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 14 14">
+                  <path d="M3.5 1.8v10.4L12 7 3.5 1.8Z" fill="currentColor" />
+                </svg>
               </span>
               Start a mission
             </Link>
           </div>
         </div>
-
-        {/* Box the 3D rocket (journey/RocketFlight) is fitted into */}
-        <div className="hero__stage" aria-hidden="true">
-          <span className="hero__halo" />
-        </div>
       </div>
 
       <div className="hero__foot">
-        <p className="hero__ticker hero__fade">
-          “AI is changing so fast in 2026.” <em>But are you?</em>
-        </p>
+        <div className="hero__count hero__fade" aria-hidden="true">
+          <span className="hero__count-num">01 / 04</span>
+          <span className="hero__bars">
+            <i />
+            <b />
+            <b />
+            <b />
+          </span>
+        </div>
         <div className="scroll-cue hero__fade">
-          Scroll to explore <Chevrons />
+          Scroll to explore
+          <span className="hero__cue-sep" aria-hidden="true" />
+          <span className="hero__mouse" aria-hidden="true">
+            <i />
+          </span>
         </div>
       </div>
     </section>
   );
 }
-
-const Star = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-    <path fill="currentColor" d="m12 2 2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6L12 2Z" />
-  </svg>
-);
-
-const Chevrons = () => (
-  <svg className="scroll-cue__chev" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-    <path
-      d="m3 3 4 4 4-4M3 7.5l4 4 4-4"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);

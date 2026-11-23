@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { glowTexture } from './spaceCommon';
-import { ASSEMBLY, explodeOffset } from '@/lib/user/rocketFlight';
+import { ASSEMBLY, explodeOffset, heroTilt } from '@/lib/user/rocketFlight';
 
 /* =====================================================
    ROCKET FLIGHT — the hero's 3D rocket.
@@ -528,35 +528,42 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     const destCY = input.dest.top + L / 2;
 
     const intro = state.intro;
-    // Launch mode starts from just under the bottom edge, at landing
-    // size, and climbs straight up; otherwise it starts in the hero.
-    const startCX = launch ? destCX : hero.cx;
-    const startCY = launch ? H + (L + flameH * 1.3) * 0.75 : heroCY;
-    let sx = lerp(startCX, destCX, P);
-    let sy = lerp(startCY, destCY, P);
-    if (!launch) {
+    if (launch) {
+      // the swoop: continues the lift-off path into the Rocket section
+      const p = pathAt(1 + tr, input);
+      const roll = unwrap(p.rz, state.roll ?? p.rz);
+      state.roll = roll;
+      rocket.position.set(p.x - W / 2, H / 2 - p.y, 0);
+      rocket.scale.setScalar(p.scale);
+      rocket.rotation.set(
+        Math.sin(t * 0.7) * 0.03 * away * idle,
+        -0.15 * away + state.px * 0.3 * away,
+        roll
+      );
+      // smoke lingers through the loop, then clears as it docks
+      drawSmoke(1 + tr, input, 1 - smooth(0.7, 1, tr));
+    } else {
+      puffs.forEach((sp) => (sp.visible = false));
+      let sx = lerp(hero.cx, destCX, P);
+      let sy = lerp(heroCY, destCY, P);
       // arc over the page while travelling
       sy -= Math.sin(Math.PI * tr) * H * (mobile ? 0.05 : 0.12);
       // intro: launches up into frame from below
       sy += (1 - intro) * H * 0.75;
+      const zLift = Math.sin(Math.PI * tr) * D * (mobile ? 0.05 : 0.1);
+      rocket.position.set(sx - W / 2, H / 2 - sy, zLift);
+      rocket.scale.setScalar(lerp(heroScale, 1, P));
+
+      /* --- orientation --- */
+      // Hero: a gentle sway that keeps the portholes and cockpit facing
+      // the viewer; the barrel roll during travel lands facing front.
+      const tilt = mobile ? -0.18 : -0.3;
+      rocket.rotation.set(
+        state.py * 0.18 * away + Math.sin(t * 0.7) * 0.03 * away * idle,
+        (Math.sin(t * 0.5) * 0.35 * idle - 0.15) * away + TAU * P + state.px * 0.3 * away,
+        lerp(tilt, 0, P) + (1 - intro) * 0.25 - state.px * 0.08 * away
+      );
     }
-
-    const scale = launch ? 1 : lerp(heroScale, 1, P);
-    const zLift = launch ? 0 : Math.sin(Math.PI * tr) * D * (mobile ? 0.05 : 0.1);
-
-    rocket.position.set(sx - W / 2, H / 2 - sy, zLift);
-    rocket.scale.setScalar(scale);
-
-    /* --- orientation --- */
-    // Hero: a gentle sway that keeps the portholes and cockpit facing
-    // the viewer (a full spin swung them round the edge); the barrel
-    // roll during travel lands facing front again.
-    const tilt = launch ? 0 : mobile ? -0.18 : -0.3;
-    rocket.rotation.set(
-      state.py * 0.18 * away + Math.sin(t * 0.7) * 0.03 * away * idle,
-      (Math.sin(t * 0.5) * 0.35 * idle - 0.15) * away + TAU * P + state.px * 0.3 * away,
-      lerp(tilt, 0, P) + (1 - intro) * 0.25 - state.px * 0.08 * away
-    );
 
     /* --- explode into a hologram, then assemble --- */
     const explode = smooth(0.45, 0.95, tr);
@@ -605,7 +612,130 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     raf = requestAnimationFrame(frame);
   };
 
-  /* ---------- launch mode: lift off and leave through the top ---------- */
+  /* ---------- launch mode: one continuous flight path ----------
+     g ∈ [0, 2] along the whole journey (screen px, y down):
+       0 → 1  lift-off: climbs along its tilted axis to the upper right
+              of the hero, staying on screen
+       1 → 2  the swoop: keeps climbing, banks over in a big loop (nose
+              following its velocity) and rises nose-up into its slot in
+              the Rocket section, where the hologram assembly takes over */
+  const easeG = (u) => u * u * (3 - 2 * u);
+  function pathAt(g, input, bob = 0) {
+    const hero = input.hero;
+    const flameH = flame.userData.h || 100;
+    const heroScale = (hero.h * 0.94) / (L + flameH * 1.3);
+    const tilt = heroTilt(mobile);
+    const cy0 = hero.cy - (flameH * 1.3 * heroScale) / 2 + bob;
+    // lift-off ends with the rocket's centre high on the right
+    const climb = Math.max(0, cy0 - H * (mobile ? 0.3 : 0.26));
+    // sideways drift along the tilt, kept inside narrow (phone) screens
+    const drift = Math.max(0, Math.min(climb * Math.tan(-tilt), W * 0.74 - hero.cx));
+    const lift = (P) => ({
+      x: hero.cx + P * drift,
+      y: cy0 - P * climb,
+      s: heroScale * (1 - 0.15 * P),
+    });
+    if (g <= 1) {
+      const p = lift(g * g); // accelerates like a real lift-off
+      return { x: p.x, y: p.y, scale: p.s, rz: tilt };
+    }
+    const E = lift(1);
+    const u = easeG(Math.min(1, g - 1));
+    const dx3 = input.dest.cx;
+    const dy3 = input.dest.top + L / 2;
+    // cubic: carry on up-right, bank over the top of the screen to the
+    // left (clear of the section copy), then come straight down onto
+    // the slot
+    const up = { x: -Math.sin(tilt), y: -Math.cos(tilt) };
+    const reach = H * (mobile ? 0.16 : 0.22);
+    const p1 = { x: Math.min(E.x + up.x * reach, W * 0.82), y: E.y + up.y * reach };
+    const p2 = { x: dx3, y: dy3 - H * (mobile ? 0.4 : 0.55) };
+    const v = 1 - u;
+    const x = v * v * v * E.x + 3 * v * v * u * p1.x + 3 * v * u * u * p2.x + u * u * u * dx3;
+    const y = v * v * v * E.y + 3 * v * v * u * p1.y + 3 * v * u * u * p2.y + u * u * u * dy3;
+    const tx = 3 * v * v * (p1.x - E.x) + 6 * v * u * (p2.x - p1.x) + 3 * u * u * (dx3 - p2.x);
+    const ty = 3 * v * v * (p1.y - E.y) + 6 * v * u * (p2.y - p1.y) + 3 * u * u * (dy3 - p2.y);
+    // nose along the velocity (rz is counter-clockwise, screen y is down)…
+    const vel = Math.hypot(tx, ty) > 1e-3 ? -Math.atan2(tx, -ty) : 0;
+    // …until the landing flip: it pitches back upright and descends
+    // tail-first on its flame (it approaches from the right, so the
+    // heading stays in (−π, π) and blending to 0 is the short way)
+    const flip = smooth(0.42, 0.86, u);
+    // grows mostly after the flip, when it's upright and fits the screen
+    return { x, y, scale: lerp(E.s, 1, u * u), rz: vel * (1 - flip) };
+  }
+
+  // keep the roll continuous through the loop (no ±π flips)
+  const unwrap = (a, ref) => a + TAU * Math.round((ref - a) / TAU);
+
+  /* exhaust smoke left along the path — puffs are anchored to fixed
+     points of the route (not to the rocket), so each one stays where
+     it was puffed out, then billows and thins as the rocket flies on.
+     Fully driven by scroll position, so it's reversible. */
+  const smokeTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    // a few overlapping soft blobs → a cloudy, uneven puff
+    [[64, 64, 52, 0.55], [46, 56, 34, 0.35], [80, 70, 36, 0.35], [62, 82, 30, 0.3], [70, 46, 28, 0.3]].forEach(([x, y, r, a]) => {
+      const grd = g.createRadialGradient(x, y, 0, x, y, r);
+      grd.addColorStop(0, `rgba(255,255,255,${a})`);
+      grd.addColorStop(0.6, `rgba(255,255,255,${a * 0.35})`);
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 128, 128);
+    });
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  })();
+  const SMOKE_STEP = 0.014; // route spacing between puffs
+  const SMOKE_SPAN = 0.42; // how far back along the route smoke lingers
+  const SMOKE_POOL = Math.ceil(SMOKE_SPAN / SMOKE_STEP) + 2;
+  const smokeHot = new THREE.Color(0xffb468); // fresh, lit by the flame
+  const smokeCold = new THREE.Color(0xcfc9c0); // cooled grey
+  const hash = (n) => {
+    const s = Math.sin(n * 127.1) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const puffs = Array.from({ length: SMOKE_POOL }, () => {
+    const mat = new THREE.SpriteMaterial({ map: smokeTex, transparent: true, opacity: 0, depthWrite: false });
+    allMaterials.push(mat);
+    const sp = new THREE.Sprite(mat);
+    sp.renderOrder = -1;
+    sp.visible = false;
+    scene.add(sp);
+    return sp;
+  });
+
+  function drawSmoke(g, input, fade) {
+    puffs.forEach((sp) => (sp.visible = false));
+    if (fade <= 0.001 || g < 0.03) return;
+    const j0 = Math.max(1, Math.ceil((g - SMOKE_SPAN) / SMOKE_STEP));
+    const j1 = Math.floor(g / SMOKE_STEP);
+    for (let j = j0; j <= j1; j++) {
+      const at = j * SMOKE_STEP;
+      const age = (g - at) / SMOKE_SPAN; // 0 fresh → 1 gone
+      const p = pathAt(at, input);
+      // puffed out of the nozzle, drifting a little off the line
+      const half = (L / 2) * p.scale;
+      const r1 = hash(j);
+      const r2 = hash(j + 31.7);
+      const spread = (r1 - 0.5) * 40 * age;
+      const x = p.x + half * Math.sin(p.rz) + Math.cos(p.rz) * spread;
+      const y = p.y + half * Math.cos(p.rz) - Math.sin(p.rz) * spread + age * 18;
+      const sp = puffs[j % SMOKE_POOL];
+      const size = (26 + age * 110 + r2 * 18) * (0.55 + p.scale * 0.6);
+      sp.position.set(x - W / 2, H / 2 - y, -4);
+      sp.scale.set(size, size, 1);
+      sp.material.rotation = r1 * TAU + age * (r2 - 0.5) * 2;
+      sp.material.color.copy(smokeHot).lerp(smokeCold, Math.min(1, age * 3));
+      // fades in over the first bit, then thins out
+      sp.material.opacity = Math.min(1, age * 12) * Math.pow(1 - age, 1.6) * 0.7 * fade;
+      sp.visible = true;
+    }
+  }
+
   function launchFrame(t, tr, input) {
     renderer.domElement.style.visibility = 'visible';
 
@@ -614,28 +744,23 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
 
     const idle = reducedMotion ? 0 : 1;
     const intro = state.intro;
-    const P = tr * tr; // accelerates like a real lift-off
-    const calm = 1 - P; // sway and pointer settle as it climbs
-
-    const hero = input.hero;
     const flameH = flame.userData.h || 100;
-    const scale = (hero.h * 0.94) / (L + flameH * 1.3);
-    const heroCY = hero.cy - (flameH * 1.3 * scale) / 2 + Math.sin(t * 1.1) * 8 * idle * calm;
 
-    // climb along the nose direction until the whole rocket and its
-    // flame are past the top edge
-    const tilt = mobile ? -0.18 : -0.3;
-    const dist = heroCY + hero.h + H * 0.15;
-    const sy = heroCY - P * dist + (1 - intro) * H * 0.75;
-    const sx = hero.cx + P * dist * Math.tan(-tilt);
+    // Holds perfectly still until you scroll (no sway, bob or cursor
+    // follow) — the hero backdrop streams past it instead, so it still
+    // reads as flying.
+    const p = pathAt(tr, input);
+    const tilt = p.rz;
+    // intro: flies in along its own exhaust line (from the horizon glow)
+    const back = (1 - intro) * H * 0.75;
+    const sy = p.y + back * Math.cos(tilt);
+    const sx = p.x + back * Math.sin(tilt);
+    state.roll = tilt;
 
     rocket.position.set(sx - W / 2, H / 2 - sy, 0);
-    rocket.scale.setScalar(scale);
-    rocket.rotation.set(
-      (state.py * 0.18 + Math.sin(t * 0.7) * 0.03 * idle) * calm,
-      (Math.sin(t * 0.5) * 0.35 * idle - 0.15 + state.px * 0.3) * calm,
-      tilt + (1 - intro) * 0.25 - state.px * 0.08 * calm
-    );
+    rocket.scale.setScalar(p.scale);
+    rocket.rotation.set(0, -0.15, tilt + (1 - intro) * 0.25);
+    drawSmoke(tr, input, 1);
 
     // solid rocket, no hologram
     for (const seg of segs) {

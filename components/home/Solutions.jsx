@@ -142,7 +142,7 @@ export default function Solutions() {
       const copy = q('.solutions__label, .solutions__count, .solutions__list, .solutions__desc');
       const atmo = { v: 0 };
       const ENTRY = 0.9;
-      const EXIT = 0.9;
+      const EXIT = 0.25;
 
       const renderAtmo = () => {
         section.style.setProperty('--atmo', atmo.v.toFixed(4));
@@ -222,15 +222,11 @@ export default function Solutions() {
         .add(tl, ENTRY)
         .to(marquee, { xPercent: -50, ease: 'none', duration: flipDur }, ENTRY)
         .to('.sel-frame', { rotateZ: 4, y: -40, ease: 'none', duration: flipDur }, ENTRY)
-        // exit: everything folds back into depth, atmosphere collapses
-        // into the card, which leaves last
-        .to(
-          [...copy, ...marquee],
-          { autoAlpha: 0, z: -400, rotateX: 40, duration: EXIT * 0.45, stagger: 0.03, ease: 'power2.in' },
-          ENTRY + flipDur
-        )
-        .to(atmo, { v: 0, duration: EXIT, ease: 'power2.inOut' }, ENTRY + flipDur)
-        .to(stage, { autoAlpha: 0, scale: 0.85, duration: EXIT * 0.4, ease: 'power2.in' }, ENTRY + flipDur + EXIT * 0.5);
+        // exit: no fade-out — the section stays whole and slides off to
+        // the left as the Mission Archive pans in from the right
+        // (Archive.jsx), so there's never an empty screen in between.
+        // A short hold lets the last card settle first.
+        .to({}, { duration: EXIT }, ENTRY + flipDur);
 
     },
     { scope: root }

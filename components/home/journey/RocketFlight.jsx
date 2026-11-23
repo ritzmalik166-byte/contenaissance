@@ -120,6 +120,7 @@ export default function RocketFlight() {
       });
       measureEnds();
       sync(trigger);
+      parts = measure(rocketEl);
 
       let ready = false;
       const startIntro = () => {

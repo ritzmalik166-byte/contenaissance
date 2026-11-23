@@ -9,6 +9,7 @@ import {
   Plus_Jakarta_Sans,
   Roboto,
   JetBrains_Mono,
+  Montserrat,
 } from "next/font/google";
 import FloatingContact from "@/components/common/FloatingContact";
 
@@ -23,6 +24,15 @@ const body = Roboto({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
   variable: "--font-body",
+  display: "swap",
+});
+
+// Hero display face (light upright + bold italic, per the hero design)
+const hero = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-hero",
   display: "swap",
 });
 
@@ -124,7 +134,7 @@ export const viewport = {
 export default function UserLayout({ children }) {
   return (
     <div
-      className={`${heading.variable} ${body.variable} ${mono.variable}`}
+      className={`${heading.variable} ${body.variable} ${mono.variable} ${hero.variable}`}
     >
       <link
         rel="dns-prefetch"
