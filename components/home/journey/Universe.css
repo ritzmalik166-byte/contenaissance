@@ -1,0 +1,303 @@
+/* =====================================================
+   JOURNEY — the shared universe behind the homepage.
+   .journey is its own stacking context so the fixed
+   canvas (z-index -1) sits above the body background
+   but below every section's content.
+===================================================== */
+
+.journey {
+  position: relative;
+  isolation: isolate;
+}
+
+.universe {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 40%, #0d0b12 0%, #060507 60%, #040304 100%);
+}
+
+.universe__view,
+.universe__view canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+
+.universe__veil {
+  position: absolute;
+  inset: 0;
+  background: #050403;
+  opacity: 0;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .universe__view canvas {
+    opacity: 0.7;
+  }
+}
+
+
+/* =====================================================
+   JOURNEY ACTORS — fixed overlay above the sections.
+   The astronaut itself is 3D (rendered in the universe);
+   this layer holds the hologram HUD that frames the
+   Showreel panel (positioned by lib/user/journey.js).
+===================================================== */
+
+.actors {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.holo {
+  --c: 111, 247, 255;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  opacity: 0;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  border: 1px solid rgba(var(--c), 0.75);
+  box-shadow:
+    0 0 24px rgba(var(--c), 0.45),
+    0 0 80px rgba(var(--c), 0.18),
+    inset 0 0 40px rgba(var(--c), 0.28);
+}
+
+/* cool projection tint over the film */
+.holo__tint {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(var(--c), 0.2), rgba(var(--c), 0.04) 45%, rgba(var(--c), 0.16)),
+    radial-gradient(ellipse at 50% 120%, rgba(var(--c), 0.35), transparent 60%);
+  mix-blend-mode: screen;
+}
+
+/* scanlines */
+.holo__scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(var(--c), 0.13) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+  opacity: 0.8;
+}
+
+/* travelling refresh bar */
+.holo__sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  top: -25%;
+  background: linear-gradient(180deg, transparent, rgba(var(--c), 0.22), transparent);
+  mix-blend-mode: screen;
+  animation: holo-sweep 3.2s linear infinite;
+}
+
+/* corner brackets */
+.holo__c {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(var(--c), 0.95);
+  filter: drop-shadow(0 0 6px rgba(var(--c), 0.9));
+}
+.holo__c--tl { left: 8px; top: 8px; border-right: 0; border-bottom: 0; }
+.holo__c--tr { right: 8px; top: 8px; border-left: 0; border-bottom: 0; }
+.holo__c--bl { left: 8px; bottom: 8px; border-right: 0; border-top: 0; }
+.holo__c--br { right: 8px; bottom: 8px; border-left: 0; border-top: 0; }
+
+.holo__label,
+.holo__meta {
+  position: absolute;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c));
+  text-shadow: 0 0 8px rgba(var(--c), 0.9);
+  white-space: nowrap;
+}
+.holo__label { left: 34px; top: 12px; display: flex; align-items: center; gap: 8px; }
+.holo__label b {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff5a4a;
+  box-shadow: 0 0 8px #ff5a4a;
+  animation: holo-rec 1.2s steps(2, end) infinite;
+}
+.holo__meta { right: 34px; bottom: 12px; opacity: 0.8; }
+
+/* materialising: unstable signal */
+.holo.is-flicker {
+  animation: holo-flicker 0.42s steps(6, end) infinite;
+}
+
+@keyframes holo-sweep {
+  to { top: 105%; }
+}
+@keyframes holo-rec {
+  50% { opacity: 0.2; }
+}
+@keyframes holo-flicker {
+  0% { filter: brightness(1.6); }
+  20% { filter: brightness(0.5); }
+  40% { filter: brightness(1.3) hue-rotate(-10deg); }
+  60% { filter: brightness(0.8); }
+  80% { filter: brightness(1.8); }
+  100% { filter: brightness(1); }
+}
+
+@media (max-width: 760px) {
+  .holo__label,
+  .holo__meta { font-size: 8px; letter-spacing: 0.14em; }
+  .holo__label { left: 26px; top: 9px; }
+  .holo__meta { right: 26px; bottom: 9px; }
+  .holo__c { width: 12px; height: 12px; }
+}
+
+/* the Showreel frame is transformed by the hologram (journey.js) —
+   it carries its own perspective, so the stage must not add one */
+.journey .reel__stage {
+  perspective: none;
+}
+.journey .reel__frame {
+  transform-origin: 50% 50%;
+  will-change: transform, clip-path, opacity;
+}
+
+/* =====================================================
+   SOLUTIONS — Mars atmosphere
+   The orange gradient blooms out of Mars' screen position
+   (--ax / --ay set by Solutions.jsx) as --atmo goes 0 → 1,
+   and collapses back into it on the way out.
+===================================================== */
+.solutions {
+  --atmo: 0;
+  --ax: 62%;
+  --ay: 55%;
+}
+
+.solutions__atmo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--ax) var(--ay), rgba(255, 214, 150, 0.55), transparent 32%),
+    linear-gradient(100deg, #8a4614 0%, #c47716 30%, #e08b17 55%, #f08a2a 75%, #ff6d38 100%);
+  -webkit-mask-image: radial-gradient(
+    circle at var(--ax) var(--ay),
+    #000 calc(var(--atmo) * 150vmax - 12vmax),
+    transparent calc(var(--atmo) * 150vmax + 6vmax)
+  );
+  mask-image: radial-gradient(
+    circle at var(--ax) var(--ay),
+    #000 calc(var(--atmo) * 150vmax - 12vmax),
+    transparent calc(var(--atmo) * 150vmax + 6vmax)
+  );
+}
+
+/* hot rim where the atmosphere meets space */
+.solutions__atmo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--ax) var(--ay),
+    transparent calc(var(--atmo) * 150vmax - 14vmax),
+    rgba(255, 230, 180, 0.65) calc(var(--atmo) * 150vmax - 4vmax),
+    transparent calc(var(--atmo) * 150vmax + 4vmax)
+  );
+  mix-blend-mode: screen;
+  opacity: calc(1 - var(--atmo) * 0.9);
+}
+
+/* =====================================================
+   RETURN ROCKET (CTA dock) — positioned by JourneyActors
+===================================================== */
+.actor-rocket {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(300px * 184 / 330);
+  height: 300px;
+  visibility: hidden;
+  opacity: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 18px rgba(233, 185, 73, 0.18));
+}
+
+.actor-rocket .rsprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rsprite__flame {
+  transform-box: fill-box;
+  animation: rsprite-flicker 0.12s steps(2, end) infinite;
+}
+
+@keyframes rsprite-flicker {
+  50% { opacity: 0.82; }
+}
+
+.cta__dock-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 40px rgba(233, 185, 73, 0.55), inset 0 0 30px rgba(233, 185, 73, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cta__arrow {
+  transition: opacity 0.2s linear;
+}
+
+/* =====================================================
+   QUOTE — star bloom. The clip circle (set by Quote.jsx)
+   carries a white-hot rim while it is opening/closing.
+===================================================== */
+.quote {
+  --bx: 50%;
+  --by: 50%;
+  --br: 0px;
+  --ring: 0;
+}
+
+.quote::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--ring);
+  background: radial-gradient(
+    circle at var(--bx) var(--by),
+    transparent calc(var(--br) - 90px),
+    rgba(255, 214, 140, 0.35) calc(var(--br) - 24px),
+    rgba(255, 252, 240, 0.95) calc(var(--br) - 3px),
+    transparent var(--br)
+  );
+}

@@ -3,7 +3,7 @@
 .archive {
   position: relative;
   padding: clamp(100px, 10vw, 150px) 0 clamp(100px, 7vw, 100px);
-  background: var(--panel);
+  background: transparent; /* shared universe shows through */
 }
 
 /* .archive__head {
@@ -203,44 +203,3 @@
   z-index: 2;
 }
 
-.archive__space {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.archive__space-view {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.archive__space-view canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  filter: none;
-}
-
-.archive__space::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-}
-
-@media (max-width: 760px) {
-  .archive__space-view canvas {
-    opacity: 0.85;
-  }
-
-   .archive__space::after {
-    background: rgba(0, 0, 0, 0.5);
-  }
-}

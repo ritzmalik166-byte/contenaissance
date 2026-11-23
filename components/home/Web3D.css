@@ -7,25 +7,7 @@
   height: 100svh;
   min-height: 720px;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 62%, rgba(233, 185, 73, 0.16), transparent 58%), #050505;
-}
-
-/* 3D moon — sits behind the floor and the video ring */
-.web3d__moon {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.web3d__moon canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  outline: none;
-    opacity: 0.42;
-  filter: brightness(0.55) saturate(0.65);
+  background: radial-gradient(ellipse at 50% 62%, rgba(233, 185, 73, 0.16), transparent 58%); /* over the shared universe */
 }
 
 .web3d__title {
@@ -513,8 +495,3 @@
   }
 }
 
-@media (max-width: 760px) {
-  .web3d__moon canvas {
-    opacity: 0.85;
-  }
-}

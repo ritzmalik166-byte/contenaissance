@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
+import { getUniverse } from '@/lib/user/universe';
 import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
 import './Rocket.css';
@@ -15,28 +16,9 @@ const finalPanel = {
 
 export default function Rocket() {
   const root = useRef(null);
-  const spaceWrap = useRef(null);
-  const spaceSceneRef = useRef(null);
 
-  useEffect(() => {
-    const container = spaceWrap.current;
-    if (!container) return;
-
-    let disposed = false;
-
-    import('../three/SpaceScene').then(({ createSpaceScene }) => {
-      if (disposed || !spaceWrap.current) return;
-
-      spaceSceneRef.current = createSpaceScene(spaceWrap.current);
-    });
-
-    return () => {
-      disposed = true;
-
-      spaceSceneRef.current?.destroy();
-      spaceSceneRef.current = null;
-    };
-  }, []);
+  // The space backdrop is the shared homepage universe
+  // (components/home/journey/UniverseCanvas.jsx).
 
   useGSAP(
     () => {
@@ -60,14 +42,23 @@ export default function Rocket() {
       modules.forEach((m, i) => {
         const side = i % 2 === 0 ? -1 : 1;
         tl.addLabel(`s${i}`, i)
-          .from(m, { x: side * 220, y: -60, rotate: side * 28, opacity: 0, duration: 0.8 }, i)
+          // fromTo (not from): with invalidateOnRefresh, a from() tween
+          // re-reads its end state on refresh — if that happens while the
+          // module is still in its hidden start pose, it freezes there.
+          .fromTo(
+            m,
+            { x: side * 220, y: -60, rotation: side * 28, opacity: 0 },
+            { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.8 },
+            i
+          )
           .to(bars[i], { scaleX: 1, duration: 1, ease: 'none' }, i);
       });
 
       tl.addLabel('nose', noseAt)
-        .from(
+        .fromTo(
           q('.rocket__nose'),
-          { y: -260, opacity: 0, duration: 0.6 },
+          { y: -260, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6 },
           noseAt
         )
         .to(
@@ -75,7 +66,6 @@ export default function Rocket() {
           { scaleX: 1, duration: 1, ease: 'none' },
           noseAt
         )
-        .from(q('.rocket__fins'), { scaleX: 0.2, opacity: 0, duration: 0.5 }, 0.2)
         .addLabel('final', finalAt)
         .to(flame, {
           scaleY: 1.35,
@@ -89,9 +79,13 @@ export default function Rocket() {
           scaleY: 1.8,
           duration: 1.2,
         }, 5.6)
-        .call(() => spaceSceneRef.current?.pulse(), null, 5.6)
+        .call(() => getUniverse()?.pulse(), null, 5.6)
         .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
         .to({}, { duration: 0.4 });
+
+      // Where in the pin the launch happens — the journey actors
+      // (camera follow + astronaut eject) start from this point.
+      root.current.dataset.launch = String(5.6 / tl.duration());
 
       const markers = [
         0.6,  // S1
@@ -132,7 +126,6 @@ export default function Rocket() {
           labels.forEach((l, i) => {
             l.classList.toggle('is-on', time >= i + 0.6);
           });
-          spaceSceneRef.current?.setProgress(this.progress());
         },
       }).add(tl);
     },
@@ -150,19 +143,7 @@ export default function Rocket() {
       ref={root}
       className="rocket-sec"
       id="stages"
-      onPointerMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        spaceSceneRef.current?.setPointer(
-          ((e.clientX - rect.left) / rect.width) * 2 - 1,
-          -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-        );
-      }}
-      onPointerLeave={() => {
-        spaceSceneRef.current?.setPointer(0, 0);
-      }}
     >
-      <div ref={spaceWrap} className="rocket-sec__space" aria-hidden="true" />
       <div className="container rocket-sec__inner">
         <div className="rocket-stage">
           <div className="rocket">
@@ -260,7 +241,7 @@ export default function Rocket() {
                 className="rocket__module"
                 key={s.id}
                 data-stage={s.id}
-                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+                onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
                 <small>{s.id}</small>
                 <StageIcon name={s.icon} />
@@ -311,7 +292,7 @@ export default function Rocket() {
                 href="/services"
                 className="btn btn--ghost rocket-panel__button"
                 style={{ marginTop: 22 }}
-                onPointerEnter={() => spaceSceneRef.current?.pulse()}
+                onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
                 See every stage <ArrowRight />
               </Link>

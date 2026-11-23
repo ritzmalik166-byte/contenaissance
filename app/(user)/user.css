@@ -844,7 +844,7 @@ textarea {
 .about {
   position: relative;
   padding: clamp(100px, 14vw, 150px) 0 0;
-  background: var(--bg);
+  background: transparent;
 }
 
 .about__grid {
@@ -882,7 +882,8 @@ textarea {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   overflow: hidden;
-  background: #070605;
+  background: rgba(7, 6, 5, 0.55);
+  backdrop-filter: blur(6px);
 }
 
 .caps__track {
@@ -927,7 +928,7 @@ textarea {
   height: 100svh;
   min-height: 700px;
   overflow: hidden;
-  background: linear-gradient(100deg, #8a4614 0%, #c47716 30%, #e08b17 55%, #f08a2a 75%, #ff6d38 100%);
+  background: transparent; /* the orange lives on .solutions__atmo (Mars atmosphere) */
   color: var(--paper);
 }
 
@@ -1162,7 +1163,7 @@ textarea {
   position: relative;
   padding-top: 150px;
   padding-bottom: 100px;
-  background: var(--bg);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -5308,7 +5309,12 @@ textarea {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    /* No transitions at all (not a 0.01ms one): a near-zero duration still
+       creates a transition on every element (`transition-property` defaults
+       to `all`), and GSAP/ScrollTrigger then read mid-transition computed
+       styles — pinned sections get measured at the wrong size and from()
+       tweens record a hidden end state, leaving content invisible. */
+    transition: none !important;
   }
 }
 

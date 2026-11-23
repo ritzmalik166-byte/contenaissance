@@ -58,6 +58,8 @@ export default function Cta() {
           <span className="cta__orbit-spin">
             <i />
           </span>
+          {/* gold ring that pulses when the returning rocket docks (JourneyActors) */}
+          <span className="cta__dock-pulse" />
           <svg className="cta__arrow" viewBox="0 0 60 60" fill="none">
             <path d="M8 52 52 8M20 8h32v32" stroke="currentColor" strokeWidth="2" />
           </svg>

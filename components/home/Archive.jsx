@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
 import { archive } from '@/lib/user/content';
@@ -44,42 +44,31 @@ function Work({ item }) {
 
 export default function Archive() {
   const root = useRef(null);
-  const spaceOuter = useRef(null);
-  const spaceView = useRef(null);
-  const spaceScene = useRef(null);
 
-  // Three.js background
-  useEffect(() => {
-    let disposed = false;
-
-    import('../three/ArchiveSpaceScene').then(({ createArchiveSpaceScene }) => {
-      if (disposed || !spaceView.current) return;
-
-      spaceScene.current = createArchiveSpaceScene(
-        spaceView.current,
-        spaceOuter.current
-      );
-    });
-
-    return () => {
-      disposed = true;
-      spaceScene.current?.destroy();
-      spaceScene.current = null;
-    };
-  }, []);
+  // The space backdrop is the shared homepage universe
+  // (components/home/journey/UniverseCanvas.jsx).
 
   // GSAP animations
   useGSAP((ctx, contextSafe) => {
-    gsap.to({}, {
-      scrollTrigger: {
-        trigger: root.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        onUpdate: (self) => {
-          spaceScene.current?.setScroll(self.progress);
+    // Journey: the camera is pulling back out of Mars' atmosphere
+    // (end of Solutions) — the archive settles in from slightly
+    // oversized, like the lens zooming out.
+    gsap.fromTo(
+      '.archive__head',
+      { scale: 1.18, opacity: 0, filter: 'blur(6px)' },
+      {
+        scale: 1,
+        opacity: 1,
+        filter: 'blur(0px)',
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top bottom',
+          end: 'top 35%',
+          scrub: true,
         },
-      },
-    });
+      }
+    );
 
     gsap.from('.archive__title .split-char', {
       yPercent: 100,
@@ -97,7 +86,7 @@ export default function Archive() {
       gsap.from(card, {
         y: 100,
         opacity: 0,
-        rotateX: 15,
+        rotationX: 15,
         duration: 1,
         ease: 'power2.out',
         scrollTrigger: {
@@ -128,24 +117,15 @@ export default function Archive() {
 
     if (isTouch()) return;
 
-    const onPointerMove = (e) => {
-      spaceScene.current?.setPointer(
-        (e.clientX / window.innerWidth) * 2 - 1,
-        -((e.clientY / window.innerHeight) * 2 - 1)
-      );
-    };
-
-    root.current.addEventListener('pointermove', onPointerMove);
-
     const cards = gsap.utils.toArray('.work__media', root.current);
 
     const cleanups = cards.map((card) => {
-      const rotateX = gsap.quickTo(card, 'rotateX', {
+      const rotateX = gsap.quickTo(card, 'rotationX', {
         duration: 0.5,
         ease: 'power2.out',
       });
 
-      const rotateY = gsap.quickTo(card, 'rotateY', {
+      const rotateY = gsap.quickTo(card, 'rotationY', {
         duration: 0.5,
         ease: 'power2.out',
       });
@@ -172,21 +152,12 @@ export default function Archive() {
     });
 
     return () => {
-      root.current?.removeEventListener('pointermove', onPointerMove);
       cleanups.forEach((cleanup) => cleanup());
     };
   }, { scope: root });
 
   return (
     <section ref={root} className="archive" id="work">
-
-      <div
-        ref={spaceOuter}
-        className="archive__space"
-        aria-hidden="true"
-      >
-        <div ref={spaceView} className="archive__space-view" />
-      </div>
 
       <div className="container">
 

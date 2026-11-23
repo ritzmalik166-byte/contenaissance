@@ -1,45 +1,28 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
+import { gsap, useGSAP, isTouch, ScrollTrigger } from '@/lib/user/gsap';
+import { getUniverse } from '@/lib/user/universe';
 import { webExperiences } from '@/lib/user/content';
 import './Web3D.css';
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 // Huge moon sitting low behind the video ring: its lit crest rises just
-// under the title and its bulk continues below the cards.
-const MOON_OPTIONS = {
-  radius: 9.6,
-  position: [-0.3, -6.1, -4.5],
-  tilt: 1.1,
-
-  // Directional sunlight from upper-left
-  sun: [-7, 6, 2],
-  sunColor: 0xffedcf,
-
-  // Subtle rim lighting
-  rim: [-6, 5, 1],
-  rimIntensity: 0.8,
-
-  // Softer atmospheric glow
-  glow: [0.35, 0.75, 0.1],
-  glowScale: 1.1,
-  glowOpacity: 0.35,
-
-  // Darker shadow side
-  ambient: 0.14,
-
-  texRepeat: 2,
-  scrollShift: 0.9,
-  scrollSpin: 1.4,
-  scrollDolly: -0.8,
+// under the title and its bulk continues below the cards. It lives in
+// the shared universe (UniverseScene setMoon), so it rises with this
+// section out of the Archive, drifts as the ring turns, and recedes as
+// the section leaves.
+const MOON = {
+  crest: 0.28, // lit crest, as a fraction of viewport height below the section top
+  rise: 0.05, // crest lifts this much over the pinned ring rotation
+  spin: 1.4, // extra rotation over the pinned ring rotation
+  size: 0.82, // diameter / viewport width (desktop)
+  sizeMobile: 1.9,
 };
 
 export default function Web3D() {
   const root = useRef(null);
-  const moonWrap = useRef(null);
-  const moonScene = useRef(null);
   const videos = useRef([]);
   const trigger = useRef(null);
   const [active, setActive] = useState(0);
@@ -47,25 +30,40 @@ export default function Web3D() {
   const steps = webExperiences.length;
   const leftCount = Math.floor(steps / 2);
 
-  useEffect(() => {
-    let disposed = false;
-
-    import('../three/MoonScene').then(({ createMoonScene }) => {
-      if (disposed || !moonWrap.current) return;
-
-      moonScene.current = createMoonScene(moonWrap.current, MOON_OPTIONS);
-    });
-
-    return () => {
-      disposed = true;
-      moonScene.current?.destroy();
-      moonScene.current = null;
-    };
-  }, []);
-
   useGSAP(
     (ctx, contextSafe) => {
       gsap.set('.ring', { rotateX: -6 });
+
+      // --- the universe moon, placed from this section's live position
+      const placeMoon = () => {
+        const u = getUniverse();
+        if (!u || !root.current) return;
+        const r = root.current.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const top = r.top / vh;
+        const bottom = r.bottom / vh;
+        if (top >= 1.02 || bottom <= -0.8) {
+          u.setMoon({ vis: 0 });
+          return;
+        }
+        const p = trigger.current ? trigger.current.progress : 0;
+        // recede (shrink away) as the section scrolls off the top
+        const leave = gsap.utils.clamp(0, 1, (1 - bottom) / 1.8);
+        u.setMoon({
+          vis: 1 - leave * 0.85,
+          crestY: top + MOON.crest - p * MOON.rise,
+          size: window.innerWidth < 760 ? MOON.sizeMobile : MOON.size,
+          spin: p * MOON.spin,
+        });
+      };
+      // (its ScrollTrigger is created after the pin, below)
+      // the universe loads asynchronously
+      const waitMoon = () => {
+        if (!getUniverse()) return;
+        placeMoon();
+        gsap.ticker.remove(waitMoon);
+      };
+      gsap.ticker.add(waitMoon);
       gsap
         .timeline({
           scrollTrigger: {
@@ -75,7 +73,6 @@ export default function Web3D() {
             once: true,
           }
         })
-        .from('.web3d__moon', { opacity: 0, yPercent: 12, duration: 2, ease: 'power3.out' }, 0)
         .from('.web3d__title .split-line > span', { yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.1 }, 0)
         .from('.ring', { rotateX: 55, scale: 0.6, opacity: 0, duration: 1.6, ease: 'expo.out' }, 0.1)
         .from('.web3d__floor', { opacity: 0, duration: 1.4 }, 0.2)
@@ -100,12 +97,27 @@ export default function Web3D() {
         },
         onUpdate() {
           setActive(Math.round(this.progress() * (steps - 1)));
-          moonScene.current?.setParallax(this.progress());
+          placeMoon();
         },
       });
       tl.to('.ring', { rotateY: -(360 / steps) * (steps - 1), ease: 'none', duration: 1 })
         .fromTo('.web3d__floor-grid', { backgroundPositionY: '0px' }, { backgroundPositionY: '420px', ease: 'none', duration: 1 }, 0);
       trigger.current = tl.scrollTrigger;
+
+      // Moon placement over the whole life of the section. Triggered on
+      // the pin-spacer (exists now) so the pinned distance is included.
+      const spacer = root.current.parentElement?.classList.contains('pin-spacer')
+        ? root.current.parentElement
+        : root.current;
+      ScrollTrigger.create({
+        trigger: spacer,
+        start: 'top bottom',
+        end: 'bottom -80%',
+        onUpdate: placeMoon,
+        onRefresh: placeMoon,
+        onLeave: () => getUniverse()?.setMoon({ vis: 0 }),
+        onLeaveBack: () => getUniverse()?.setMoon({ vis: 0 }),
+      });
 
       if (isTouch()) return;
       const tiltX = gsap.quickTo('.web3d__stage', 'rotateX', { duration: 1.2, ease: 'power3.out' });
@@ -116,7 +128,7 @@ export default function Web3D() {
 
         tiltY(nx * 10);
         tiltX(-ny * 6);
-        moonScene.current?.setPointer(nx * 2, -ny * 2);
+        getUniverse()?.setMoon({ px: nx * 2, py: -ny * 2 });
       });
       root.current.addEventListener('pointermove', move);
       return () => root.current?.removeEventListener('pointermove', move);
@@ -162,7 +174,6 @@ export default function Web3D() {
 
   return (
     <section ref={root} className="web3d" id="web">
-      <div ref={moonWrap} className="web3d__moon" aria-hidden="true" />
 
       <h2 className="web3d__title" aria-label="Visually Stunning 3D Websites">
         <span className="split-line" aria-hidden="true">
