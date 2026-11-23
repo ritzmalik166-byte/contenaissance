@@ -1,205 +1,430 @@
-/* ---------- archive ---------- */
+/* =====================================================
+   05 / MISSION ARCHIVE — flight corridor (Archive.jsx)
+   One pinned viewport: films are positioned in 3D by GSAP
+   (x / y / z / rotateY) around the centre of .archive__world.
+===================================================== */
 
 .archive {
   position: relative;
-  padding: clamp(100px, 10vw, 150px) 0 clamp(100px, 7vw, 100px);
+  height: 100svh;
+  min-height: 640px;
+  overflow: hidden;
   background: transparent; /* shared universe shows through */
+  isolation: isolate;
 }
 
-/* .archive__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 40px;
-  margin-bottom: clamp(40px, 5vw, 70px);
+.archive__viewport {
+  position: absolute;
+  inset: 0;
+  perspective: 1100px;
+  perspective-origin: 50% 46%;
 }
 
-.archive__head p {
-  max-width: 280px;
-  font-size: 14px;
-  color: var(--muted);
-} */
+.archive__world {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
 
+/* ---------- heading (top left) ---------- */
 
 .archive__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 40px;
-
-  position: relative;
-  z-index: 3;
-  top: auto;
-
-  /* Important */
-  background: transparent;
-  padding: 22px 0;
-  margin-bottom: clamp(40px, 5vw, 70px);
+  position: absolute;
+  z-index: 5;
+  top: clamp(92px, 13svh, 140px);
+  left: var(--pad);
+  max-width: min(520px, 40vw);
   pointer-events: none;
 }
 
-.archive__head a,
-.archive__head button {
-  pointer-events: auto;
+.archive__title {
+  margin-top: 16px;
+  font-size: clamp(30px, 3.6vw, 58px);
+  perspective: 700px;
 }
 
-.archive__head p {
-  max-width: 280px;
+.archive__title .split-char {
+  transform-style: preserve-3d;
+}
+
+.archive__lede {
+  margin-top: 16px;
+  max-width: 300px;
   font-size: 14px;
   color: var(--muted);
 }
 
-.archive__grid {
-  display: grid;
-  grid-template-columns: 1.44fr 1fr;
-  gap: 18px clamp(14px, 1.4vw, 20px);
-  perspective: 1600px;
-}
+/* ---------- films ---------- */
 
-.archive__col {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(30px, 3vw, 44px);
-}
-
-.work {
-  display: block;
-  transform-style: preserve-3d;
-    width: 100%;
+.afilm {
+  --w: min(42vw, 640px, calc(56svh * 16 / 9));
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--w);
   padding: 0;
   border: 0;
-  background: transparent;
+  background: none;
   color: inherit;
-  text-align: left;
   font: inherit;
+  text-align: left;
   cursor: pointer;
+  will-change: transform, opacity;
 }
 
-.work__media {
+.afilm--portrait {
+  --w: min(24vw, calc(62svh * 9 / 16));
+}
+
+.afilm__frame {
   position: relative;
+  display: block;
+  aspect-ratio: var(--ratio, 16 / 9);
   overflow: hidden;
   background: #000;
-  transform-style: preserve-3d;
+  border: 1px solid rgba(233, 185, 73, 0.22);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.5s, box-shadow 0.5s;
 }
 
-.work__media video {
+.afilm.is-on .afilm__frame {
+  border-color: rgba(233, 185, 73, 0.6);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), 0 0 60px rgba(233, 185, 73, 0.16);
+}
+
+.afilm__frame .afilm__video {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.afilm__frame .cvideo__media {
+  opacity: 1;
+}
+
+.afilm__frame video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
   transition: transform 1.2s var(--ease), filter 0.6s;
-  filter: saturate(0.9) brightness(0.88);
+  filter: saturate(0.85) brightness(0.8);
 }
 
-.work:hover .work__media video {
-  transform: scale(1.06);
-  filter: saturate(1.1) brightness(1);
+.afilm.is-on .afilm__frame video {
+  filter: saturate(1.05) brightness(1);
 }
 
-.work__tag {
+.afilm.is-on:hover .afilm__frame video {
+  transform: scale(1.05);
+}
+
+/* darkens films further down the corridor (cheaper than a filter) */
+.afilm__shade {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  inset: 0;
   z-index: 2;
-  color: #e7e2d8;
-  font-size: 9px;
+  background: #050403;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.work__arrow {
+.afilm__tag,
+.afilm__num {
+  position: absolute;
+  top: 14px;
+  z-index: 3;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #e7e2d8;
+  text-transform: uppercase;
+}
+
+.afilm__tag {
+  left: 16px;
+}
+
+.afilm__num {
+  right: 16px;
+  color: var(--gold);
+}
+
+.afilm__play {
   position: absolute;
   right: 16px;
   bottom: 16px;
-  z-index: 2;
-  width: 38px;
-  height: 38px;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 0, 0, 0.3);
-  transition: background 0.4s, color 0.4s, transform 0.5s var(--ease);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.4s, transform 0.5s var(--ease), background 0.4s, color 0.4s;
 }
 
-.work:hover .work__arrow {
+.afilm.is-on .afilm__play {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.afilm.is-on:hover .afilm__play {
   background: var(--gold);
   color: var(--ink);
   transform: rotate(45deg);
 }
 
-.work__foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-top: 16px;
+/* HUD corner brackets */
+.afilm__c {
+  position: absolute;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.8;
 }
 
-.work__foot h3 {
-  font-family: var(--font-display);
+.afilm__c--tl {
+  top: 6px;
+  left: 6px;
+  border-width: 1px 0 0 1px;
+}
+
+.afilm__c--br {
+  right: 6px;
+  bottom: 6px;
+  border-width: 0 1px 1px 0;
+}
+
+.afilm__title {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--font-heading);
+  font-size: 14px;
   font-weight: 600;
-  font-size: clamp(20px, 1.8vw, 26px);
+  color: #d8d1c2;
 }
 
-.archive__foot {
+/* ---------- HUD for the film in front ---------- */
+
+.archive__hud {
+  position: absolute;
+  z-index: 5;
+  bottom: clamp(48px, 10svh, 110px);
+  width: min(340px, 28vw);
+}
+
+.archive__hud--right {
+  right: var(--pad);
+}
+
+.archive__hud--left {
+  left: var(--pad);
+}
+
+.archive__hud-body {
   display: flex;
-  justify-content: space-between;
-  margin-top: 44px;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
+  gap: 18px;
+  align-items: flex-start;
+  animation: archive-hud-in 0.7s var(--ease) both;
+}
+
+@keyframes archive-hud-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotateX(-40deg);
+  }
+}
+
+.archive__index {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(56px, 6vw, 96px);
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(233, 185, 73, 0.75);
+}
+
+.archive__hud-tag {
+  font-size: 10px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.archive__foot a {
-  color: var(--text);
-  text-transform: none;
-  font-size: 13px;
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.archive__foot a:hover {
   color: var(--gold);
 }
 
+.archive__hud-title {
+  margin-top: 8px;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.15;
+}
+
+.archive__hud-play {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.archive__hud-play:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.archive__ticks {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archive__ticks button {
+  width: 26px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.archive__ticks button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.4s;
+}
+
+.archive__ticks button.is-on::after {
+  background: var(--gold);
+}
+
+.archive__ticks span {
+  margin-left: 10px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ---------- portal at the end of the corridor ---------- */
+
+.archive__portal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(560px, 88vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.archive__portal-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(520px, 90vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(233, 185, 73, 0.35);
+  background: radial-gradient(circle, rgba(233, 185, 73, 0.12), transparent 62%);
+  box-shadow: 0 0 80px rgba(233, 185, 73, 0.12) inset;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.archive__portal-ring::before {
+  content: '';
+  position: absolute;
+  inset: 22px;
+  border-radius: 50%;
+  border: 1px dashed rgba(233, 185, 73, 0.25);
+  animation: archive-spin 40s linear infinite;
+}
+
+@keyframes archive-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.archive__portal-kicker,
+.archive__portal-note {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.archive__portal-title {
+  font-size: clamp(28px, 3.2vw, 48px);
+  max-width: 420px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive__portal-ring::before,
+  .archive__hud-body {
+    animation: none;
+  }
+}
+
+/* ---------- mobile: one centred corridor, HUD at the bottom ---------- */
+
 @media (max-width: 760px) {
   .archive__head {
-    flex-direction: column;
-    align-items: flex-start;
+    top: 84px;
+    max-width: none;
+    right: var(--pad);
   }
 
-  .archive__grid {
-    grid-template-columns: 1fr;
+  .archive__title {
+    font-size: clamp(26px, 7.4vw, 34px);
   }
 
-  .archive__foot {
-    flex-direction: column;
-    gap: 14px;
+  .archive__lede {
+    display: none;
+  }
+
+  .afilm {
+    --w: 86vw;
+    top: 48%;
+  }
+
+  .afilm--portrait {
+    --w: calc(38svh * 9 / 16);
+  }
+
+  .archive__hud,
+  .archive__hud--left,
+  .archive__hud--right {
+    left: var(--pad);
+    right: var(--pad);
+    bottom: 24px;
+    width: auto;
+  }
+
+  .archive__index {
+    font-size: 48px;
+  }
+
+  .archive__ticks {
+    margin-top: 14px;
   }
 }
-
-/* ---------- cinematic space background ---------- */
-
-.archive {
-  isolation: isolate;
-}
-
-.archive > .container {
-  position: relative;
-  z-index: 1;
-}
-
-/* Spans the whole section; `clip` (not `hidden`) so the sticky child
-   below still sticks to the viewport. */
-
-.archive {
-  position: relative;
-  isolation: isolate;
-}
-
-.archive > .container {
-  position: relative;
-  z-index: 2;
-}
-

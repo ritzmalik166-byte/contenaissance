@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { getUniverse } from '@/lib/user/universe';
+import { rocketClock, ASSEMBLY, explodeOffset } from '@/lib/user/rocketFlight';
 import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
 import './Rocket.css';
@@ -39,17 +40,21 @@ export default function Rocket() {
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
+      // Each module drops out of the hero rocket's exploded hologram
+      // (journey/RocketFlight.jsx draws it at these same offsets) and
+      // solidifies into place: S1 first, the nose cone last.
+      const moduleH = () => modules[0]?.offsetHeight || 100;
+
       modules.forEach((m, i) => {
-        const side = i % 2 === 0 ? -1 : 1;
-        tl.addLabel(`s${i}`, i)
+        tl.addLabel(`s${i}`, ASSEMBLY.start(i))
           // fromTo (not from): with invalidateOnRefresh, a from() tween
           // re-reads its end state on refresh — if that happens while the
           // module is still in its hidden start pose, it freezes there.
           .fromTo(
             m,
-            { x: side * 220, y: -60, rotation: side * 28, opacity: 0 },
-            { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.8 },
-            i
+            { y: () => explodeOffset(i, moduleH()), rotationY: i % 2 ? 26 : -26, transformPerspective: 700, opacity: 0 },
+            { y: 0, rotationY: 0, opacity: 1, duration: ASSEMBLY.duration(i) },
+            ASSEMBLY.start(i)
           )
           .to(bars[i], { scaleX: 1, duration: 1, ease: 'none' }, i);
       });
@@ -57,8 +62,8 @@ export default function Rocket() {
       tl.addLabel('nose', noseAt)
         .fromTo(
           q('.rocket__nose'),
-          { y: -260, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6 },
+          { y: () => explodeOffset(5, moduleH()), rotationY: 26, transformPerspective: 700, opacity: 0 },
+          { y: 0, rotationY: 0, opacity: 1, duration: ASSEMBLY.duration(5) },
           noseAt
         )
         .to(
@@ -74,7 +79,10 @@ export default function Rocket() {
         }, 4.8)
         .to(q('.rocket'), { x: '+=3', yoyo: true, repeat: 7, duration: 0.06, ease: 'none' }, 5.1)
         .to(q('.rocket__smoke'), { opacity: 1, scale: 1.6, duration: 0.8 }, 5.2)
-        .to(q('.rocket'), { y: () => -window.innerHeight * 1.3, duration: 1.6, ease: 'power2.in' }, 5.6)
+        // flies fully out of frame and fades, so it's gone before the
+        // astronaut ejects into the About / Showreel sections
+        .to(q('.rocket'), { y: () => -window.innerHeight * 1.8, duration: 1.6, ease: 'power2.in' }, 5.6)
+        .to(q('.rocket'), { autoAlpha: 0, duration: 0.4, ease: 'none' }, 6.8)
         .to(flame, {
           scaleY: 1.8,
           duration: 1.2,
@@ -99,11 +107,21 @@ export default function Rocket() {
       let active = 0;
       const setActive = (idx) => {
         if (idx === active) return;
-        gsap.to(panels[active], { opacity: 0, y: -18, pointerEvents: 'none', duration: 0.35, overwrite: true });
+        // panels flip over in 3D, in the scroll direction
+        const dir = idx > active ? 1 : -1;
+        gsap.to(panels[active], {
+          opacity: 0,
+          y: -24 * dir,
+          rotateX: 55 * dir,
+          pointerEvents: 'none',
+          duration: 0.35,
+          ease: 'power2.in',
+          overwrite: true,
+        });
         gsap.fromTo(
           panels[idx],
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, pointerEvents: 'auto', duration: 0.5, delay: 0.1, overwrite: true }
+          { opacity: 0, y: 24 * dir, rotateX: -55 * dir },
+          { opacity: 1, y: 0, rotateX: 0, pointerEvents: 'auto', duration: 0.6, delay: 0.12, ease: 'power3.out', overwrite: true }
         );
         active = idx;
       };
@@ -119,6 +137,7 @@ export default function Rocket() {
         },
         onUpdate() {
           const time = this.time();
+          rocketClock.time = time; // drives the 3D hologram hand-off
           let idx = 0;
           markers.forEach((m, i) => time >= m && (idx = i));
           setActive(idx);

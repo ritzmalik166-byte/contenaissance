@@ -156,70 +156,11 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   };
   const anchors = {}; // name → Group at the station, for later phases
 
+  // hero, stages, about and reel have no decor: the 3D rocket and the
+  // astronaut are the subjects there, so the backdrop stays just stars.
   const DECOR = {
-    stages(g) {
-      const neptune = makeRealPlanet(kit, {
-        radius: 1.3,
-        surface: 'neptune',
-        tint: 0xc8d8ee,
-        sunDir,
-        atmosphere: { color: '#7fb6ff', intensity: 1.25, thickness: 0.07, power: 2.8 },
-        glowColor: '#83b9ed',
-        glowScale: 3.2,
-        glowOpacity: 0.3,
-      });
-      // top-left: the rocket copy sits on the right
-      neptune.position.set(-9.5, 4.6, -16);
-      g.add(neptune);
-      spinners.push({ obj: neptune, speed: -0.075 });
-
-      const belt = makeAsteroidBelt(kit, {
-        count: mobile ? 18 : 40,
-        radiusRange: [5, 13],
-        arc: Math.PI * 1.4,
-        y: -1,
-        ySpread: 3.4,
-        z: -18,
-        zSpread: 8,
-      });
-      clearCorridor(belt);
-      g.add(belt);
-      belts.push(belt);
-    },
-
-    about(g) {
-      const mercury = makeRealPlanet(kit, {
-        radius: 0.9,
-        surface: 'mercury',
-        tint: 0xd8cfc4,
-        sunDir,
-        atmosphere: { color: '#ffd9a8', intensity: 0.5, thickness: 0.03, power: 4 },
-        glowColor: '#e9c58a',
-        glowScale: 2.6,
-        glowOpacity: 0.18,
-      });
-      mercury.position.set(-9.5, 4.2, -16);
-      g.add(mercury);
-      spinners.push({ obj: mercury, speed: 0.05 });
-    },
-
-    solutions(g) {
-      // Mars — the "atmosphere" the orange Solutions section enters
-      const mars = makeRealPlanet(kit, {
-        radius: 4.2,
-        surface: 'mars',
-        tint: 0xe9d2bd,
-        sunDir,
-        atmosphere: { color: '#f0a868', intensity: 0.9, thickness: 0.05, power: 3.6 },
-        glowColor: '#e0a65e',
-        glowScale: 3,
-        glowOpacity: 0.32,
-      });
-      mars.position.set(5.5, -1.5, -22);
-      g.add(mars);
-      spinners.push({ obj: mars, speed: 0.04 });
-      anchors.mars = mars;
-    },
+    // solutions: no Mars any more — the Showreel film docks into the
+    // Solutions card instead (Showreel.jsx), so no planet is needed.
 
     work(g) {
       const saturn = makeRealPlanet(kit, {

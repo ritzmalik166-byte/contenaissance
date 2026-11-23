@@ -183,15 +183,29 @@
 }
 
 /* =====================================================
-   SOLUTIONS — Mars atmosphere
-   The orange gradient blooms out of Mars' screen position
-   (--ax / --ay set by Solutions.jsx) as --atmo goes 0 → 1,
-   and collapses back into it on the way out.
+   SOLUTIONS — orange atmosphere
+   Blooms out of the card in the centre (where the Showreel film
+   docked) as --atmo goes 0 → 1 (Solutions.jsx), and collapses
+   back into it on the way out.
 ===================================================== */
+
+/* Overlaps the last viewport of the Showreel pin: the section is
+   transparent while it slides in, so the docking film shows through
+   and lands exactly on the first card. Matches .reel's 100svh. */
+.solutions-wrap {
+  position: relative;
+  margin-top: -100svh;
+}
+
 .solutions {
   --atmo: 0;
-  --ax: 62%;
-  --ay: 55%;
+  --ax: 50%;
+  --ay: 50%;
+}
+
+.solutions__stage .sel-frame {
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .solutions__atmo {

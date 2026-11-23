@@ -1,0 +1,18 @@
+/* Fixed 3D layer for the hero rocket. It sits above the hero and
+   Rocket section content (inside the .journey stacking context, so
+   still below the header) and never takes pointer events. */
+.rocket-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.rocket-flight canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  background: none;
+}

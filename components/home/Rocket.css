@@ -312,12 +312,15 @@
 .rocket-panels {
   position: relative;
   min-height: 270px;
+  perspective: 900px;
 }
 
 .rocket-panel {
   position: absolute;
   inset: 0 0 auto 0;
   opacity: 0;
+  transform-origin: 50% 50% -40px;
+  backface-visibility: hidden;
 }
 
 .rocket-panel__num {
