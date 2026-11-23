@@ -299,7 +299,8 @@ export function createHeroScene(container) {
       MOON_Z + d * 4.5
     );
     moon.scale.setScalar(lay.mr * (0.85 + state.intro * 0.15) * (1 + d * 0.45));
-    moon.userData.body.rotation.y = 0.6 + t * 0.01 + state.px * 0.15;
+    // a steady, visible spin
+    moon.userData.body.rotation.y = 0.6 + t * 0.16 + state.px * 0.15;
   };
 
   const render = () => {

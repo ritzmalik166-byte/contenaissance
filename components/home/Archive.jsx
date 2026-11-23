@@ -143,7 +143,8 @@ export default function Archive() {
       const pads = stations.map((s) => s.querySelector('.astation__pad'));
       const dots = q('.archive__dot');
       const rocket = q('.archive__rocket')[0];
-      const flame = rocket.querySelector('.rsprite__flame');
+      const transit = q('.archive__transit')[0];
+      const flame = [rocket, transit].map((el) => el.querySelector('.rsprite__flame'));
       const glow = q('.archive__rocket-glow')[0];
       const ring = q('.archive__ring')[0];
       const head = q('.archive__head')[0];
@@ -304,22 +305,33 @@ export default function Archive() {
         // fly ∈ 0..1 over the pan: screen-space sweep from off the left
         // edge to the rocket's resting spot in the (sliding) archive panel
         const fly = S.p > 0 ? 1 : easeInOut(S.a);
-        let rx = xAt(rt);
-        let ry = L.rocketY + (L.ringY - L.rocketY) * climb;
-        let turn = 0;
-        if (fly < 1) {
-          const W = window.innerWidth;
-          const k = L.persp / (L.persp + L.back); // px per world unit at the rocket's depth
-          const restRel = (xAt(T_PIN) - camX) * k; // resting x, from the panel centre
-          const sx = -W * 0.12 + (W / 2 + restRel + W * 0.12) * fly; // on-screen x
-          rx = camX + (sx - panX - W / 2) / k;
-          ry = L.rocketY - Math.sin(Math.PI * fly) * 90;
-          turn = 90 * (1 - smooth(0.62, 1, fly)); // nose right → nose into the route
-        }
+        const ry = L.rocketY + (L.ringY - L.rocketY) * climb;
         rocket.style.transform =
-          `translate3d(${rx}px, ${ry}px, ${zAt(rt)}px) translate(-50%, -50%) ` +
-          `rotateZ(${turn + lean * 0.6 * (1 - turn / 90)}deg) scale(${1 - through * 0.6})`;
-        rocket.style.opacity = (1 - through).toFixed(3);
+          `translate3d(${xAt(rt)}px, ${ry}px, ${zAt(rt)}px) translate(-50%, -50%) ` +
+          `rotateZ(${lean * 0.6}deg) scale(${1 - through * 0.6})`;
+        if (fly < 1) {
+          // The crossing happens in flat screen space (3D perspective
+          // distorts badly that far off-axis): a twin sprite flies in
+          // from beyond the left edge and lands exactly on the 3D
+          // rocket's resting spot, measured live, then hands over.
+          rocket.style.opacity = '0';
+          const W = window.innerWidth;
+          const sec = section.getBoundingClientRect();
+          const rest = rocket.getBoundingClientRect();
+          const ex = rest.left + rest.width / 2;
+          const ey = rest.top + rest.height / 2;
+          const sx = -W * 0.18 + (ex + W * 0.18) * fly;
+          const sy = ey + (1 - fly) * 40 - Math.sin(Math.PI * fly) * 80;
+          const turn = 90 * (1 - smooth(0.62, 1, fly)); // nose right → nose into the route
+          const scale = rest.height / (transit.offsetHeight || 1);
+          transit.style.visibility = 'visible';
+          transit.style.transform =
+            `translate(${sx - sec.left}px, ${sy - sec.top}px) translate(-50%, -50%) rotate(${turn}deg) scale(${scale})`;
+          boost = Math.max(boost, 0.8); // full burn while crossing
+        } else {
+          transit.style.visibility = 'hidden';
+          rocket.style.opacity = (1 - through).toFixed(3);
+        }
         glow.style.transform = `translate3d(${xAt(rt)}px, ${L.floor}px, ${zAt(rt)}px) translate(-50%, -50%) rotateX(90deg)`;
         glow.style.opacity = ((1 - climb) * smooth(0.7, 1, fly) * 0.9).toFixed(3);
 
@@ -515,6 +527,10 @@ export default function Archive() {
 
   return (
     <section ref={root} className="archive" id="work">
+      {/* twin of the route rocket for the flat-screen crossing over Solutions */}
+      <div className="archive__transit" aria-hidden="true">
+        <RocketSprite />
+      </div>
       <div className="archive__viewport">
         <div className="archive__cam">
           <div className="archive__world">

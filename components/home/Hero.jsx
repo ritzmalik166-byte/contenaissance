@@ -124,12 +124,15 @@ export default function Hero() {
       if (next) {
         tl.fromTo(next, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0.3);
 
-        // The Rocket section's copy rises out of depth as the rocket lands
+        // The Rocket section's copy rises out of depth as the rocket lands.
+        // immediateRender: start hidden from the first frame — otherwise
+        // the copy shows while the section scrolls up, then snaps back
+        // to hidden and comes in again (a visible "come, re-come" stutter).
         if (nextHead.length) {
           tl.fromTo(
             nextHead,
             { y: 70, rotateX: -75, opacity: 0, transformPerspective: 800, transformOrigin: '50% 100%' },
-            { y: 0, rotateX: 0, opacity: 1, duration: 0.3, stagger: 0.08, ease: 'power3.out' },
+            { y: 0, rotateX: 0, opacity: 1, duration: 0.3, stagger: 0.08, ease: 'power3.out', immediateRender: true },
             0.55
           );
         }
@@ -138,7 +141,7 @@ export default function Hero() {
           tl.fromTo(
             rest,
             { y: 40, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.25, stagger: 0.06, ease: 'power3.out' },
+            { y: 0, opacity: 1, duration: 0.25, stagger: 0.06, ease: 'power3.out', immediateRender: true },
             0.72
           );
         }

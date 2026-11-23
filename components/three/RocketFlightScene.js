@@ -542,8 +542,10 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
       );
       // smoke lingers through the loop, then clears as it docks
       drawSmoke(1 + tr, input, 1 - smooth(0.7, 1, tr));
+      drawIdleSmoke(t, null, 0);
     } else {
       puffs.forEach((sp) => (sp.visible = false));
+      drawIdleSmoke(t, null, 0);
       let sx = lerp(hero.cx, destCX, P);
       let sy = lerp(heroCY, destCY, P);
       // arc over the page while travelling
@@ -708,6 +710,54 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     return sp;
   });
 
+  /* idle exhaust: while the hero rests, a soft stream of smoke keeps
+     puffing from the nozzle and drifting back along the exhaust line
+     (time-driven, looping); it hands over to the route smoke on scroll */
+  const IDLE_N = 18;
+  const IDLE_LIFE = 2.6; // seconds a puff lives
+  const idlePuffs = Array.from({ length: IDLE_N }, () => {
+    const mat = new THREE.SpriteMaterial({ map: smokeTex, transparent: true, opacity: 0, depthWrite: false });
+    allMaterials.push(mat);
+    const sp = new THREE.Sprite(mat);
+    sp.renderOrder = -1;
+    sp.visible = false;
+    scene.add(sp);
+    return sp;
+  });
+
+  function drawIdleSmoke(t, p, strength) {
+    if (strength <= 0.001) {
+      idlePuffs.forEach((sp) => (sp.visible = false));
+      return;
+    }
+    const half = (L / 2) * p.scale;
+    const flameH = (flame.userData.h || 100) * p.scale;
+    // nozzle, and the unit vector pointing back down the exhaust (screen px)
+    const bx = Math.sin(p.rz);
+    const by = Math.cos(p.rz);
+    const nx = p.x + bx * (half + flameH * 0.55);
+    const ny = p.y + by * (half + flameH * 0.55);
+    for (let i = 0; i < IDLE_N; i++) {
+      const age = (t / IDLE_LIFE + i / IDLE_N) % 1; // 0 fresh → 1 gone
+      const cycle = Math.floor(t / IDLE_LIFE + i / IDLE_N);
+      const r1 = hash(i * 13.1 + cycle * 7.7);
+      const r2 = hash(i * 5.3 + cycle * 3.1);
+      // drift back along the exhaust, spreading and slowing
+      const along = (1 - Math.pow(1 - age, 2)) * 150 * p.scale * 1.6;
+      const side = (r1 - 0.5) * 70 * age * p.scale * 1.6;
+      const x = nx + bx * along + by * side;
+      const y = ny + by * along - bx * side + age * 14;
+      const sp = idlePuffs[i];
+      const size = (16 + age * 90 + r2 * 14) * (0.5 + p.scale * 0.9);
+      sp.position.set(x - W / 2, H / 2 - y, -4);
+      sp.scale.set(size, size, 1);
+      sp.material.rotation = r1 * TAU + age * (r2 - 0.5) * 1.5;
+      sp.material.color.copy(smokeHot).lerp(smokeCold, Math.min(1, age * 2.5));
+      sp.material.opacity = Math.min(1, age * 8) * Math.pow(1 - age, 1.4) * 0.55 * strength;
+      sp.visible = true;
+    }
+  }
+
   function drawSmoke(g, input, fade) {
     puffs.forEach((sp) => (sp.visible = false));
     if (fade <= 0.001 || g < 0.03) return;
@@ -761,6 +811,8 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     rocket.scale.setScalar(p.scale);
     rocket.rotation.set(0, -0.15, tilt + (1 - intro) * 0.25);
     drawSmoke(tr, input, 1);
+    // gentle idle exhaust at rest, thinning out as the lift-off begins
+    drawIdleSmoke(t, { x: sx, y: sy, rz: tilt, scale: p.scale }, intro * (1 - smooth(0, 0.35, tr)));
 
     // solid rocket, no hologram
     for (const seg of segs) {

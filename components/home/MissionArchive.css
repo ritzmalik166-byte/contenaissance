@@ -374,6 +374,35 @@
   overflow: visible;
 }
 
+/* flat twin used for the sideways crossing from Solutions (Archive.jsx
+   positions it in screen space, then hands over to the 3D rocket) */
+.archive__transit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 7;
+  width: 140px;
+  height: calc(140px * 330 / 184);
+  pointer-events: none;
+  visibility: hidden;
+  will-change: transform;
+  filter: drop-shadow(0 0 24px rgba(233, 185, 73, 0.3));
+}
+
+.archive__transit .rsprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@media (max-width: 760px) {
+  .archive__transit {
+    width: 110px;
+    height: calc(110px * 330 / 184);
+  }
+}
+
 /* light the rocket's flame throws on the route under it */
 .archive__rocket-glow {
   width: 520px;
