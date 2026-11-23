@@ -11,6 +11,7 @@ import Quote from '@/components/home/Quote';
 import Cta from '@/components/Cta';
 import UniverseCanvas from '@/components/home/journey/UniverseCanvas';
 import JourneyActors from '@/components/home/journey/JourneyActors';
+import RocketFlight from '@/components/home/journey/RocketFlight';
 import { getPosts } from '@/lib/user/blog';
 export const revalidate = 3600;
 
@@ -56,6 +57,8 @@ export default async function Home() {
       <UniverseCanvas />
       {/* Rocket / astronaut that carry the viewer between sections */}
       <JourneyActors />
+      {/* Hero's 3D rocket — flies into the Rocket section and assembles */}
+      <RocketFlight />
     </div>
   );
 }

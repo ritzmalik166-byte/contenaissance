@@ -90,8 +90,6 @@ export default function UniverseCanvas() {
     const update = (y) => {
       const pos = sample(keys, y);
       scene?.setStation(pos);
-      // The hero canvas is opaque — nothing to draw until it fades.
-      scene?.setActive(y > 4);
       const v = Math.round(veilAt(pos) * 100) / 100;
       if (v !== lastVeil && veil.current) {
         veil.current.style.opacity = v;

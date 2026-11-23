@@ -548,6 +548,12 @@ export function createHeroScene(container) {
 
     layoutPlanets();
 
+    // Keep the infinity on the headline: centred on desktop, lifted on
+    // phones where the copy stacks in the top half (rocket below it).
+    const infDist = 9 - infinityGroup.position.z; // camera's resting z (it flies in on scroll)
+    const halfH = infDist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    infinityGroup.position.y = mobile ? halfH * 0.48 : 0.35;
+
     // Recalculate infinity scale
     const scrollScale = mobile
       ? 1 + state.progress * 0.15
