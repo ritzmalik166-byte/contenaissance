@@ -1,8 +1,24 @@
-import PageHero from '@/components/PageHero';
-import Gallery from '@/components/portfolio/Gallery';
-import Experiences from '@/components/portfolio/Experiences';
-import Cta from '@/components/Cta';
-import { v } from '@/lib/user/content';
+import { Montserrat, Plus_Jakarta_Sans, Inter, JetBrains_Mono } from 'next/font/google';
+import PfHero from '@/components/portfolio/PfHero';
+import PfShowreel from '@/components/portfolio/PfShowreel';
+import PfArchive from '@/components/portfolio/PfArchive';
+import PfMarquee from '@/components/portfolio/PfMarquee';
+import PfStages from '@/components/portfolio/PfStages';
+import PfQuote from '@/components/portfolio/PfQuote';
+import PfCta from '@/components/portfolio/PfCta';
+import PfHandoff from '@/components/portfolio/PfHandoff';
+import PortfolioCanvas from '@/components/portfolio/PortfolioCanvas';
+import '@/components/portfolio/portfolio.css';
+
+/* Figma typography, scoped to the portfolio page:
+   display — Montserrat (headlines, card + stage titles)
+   text    — Plus Jakarta Sans (copy, kickers, tabs, quote)
+   marquee — Inter (giant marquee rows)
+   mono    — JetBrains Mono (labels such as VISUAL EXPLORATION) */
+const display = Montserrat({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--pf-display', display: 'swap' });
+const text = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--pf-text', display: 'swap' });
+const marquee = Inter({ subsets: ['latin'], weight: ['700', '800'], variable: '--pf-marquee', display: 'swap' });
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--pf-mono', display: 'swap' });
 
 export const metadata = {
   title: "AI Creative Portfolio & Campaigns | Contenaissance",
@@ -18,15 +34,18 @@ export const metadata = {
 
 export default function PortfolioPage() {
   return (
-    <>
-      <PageHero
-        lines={['AI Creative ', 'Portfolio']}
-        text="Explore Contenaissance’s creative world, where cinematic storytelling, AI-powered visuals, and immersive digital experiences bring brands to life."
-        video={v('mzha')}
-      />
-      <Gallery />
-      <Experiences />
-      <Cta />
-    </>
+    <div className={`pf ${display.variable} ${text.variable} ${marquee.variable} ${mono.variable}`}>
+      <PfHero />
+      <PfShowreel />
+      <PfArchive />
+      <PfMarquee />
+      <PfStages />
+      <PfQuote />
+      <PfCta />
+      {/* Fixed WebGL "Gilded Atelier" behind every section; sections cut
+          between chambers with an aperture transition. */}
+      <PortfolioCanvas />
+      <PfHandoff />
+    </div>
   );
 }

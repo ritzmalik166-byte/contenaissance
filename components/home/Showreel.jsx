@@ -10,21 +10,16 @@ import { Play } from '../Icons';
 import './Showreel.css';
 
 const videoUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}/Mzha%20Nhi%20Aaya-02.1.mp4`;
+const posterUrl = '/posters/mzha.jpg';
 
 export default function Showreel() {
   const root = useRef(null);
   const spaceWrap = useRef(null);
   const spaceSceneRef = useRef(null);
-
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'video';
-    link.href = videoUrl;
-    document.head.appendChild(link);
-
-    return () => link.remove();
-  }, []);
+  // true while the pinned section is on screen: playback must not depend
+  // on the IntersectionObserver (the frame is transformed/clipped there)
+  const activeRef = useRef(false);
+  const keepPlaying = () => activeRef.current;
 
   // Initialize 3D space scene
   useEffect(() => {
@@ -54,9 +49,15 @@ export default function Showreel() {
     const head = section.querySelectorAll('.reel__head span');
     const ui = section.querySelector('.reel__ui');
 
+    const nudgePlay = () => {
+      if (video && video.paused) video.dispatchEvent(new Event('lazyvideo:play'));
+    };
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
+        // from the moment the section starts entering (the astronaut's
+        // hologram already shows the film) until it has scrolled away
         start: 'top top',
         // 180% for the hologram → film, +150% for the slice exit
         end: '+=330%',
@@ -66,6 +67,11 @@ export default function Showreel() {
         scrub: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onToggle(self) {
+          activeRef.current = self.isActive;
+          if (self.isActive) nudgePlay();
+        },
+        onUpdate: nudgePlay,
       },
     });
 
@@ -155,20 +161,48 @@ export default function Showreel() {
        universe behind — and Mars, which the camera dives into
        as Solutions arrives (see JourneyActors). */
     const clone = section.querySelector('.reel__slice');
-    const cloneVideo = clone?.querySelector('video');
+    const mirror = clone?.querySelector('canvas');
+    const ctx = mirror?.getContext('2d');
     const seam = section.querySelector('.reel__seam');
     const slice = { s: 0 };
     const easeSlice = gsap.parseEase('power3.inOut');
     let cloneLive = false;
+    let mirrorRaf = 0;
 
-    const syncClone = () => {
-      if (!cloneVideo || !video) return;
-      const src = video.currentSrc || video.src;
-      if (src && cloneVideo.src !== src) cloneVideo.src = src;
-      try {
-        cloneVideo.currentTime = video.currentTime || 0;
-      } catch { /* not seekable yet */ }
-      cloneVideo.play().catch(() => {});
+    // The bottom half is a live canvas mirror of the ONE playing <video>
+    // (not a second <video>): it can never be blank, out of sync, or
+    // blocked by autoplay policy, and the 40 MB file is streamed once.
+    const drawMirror = () => {
+      mirrorRaf = 0;
+      if (!cloneLive || !mirror || !ctx || !video) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const cw = Math.round(clone.offsetWidth * dpr);
+      const ch = Math.round(clone.offsetHeight * dpr);
+      if (mirror.width !== cw || mirror.height !== ch) {
+        mirror.width = cw;
+        mirror.height = ch;
+      }
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      if (video.readyState >= 2 && vw && vh && cw && ch) {
+        // object-fit: cover — only the bottom half is visible, draw just that
+        const sc = Math.max(cw / vw, ch / vh);
+        const sw = cw / sc;
+        const sh = ch / sc;
+        const sx = (vw - sw) / 2;
+        const sy = (vh - sh) / 2;
+        ctx.drawImage(video, sx, sy + sh / 2, sw, sh / 2, 0, ch / 2, cw, ch / 2);
+      }
+      mirrorRaf = requestAnimationFrame(drawMirror);
+    };
+
+    const startMirror = () => {
+      nudgePlay(); // the film must keep playing — both halves show it
+      if (!mirrorRaf) mirrorRaf = requestAnimationFrame(drawMirror);
+    };
+    const stopMirror = () => {
+      if (mirrorRaf) cancelAnimationFrame(mirrorRaf);
+      mirrorRaf = 0;
     };
 
     const renderSlice = () => {
@@ -177,16 +211,17 @@ export default function Showreel() {
       if (s <= 0.0001) {
         if (cloneLive) {
           cloneLive = false;
+          stopMirror();
           gsap.set(clone, { autoAlpha: 0 });
           gsap.set(seam, { autoAlpha: 0 });
-          cloneVideo?.pause();
           renderHolo(); // back to the plain full-bleed film
         }
         return;
       }
       if (!cloneLive) {
         cloneLive = true;
-        syncClone();
+        drawMirror(); // paint a frame before the half is revealed
+        startMirror();
         gsap.set(clone, { autoAlpha: 1 });
       }
       const h = frame.offsetHeight;
@@ -217,7 +252,12 @@ export default function Showreel() {
       { opacity: 1, x: 0, duration: 1.2, delay: 0.2 }
     );
 
-    return () => tl.scrollTrigger?.kill();
+    return () => {
+      cloneLive = false;
+      stopMirror();
+      activeRef.current = false;
+      tl.scrollTrigger?.kill();
+    };
 
   }, { scope: root });
 
@@ -309,7 +349,7 @@ export default function Showreel() {
 
       <div className="reel__stage">
         <div className="reel__frame">
-          <LazyVideo src={videoUrl} eager />
+          <LazyVideo src={videoUrl} poster={posterUrl} eager keepPlaying={keepPlaying} />
 
           <div className="reel__ui">
             <div className="reel__ui-top">
@@ -352,9 +392,9 @@ export default function Showreel() {
           </button>
         </div>
 
-        {/* exit slice: bottom half of the film (synced clone) + light seam */}
+        {/* exit slice: bottom half of the film (canvas mirror) + light seam */}
         <div className="reel__slice" aria-hidden="true">
-          <video muted playsInline loop preload="none" />
+          <canvas />
         </div>
         <div className="reel__seam" aria-hidden="true" />
       </div>
