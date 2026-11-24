@@ -179,11 +179,11 @@ export default function Hero() {
       <div className="hero__inner">
         <div className="hero__content">
           <div className="hero__headline">
-            <Split as="p" className="hero__title" lines={['Our AI Stages.', 'One Launch.']} />
+            <Split as="p" className="hero__title" lines={['Our AI Creative Stages.', 'One Powerful Launch.']} />
           </div>
 
           <h1 className="hero__sub hero__fade">
-            AI Creative Agency in India for Brand Films, Advertising &amp; Digital Experiences.
+            AI Creative Agency in India for Cinematic Brand Films, Creative Advertising, AI-Powered Campaigns & Immersive Digital Experiences.
           </h1>
 
           <div className="hero__actions hero__fade">

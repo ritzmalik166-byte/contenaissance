@@ -9,7 +9,7 @@ import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
 import './Showreel.css';
 
-const VIDEO_ASSET = 'showreel';
+const VIDEO_ASSET = 'video06';
 const videoUrl = getVideoUrl(VIDEO_ASSET); // full-screen modal uses the same file
 const posterUrl = getPosterUrl(VIDEO_ASSET);
 

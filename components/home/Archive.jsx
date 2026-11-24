@@ -34,11 +34,11 @@ import './MissionArchive.css';
 
 /* Card → Azure asset (lib/user/video-assets.js), keyed by card title */
 const ASSET_BY_TITLE = {
-  'Brand Films': 'video04',
-  'AI Video Commercials': 'video07',
-  'Music Videos': 'video08',
+  'Brand Films': 'video07',
+  'AI Video Commercials': 'showreel',
+  'Music Videos': 'video04',
   'Social Reels': 'automotive',
-  'Cinematic Brand Films': 'video06',
+  'Cinematic Brand Films': 'video08',
 };
 
 /** Azure URL for a card; falls back to the local file if unmapped */
