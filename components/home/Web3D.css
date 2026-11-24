@@ -1,13 +1,14 @@
 /* ---------- web3d ---------- */
 
 .web3d {
-  --w: min(40vw, 580px);
+  --w: min(19vw, 340px); /* film width */
+  --cy: 50%; /* moon / orbit centre (the moon reads this in Web3D.jsx) */
   position: relative;
   isolation: isolate;
   height: 100svh;
   min-height: 720px;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 62%, rgba(233, 185, 73, 0.16), transparent 58%); /* over the shared universe */
+  background: radial-gradient(ellipse at 50% 50%, rgba(233, 185, 73, 0.12), transparent 52%); /* over the shared universe */
 }
 
 .web3d__title {
@@ -36,89 +37,47 @@
   color: transparent;
 }
 
-.web3d__floor {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 46%;
-  perspective: 700px;
-  pointer-events: none;
-}
-
-.web3d__floor::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 4%;
-  width: 70vw;
-  height: 40%;
-  translate: -50% 0;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(233, 185, 73, 0.32), transparent 65%);
-  filter: blur(20px);
-}
-
-.web3d__floor-grid {
-  position: absolute;
-  inset: 0 -50% -20%;
-  background-image: linear-gradient(rgba(233, 185, 73, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(233, 185, 73, 0.18) 1px, transparent 1px);
-  background-size: 70px 70px;
-  transform: rotateX(74deg);
-  transform-origin: 50% 0;
-  -webkit-mask: linear-gradient(180deg, transparent, #000 30%, transparent 85%);
-  mask: linear-gradient(180deg, transparent, #000 30%, transparent 85%);
-}
-
 .web3d__viewport {
   position: absolute;
   inset: 0;
-  perspective: 1800px;
-  perspective-origin: 50% 45%;
+  perspective: 1600px;
+  perspective-origin: 50% var(--cy);
 }
 
 .web3d__stage {
   position: absolute;
-  top: 18vh;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  display: grid;
-  place-items: center;
-
-  padding-top: 0;
+  inset: 0;
   transform-style: preserve-3d;
 }
 
-.ring-pos {
+/* the moon's centre — the films orbit around it (positions set in Web3D.jsx) */
+.orbit {
+  position: absolute;
+  left: 50%;
+  top: var(--cy);
+  width: 0;
+  height: 0;
   transform-style: preserve-3d;
-  transform: translateZ(calc(var(--w) * -1.05));
-}
-
-.ring {
-  position: relative;
-  width: var(--w);
-  aspect-ratio: 16 / 10;
-  transform-style: preserve-3d;
-  will-change: transform;
 }
 
 .bwin {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: var(--w);
+  aspect-ratio: 16 / 10;
   display: flex;
   flex-direction: column;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   background: #0d0c0b;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  transform: rotateY(calc(var(--i) * 360deg / var(--n))) translateZ(calc(var(--w) * 1.05));
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  filter: brightness(0.38) saturate(0.7);
+  filter: brightness(0.55) saturate(0.8);
   cursor: pointer;
+  opacity: 0; /* until the fly-in brings it on screen */
+  will-change: transform, opacity;
   transition: filter 0.7s var(--ease), border-color 0.7s, box-shadow 0.7s;
 }
 
@@ -331,82 +290,10 @@
   color: var(--muted);
 }
 
-/* Mobile: increase video container height */
-@media (max-width: 768px) {
-  .web3d {
-    --w: 78vw;
-    min-height: 780px;
-    height: 100svh;
-    padding-bottom: 100px;
-    box-sizing: border-box;
-  }
-
-  .ring {
-    width: var(--w);
-    aspect-ratio: 4 / 5;
-  }
-
-  .ring-pos {
-    transform: translateZ(calc(var(--w) * -1.05));
-  }
-
-  .web3d__stage {
-    padding-top: 0;
-    transform: translateY(-20px);
-  }
-
-  .bwin {
-    border-radius: 12px;
-  }
-
-  .bwin__bar {
-    height: 28px;
-    padding: 0 10px;
-  }
-
-  .bwin__screen {
-    min-height: 0;
-  }
-
-  .web3d__caption {
-    bottom: 8vh;
-  }
-}
-
-@media (max-width: 380px) {
-  .web3d {
-    --w: 62vw !important;
-  }
-
-  .web3d .ring {
-    width: var(--w) !important;
-    aspect-ratio: 10 / 16 !important;
-  }
-
-  .web3d .bwin {
-    width: 100%;
-    height: 100%;
-  }
-
-  .web3d .bwin__screen video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .web3d .ring-pos {
-    transform: translateZ(calc(var(--w) * -1.05));
-  }
-}
-
-/* Tablet layout — kept after the mobile blocks so it wins the
-   cascade exactly as it did in user.css */
+/* Tablet: the side chips make way for the orbit */
 @media (max-width: 1024px) {
   .web3d {
-    --w: clamp(300px, 46vw, 440px);
-    min-height: 720px;
-    height: 100svh;
-    overflow: hidden;
+    --w: clamp(220px, 34vw, 320px);
   }
 
   .web3d__title {
@@ -414,28 +301,13 @@
     font-size: clamp(30px, 4vw, 42px);
   }
 
-  .web3d__stage {
-    top: 16vh;
-    bottom: 13vh;
-    padding: 0;
-    transform: none;
-  }
-
-  .ring {
-    width: var(--w);
-    aspect-ratio: 4 / 6;
-  }
-
-  .ring-pos {
-    transform: translateZ(calc(var(--w) * -1.05));
-  }
-
-  .bwin {
-    border-radius: 12px;
+  .wchip,
+  .web3d__note {
+    display: none;
   }
 
   .bwin__bar {
-    height: 30px;
+    height: 28px;
     padding: 0 10px;
   }
 
@@ -448,13 +320,8 @@
     font-size: 9px;
   }
 
-  .wchip,
-  .web3d__note {
-    display: none;
-  }
-
   .web3d__caption {
-    bottom: 3vh;
+    bottom: 4vh;
     gap: 8px;
   }
 
@@ -465,33 +332,31 @@
   .web3d__bar {
     width: 140px;
   }
-
-  .web3d__floor {
-    height: 35%;
-  }
-
-  .web3d__floor-grid {
-    background-size: 55px 55px;
-  }
 }
 
-/* Short-height tablet screens */
-@media (min-width: 769px) and (max-width: 1024px) and (max-height: 800px) {
+/* Phones: a tighter, steeper orbit so the moon shows above the front film */
+@media (max-width: 759px) {
   .web3d {
-    min-height: 680px;
+    --w: 46vw;
+    --cy: 44%;
+    min-height: 640px;
   }
 
-  .web3d__title {
-    top: 5vh;
+  .bwin {
+    border-radius: 10px;
   }
 
-  .web3d__stage {
-    top: 14vh;
-    bottom: 15vh;
+  .bwin__bar {
+    height: 22px;
+    gap: 5px;
   }
 
-  .web3d__caption {
-    bottom: 2vh;
+  .bwin__bar i {
+    width: 6px;
+    height: 6px;
+  }
+
+  .bwin__bar span {
+    display: none;
   }
 }
-

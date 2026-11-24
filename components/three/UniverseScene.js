@@ -501,6 +501,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   moon.rotation.z = 0.35;
   moonRig.add(moon);
   const moonState = { vis: 0, crestY: 0.3, size: 0.82, spin: 0, px: 0, py: 0, sx: 0, sy: 0 };
+  let moonVideoTex = null; // setMoonVideo()
 
   const updateMoon = (t, dt) => {
     const on = moonState.vis > 0.001;
@@ -764,6 +765,25 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       Object.assign(moonState, p);
     },
 
+    // The Web3D moon "made of video": the film in front of the orbit is
+    // projected over the moon's surface. Pass a <video> (or null to clear).
+    setMoonVideo(el) {
+      const mat = moon.userData.body.material;
+      if ((moonVideoTex?.image ?? null) === (el ?? null)) return;
+      moonVideoTex?.dispose();
+      moonVideoTex = null;
+      if (el) {
+        moonVideoTex = new THREE.VideoTexture(el);
+        moonVideoTex.colorSpace = THREE.SRGBColorSpace;
+        moonVideoTex.wrapS = THREE.RepeatWrapping;
+        moonVideoTex.repeat.set(2, 1); // a whole frame across the visible face
+      }
+      mat.emissiveMap = moonVideoTex;
+      mat.emissive.set(el ? 0xffffff : 0x000000);
+      mat.emissiveIntensity = el ? 0.9 : 0;
+      mat.needsUpdate = true;
+    },
+
     setWarp(v) {
       warpState.v = v;
     },
@@ -817,6 +837,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVisibility);
+      moonVideoTex?.dispose();
 
       scene.traverse((o) => {
         o.geometry?.dispose();
