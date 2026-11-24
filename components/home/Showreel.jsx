@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
+import { getUniverse } from '@/lib/user/universe';
 import { applyHolo, lerpHolo, holoMid, holoFull } from '@/lib/user/journey';
 import Video from '../Video';
 import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
@@ -68,6 +69,11 @@ export default function Showreel() {
 
       // One renderer for the frame: hologram → full-bleed → docked card
       const render = () => {
+        // Before the pin starts, the About hand-off (JourneyActors) owns
+        // the frame, the fixed .holo overlay and the beam. Rendering here
+        // too let a late scrub update (fast scrolling) re-show the
+        // hologram on top of other sections.
+        if (dock.d <= 0 && section.getBoundingClientRect().top > 0.5) return;
         const full = reduced ? holoFull(frame) : lerpHolo(holoMid(), holoFull(frame), holo.k);
         if (dock.d <= 0) {
           applyHolo(frame, full, 0);
@@ -103,6 +109,18 @@ export default function Showreel() {
         },
       });
 
+      const hideHolo = () => {
+        const o = document.querySelector('.holo');
+        if (o) {
+          o.style.opacity = '0';
+          o.style.visibility = 'hidden';
+          o.classList.remove('is-flicker');
+        }
+        getUniverse()?.setBeam(null);
+        // above the reel the frame is still a (hidden) hologram
+        if (section.getBoundingClientRect().top > 0) frame.style.opacity = '0';
+      };
+
       // Playback hold window: from the moment the section starts entering
       // (the hologram already shows the film) until the pin has finished.
       const hold = ScrollTrigger.create({
@@ -113,6 +131,10 @@ export default function Showreel() {
         onToggle(self) {
           activeRef.current = self.isActive;
           nudgePlay();
+          // Outside the reel's range the hologram must never show: clear
+          // the fixed overlay + beam (deferred, so it wins over any scrub
+          // update fired in the same frame).
+          if (!self.isActive) requestAnimationFrame(hideHolo);
         },
       });
 

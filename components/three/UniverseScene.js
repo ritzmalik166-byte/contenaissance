@@ -579,6 +579,51 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   const moonState = { vis: 0, crestY: 0.3, size: 0.82, spin: 0, px: 0, py: 0, sx: 0, sy: 0 };
   let moonVideoTex = null; // setMoonVideo()
 
+  // The film on the moon: a shell just over the surface that shows ONE
+  // whole frame facing the camera (sampled by the view-space normal), so
+  // it never wraps/seams or splits into a lit and an unlit half as the
+  // moon turns. It sits on the shell, not the spinning body. Edges fade
+  // to the moon's own limb, and the craters show through a little.
+  const moonScreenMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uVideo: { value: null },
+      uCrop: { value: 9 / 16 }, // video aspect → square disc (cover)
+      uOpacity: { value: 0 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vN;
+      void main() {
+        vN = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D uVideo;
+      uniform float uCrop;
+      uniform float uOpacity;
+      varying vec3 vN;
+      void main() {
+        vec3 n = normalize(vN);
+        // gentle lens bulge: the centre reads slightly magnified
+        vec2 p = n.xy * mix(0.92, 1.0, n.z);
+        vec2 uv = vec2(0.5 + p.x * 0.5 * uCrop, 0.5 + p.y * 0.5);
+        vec3 col = texture2D(uVideo, uv).rgb;
+        // curved-glass shading + a warm gold limb
+        float shade = mix(0.55, 1.0, pow(n.z, 0.6));
+        float rim = pow(1.0 - n.z, 3.0);
+        col = col * shade + vec3(0.91, 0.72, 0.29) * rim * 0.55;
+        float a = uOpacity * smoothstep(0.0, 0.28, n.z) * 0.9;
+        gl_FragColor = vec4(col, a);
+        #include <colorspace_fragment>
+      }`,
+    transparent: true,
+    depthWrite: false,
+  });
+  const moonScreen = new THREE.Mesh(new THREE.SphereGeometry(1.004, mobile ? 48 : 96, mobile ? 32 : 64), moonScreenMat);
+  moonScreen.renderOrder = 2;
+  moonScreen.visible = false;
+  moon.add(moonScreen);
+  let moonScreenTarget = 0;
+
   const updateMoon = (t, dt) => {
     const on = moonState.vis > 0.001;
     moonRig.visible = on;
@@ -591,6 +636,9 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     moonRig.position.set(moonState.sx * 0.6, crest - R + moonState.sy * 0.3, -MOON_DEPTH);
     moonRig.scale.setScalar(R * Math.max(0.001, moonState.vis));
     moon.userData.body.rotation.y = (reducedMotion ? 0 : t * 0.025) + moonState.spin;
+    const u = moonScreenMat.uniforms.uOpacity;
+    u.value += (moonScreenTarget - u.value) * Math.min(1, dt * 4);
+    moonScreen.visible = !!moonVideoTex && u.value > 0.003;
   };
 
   /* ---------- hyperspace warp field ---------- */
@@ -845,20 +893,20 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     // The Web3D moon "made of video": the film in front of the orbit is
     // projected over the moon's surface. Pass a <video> (or null to clear).
     setMoonVideo(el) {
-      const mat = moon.userData.body.material;
-      if ((moonVideoTex?.image ?? null) === (el ?? null)) return;
-      moonVideoTex?.dispose();
-      moonVideoTex = null;
-      if (el) {
-        moonVideoTex = new THREE.VideoTexture(el);
-        moonVideoTex.colorSpace = THREE.SRGBColorSpace;
-        moonVideoTex.wrapS = THREE.RepeatWrapping;
-        moonVideoTex.repeat.set(2, 1); // a whole frame across the visible face
+      if (!el) {
+        moonScreenTarget = 0; // fade out; keep the last frame while it fades
+        return;
       }
-      mat.emissiveMap = moonVideoTex;
-      mat.emissive.set(el ? 0xffffff : 0x000000);
-      mat.emissiveIntensity = el ? 0.9 : 0;
-      mat.needsUpdate = true;
+      if (moonVideoTex?.image === el) {
+        moonScreenTarget = 1;
+        return;
+      }
+      const old = moonVideoTex;
+      moonVideoTex = new THREE.VideoTexture(el);
+      moonVideoTex.colorSpace = THREE.SRGBColorSpace;
+      moonScreenMat.uniforms.uVideo.value = moonVideoTex;
+      old?.dispose();
+      moonScreenTarget = 1;
     },
 
     setWarp(v) {

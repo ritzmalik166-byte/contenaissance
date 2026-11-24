@@ -12,9 +12,9 @@ const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 /* =====================================================
    WEB3D — a small moon with the website films in orbit
 
-   The moon lives in the shared universe (UniverseScene setMoon), and
-   the film playing in front is projected over its surface
-   (setMoonVideo), so the moon reads as made of video.
+   The moon lives in the shared universe (UniverseScene setMoon); the
+   film in front also plays on its face as one camera-facing frame
+   (setMoonVideo).
 
    The films travel one path, driven by scroll:
      s > 0   a straight line in front, from off the right edge
@@ -232,7 +232,8 @@ export default function Web3D() {
     { scope: root }
   );
 
-  // Only the film in front plays; it is also projected onto the moon.
+  // Only the film in front plays; it is also shown on the moon (one
+  // camera-facing frame — UniverseScene setMoonVideo).
   useEffect(() => {
     videos.current.forEach((el, i) => {
       if (!el) return;
