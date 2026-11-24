@@ -494,11 +494,14 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     // Launch mode, phase 1: lift off and leave through the top. Phase 2
     // (below) climbs back up from under the screen onto the DOM rocket,
     // where the usual hologram + assembly takes over.
+    // The hero no longer shows the rocket: during phase 1 nothing is
+    // drawn (and the loop sleeps until the next scroll wakes it); the
+    // rocket first appears climbing up from below into the Rocket section.
     if (launch) {
-      state.launch += (input.launch - state.launch) * Math.min(1, dt * 4.5);
-      if (Math.abs(input.launch - state.launch) < 0.0005) state.launch = input.launch;
+      state.launch = input.launch;
       if (state.launch < 1) {
-        launchFrame(t, state.launch, input);
+        renderer.domElement.style.visibility = 'hidden';
+        running = false;
         return;
       }
     }
@@ -774,7 +777,8 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
   function drawSmoke(g, input, fade) {
     puffs.forEach((sp) => (sp.visible = false));
     if (fade <= 0.001 || g < 0.03) return;
-    const j0 = Math.max(1, Math.ceil((g - SMOKE_SPAN) / SMOKE_STEP));
+    // only the rise (g ≥ 1) leaves smoke — the hero dive isn't shown
+    const j0 = Math.max(Math.ceil(1 / SMOKE_STEP), Math.ceil((g - SMOKE_SPAN) / SMOKE_STEP));
     const j1 = Math.floor(g / SMOKE_STEP);
     for (let j = j0; j <= j1; j++) {
       const at = j * SMOKE_STEP;
@@ -797,69 +801,6 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
       sp.material.opacity = Math.min(1, age * 12) * Math.pow(1 - age, 1.6) * 0.7 * fade;
       sp.visible = true;
     }
-  }
-
-  function launchFrame(t, tr, input) {
-    renderer.domElement.style.visibility = 'visible';
-
-    state.px += (state.tx - state.px) * 0.06;
-    state.py += (state.ty - state.py) * 0.06;
-
-    const idle = reducedMotion ? 0 : 1;
-    const intro = state.intro;
-    const flameH = flame.userData.h || 100;
-
-    // Holds perfectly still until you scroll (no sway, bob or cursor
-    // follow) — the hero backdrop streams past it instead, so it still
-    // reads as flying.
-    const p = pathAt(tr, input);
-    const tilt = p.rz;
-    // intro: flies in along its own exhaust line (from the horizon glow)
-    const back = (1 - intro) * H * 0.75;
-    const sy = p.y + back * Math.cos(tilt);
-    const sx = p.x + back * Math.sin(tilt);
-    state.roll = tilt;
-
-    rocket.position.set(sx - W / 2, H / 2 - sy, 0);
-    rocket.scale.setScalar(p.scale);
-    rocket.rotation.set(0, -0.15, tilt + (1 - intro) * 0.25);
-    drawSmoke(tr, input, 1);
-    // gentle idle exhaust at rest, thinning out as the lift-off begins
-    drawIdleSmoke(t, { x: sx, y: sy, rz: tilt, scale: p.scale }, intro * (1 - smooth(0, 0.35, tr)));
-
-    // solid rocket, no hologram
-    for (const seg of segs) {
-      seg.group.position.set(0, seg.baseY, 0);
-      seg.group.rotation.y = 0;
-      seg.group.visible = true;
-      seg.solids.forEach((m) => {
-        m.opacity = 1;
-        m.depthWrite = true;
-      });
-      seg.hullMat.emissiveIntensity = 0;
-      seg.wires.forEach((m) => (m.opacity = 0));
-    }
-    nozzleGroup.position.y = nozzleGroup.userData.baseY;
-    nozzleGroup.visible = true;
-    nozzleMat.opacity = 1;
-    nozzleMat.depthWrite = true;
-
-    // full burn on the way up
-    const thrust = lerp(1.3, 2.6, smooth(0, 0.4, tr)) * (1 + (1 - intro) * 0.6);
-    const flick = 1 + (Math.sin(t * 31) * 0.05 + Math.sin(t * 17.3) * 0.04) * idle;
-    const fw = flame.userData.w || 52;
-    flameOuter.scale.set(fw * 0.9, flameH * thrust * flick, fw * 0.9);
-    flameInner.scale.set(fw * 0.9, flameH * thrust * 0.62 * flick, fw * 0.9);
-    flameOuterMat.uniforms.uTime.value = t;
-    flameInnerMat.uniforms.uTime.value = t + 0.37;
-    flameOuterMat.uniforms.uAlpha.value = 1;
-    flameInnerMat.uniforms.uAlpha.value = 1;
-    flameGlow.scale.setScalar(fw * 2.6 * (0.9 + thrust * 0.3));
-    flameGlow.position.y = -flameH * 0.12;
-    flameGlow.material.opacity = 0.75 * flick;
-
-    renderer.render(scene, camera);
-    raf = requestAnimationFrame(frame);
   }
 
   const wake = () => {

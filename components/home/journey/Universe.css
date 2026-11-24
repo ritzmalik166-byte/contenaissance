@@ -325,3 +325,28 @@
   transform: scale(var(--qs, 1));
   transform-origin: 50% 50%;
 }
+
+/* 3D rocket (RocketSprite → three/RocketModel.js): the canvas extends
+   past the sprite's box (viewBox -40…144 × 0…330) to x -132…236 and
+   y 0…560, so the fins and a long boosted flame never clip. */
+.rsprite--3d {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rsprite__canvas {
+  position: absolute;
+  left: -50%;
+  top: 0;
+  width: 200%;
+  height: calc(100% * 560 / 330);
+  max-width: none; /* the global canvas { max-width: 100% } would squash it */
+  pointer-events: none;
+}
+
+.rsprite__hook {
+  display: none;
+}

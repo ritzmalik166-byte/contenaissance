@@ -54,8 +54,7 @@ export default function Hero() {
           // the horizon rises and the sunrise blooms
           .to(s, { v: 1, duration: 2.6, ease: 'power3.out', onUpdate: () => scene && (scene.state.intro = s.v) }, 0)
           .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.4, stagger: 0.025 }, 0.1)
-          .to(fades, { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 0.5)
-          .fromTo(q('.hero__halo'), { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power2.out' }, 0);
+          .to(fades, { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 0.5);
       });
       const off = onSiteReady(intro);
 
@@ -113,7 +112,6 @@ export default function Hero() {
           { y: -50, rotateX: 50, opacity: 0, duration: 0.24, stagger: 0.04, ease: 'power2.in' },
           0.04
         )
-        .fromTo(q('.hero__halo'), { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.6, duration: 0.5 }, 0)
         // the hero's sky dissolves into the shared universe behind it (no
         // hard cut) while the rocket swoops on into the next section
         .fromTo(q('.hero__canvas, .hero__vignette'), { opacity: 1 }, { opacity: 0, duration: 0.32, ease: 'power1.inOut' }, 0.26)
@@ -171,10 +169,11 @@ export default function Hero() {
 
       <div className="hero__vignette" />
 
-      {/* Box the 3D rocket (journey/RocketFlight) is fitted into */}
-      <div className="hero__stage" aria-hidden="true">
-        <span className="hero__halo" />
-      </div>
+      {/* No rocket is shown in the hero any more; this invisible box is
+          only the reference point journey/RocketFlight measures its
+          flight path from (the rocket first appears rising into the
+          Rocket section). */}
+      <div className="hero__stage" aria-hidden="true" />
 
       <div className="hero__inner">
         <div className="hero__content">

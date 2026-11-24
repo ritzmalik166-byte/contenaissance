@@ -963,27 +963,6 @@ textarea {
   }
 }
 
-/* Portrait tablets (e.g. 960×1440): the side-by-side layout put a
-   rocket 54% of a very tall screen over the copy. Like mobile instead:
-   copy up top, the rocket climbing out of the horizon below it. */
-@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
-  .hero__inner {
-    align-items: flex-start;
-    padding-top: 20svh;
-  }
-
-  .hero__content {
-    max-width: 78vw;
-  }
-
-  .hero__stage {
-    left: 54%;
-    width: 30%;
-    top: 50%;
-    height: 32%;
-  }
-}
-
 /* Mobile: copy on top, rocket climbing out of the horizon below it */
 @media (max-width: 760px) {
   .hero__inner {
@@ -5596,4 +5575,55 @@ textarea {
 
 .services-page-content .services-list-section {
   background: transparent;
+}
+
+/* =====================================================
+   HERO — centred copy (the hero no longer shows a rocket;
+   journey/RocketFlight only measures the invisible stage box)
+   Overrides the earlier left-aligned / rocket-side layouts.
+===================================================== */
+.hero__inner {
+  justify-content: center;
+  align-items: center;
+  padding-left: var(--pad);
+  padding-right: var(--pad);
+}
+
+.hero__content {
+  max-width: min(92vw, 1000px);
+  margin-inline: auto;
+  align-items: center;
+  text-align: center;
+  transform-origin: 50% 50%;
+}
+
+.hero__sub {
+  margin-inline: auto;
+}
+
+.hero__actions {
+  justify-content: center;
+}
+
+/* even darkening behind the centred copy, soft edges all round */
+.hero__vignette {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 46%, rgba(5, 4, 4, 0.55) 0%, rgba(5, 4, 4, 0.22) 55%, transparent 80%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(5, 4, 4, 0.5) 100%);
+}
+
+.hero__foot {
+  /* symmetric insets so the scroll cue sits on the true centre line */
+  left: max(var(--hero-left), 120px);
+  justify-content: center;
+}
+
+@media (max-width: 760px) {
+  .hero__inner {
+    padding: 96px var(--pad) 72px;
+  }
+
+  .hero__content {
+    max-width: none;
+  }
 }

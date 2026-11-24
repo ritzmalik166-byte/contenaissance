@@ -1,16 +1,45 @@
 'use client';
 
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { attachRocket } from '@/components/three/RocketModel';
 
-/* The homepage rocket as one compact SVG, styled after the 3D hero
-   rocket: a cream ceramic nose cone with the cockpit pilot, a graphite
-   fuselage with metallic shading and brand-orange stage rings, gold
-   ringed portholes, shaded orange fins, a machined nozzle bell and a
-   layered, glowing flame. Used by the Mission Archive flight and the
-   CTA docking (same footprint: viewBox -40 0 184 330, flame group
-   `.rsprite__flame` scaled from its top). Ids are unique per instance
-   so several can share a page. */
+/* The homepage rocket: a real 3D spacecraft (components/three/RocketModel.js)
+   drawn by one shared WebGL renderer into this canvas. Used by the
+   Mission Archive flight and the CTA docking. It keeps the old SVG
+   sprite's footprint (viewBox -40 0 184 330) and hooks, so the scroll
+   code is unchanged: `.rsprite__flame` (inline scale(1, s) = flame
+   length) and `.rsprite__enginelight` (inline opacity = engine glow)
+   are read by the renderer every frame. Without WebGL it falls back to
+   the SVG sprite below. */
 export default function RocketSprite({ className = '' }) {
+  const canvas = useRef(null);
+  const flame = useRef(null);
+  const light = useRef(null);
+  const [fallback, setFallback] = useState(false);
+
+  useEffect(() => {
+    if (!canvas.current) return undefined;
+    const detach = attachRocket(canvas.current, { flameEl: flame.current, lightEl: light.current });
+    if (!detach) {
+      setFallback(true);
+      return undefined;
+    }
+    return detach;
+  }, []);
+
+  if (fallback) return <RocketSpriteSVG className={className} />;
+
+  return (
+    <div className={`rsprite rsprite--3d ${className}`} aria-hidden="true">
+      <canvas ref={canvas} className="rsprite__canvas" />
+      {/* hooks driven by the scroll code, read by the 3D renderer */}
+      <i ref={flame} className="rsprite__flame rsprite__hook" />
+      <i ref={light} className="rsprite__enginelight rsprite__hook" />
+    </div>
+  );
+}
+
+function RocketSpriteSVG({ className = '' }) {
   const uid = useId().replace(/:/g, '');
   const id = (n) => `rs-${n}-${uid}`;
 
