@@ -772,3 +772,22 @@
     margin-left: 0;
   }
 }
+
+/* Phones: Solutions → Archive pan with both panels held fixed on screen
+   (Archive.jsx fixPan). !important beats the pin's inline styles; the
+   pin-spacers keep the page layout while they're lifted out. */
+.archive.is-panfix,
+.solutions.is-panfix {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.solutions.is-panfix {
+  top: var(--panfix-top, 0px) !important;
+}

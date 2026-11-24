@@ -319,9 +319,15 @@ export default function Archive() {
           if (!vis) return;
 
           const lift = (1 - rise) * 30;
-          const ry = -s * (16 + passed * 46);
+          // Phones: the films sit centred over the route, so instead of
+          // flying straight into the lens they glide aside as the rocket
+          // passes — alternately left and right — turning away a little.
+          const ms = L.mobile ? (i % 2 ? 1 : -1) : 0;
+          const glide = easeInOut(passed);
+          const dx = L.mobile ? ms * glide * window.innerWidth * 0.9 : s * passed * 160;
+          const ry = L.mobile ? -ms * glide * 34 : -s * (16 + passed * 46);
           films[i].style.transform =
-            `translate(-50%, -100%) translate3d(${s * passed * 160}px, ${-lift}px, 0) ` +
+            `translate(-50%, -100%) translate3d(${dx}px, ${-lift}px, 0) ` +
             `rotateY(${ry}deg) rotateX(${(1 - rise) * 84}deg)`;
           films[i].style.opacity = (Math.min(1, rise * 1.6) * fade).toFixed(3);
           films[i].style.pointerEvents = rise > 0.9 && fade > 0.6 ? 'auto' : 'none';
@@ -455,11 +461,20 @@ export default function Archive() {
       const clearPan = () => {
         section.style.translate = '';
         section.style.overflow = '';
+        section.classList.remove('is-panfix');
         if (sol) {
           sol.style.translate = '';
+          sol.style.removeProperty('--panfix-top');
+          sol.classList.remove('is-panfix');
           delete sol.dataset.panning;
         }
       };
+      // Phones scroll natively (Lenis only smooths the wheel), so the
+      // page moves on the compositor before this script can cancel it:
+      // the vertical cancel lagged and both panels jumped up and down.
+      // There, both panels are held fixed on screen for the pan instead
+      // (their pin-spacers keep the layout) and only slide sideways.
+      const fixPan = () => window.innerWidth < 760;
       const applyPan = (p) => {
         const W = window.innerWidth;
         const vh = window.innerHeight;
@@ -470,11 +485,22 @@ export default function Archive() {
           const e = easeInOut(p); // sideways travel
           const s = p * vh; // how far the page has scrolled — cancelled
           panX = (1 - e) * W;
-          section.style.translate = `${panX}px ${s - vh}px`;
+          const fixed = fixPan();
+          section.classList.toggle('is-panfix', fixed);
+          section.style.translate = fixed ? `${panX}px 0px` : `${panX}px ${s - vh}px`;
           // the rocket flies in across Solutions, outside this panel
           section.style.overflow = 'visible';
           if (sol) {
-            sol.style.translate = `${-e * W}px ${s}px`;
+            if (fixed) {
+              // Solutions can be taller than a phone screen (min-height):
+              // keep its bottom on the screen's bottom, where it ended
+              sol.style.setProperty('--panfix-top', `${Math.min(0, vh - sol.offsetHeight)}px`);
+              sol.classList.add('is-panfix');
+              sol.style.translate = `${-e * W}px 0px`;
+            } else {
+              sol.classList.remove('is-panfix');
+              sol.style.translate = `${-e * W}px ${s}px`;
+            }
             sol.dataset.panning = '1';
           }
           // Solutions' full-screen orange let the universe rest; it's

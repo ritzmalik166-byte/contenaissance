@@ -338,8 +338,8 @@
 /* Phones: a tighter, steeper orbit so the moon shows above the front film */
 @media (max-width: 759px) {
   .web3d {
-    --w: 46vw;
-    --cy: 44%;
+    --w: min(54vw, 30svh); /* capped by height for short/wide screens */
+    --cy: 47%;
     min-height: 640px;
   }
 

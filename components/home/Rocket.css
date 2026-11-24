@@ -1997,3 +1997,94 @@
     margin: 10px 0 0 !important;
   }
 }
+
+
+/* =========================================
+   TABLETS (481–1024px) — FIT IN ONE SCREEN
+   Overrides the earlier tablet blocks (a 350px stage, then a later
+   560px min-height + 72px modules), which fought each other: the
+   rocket overflowed its row and ran under the copy, and the pinned
+   section grew taller than the screen (nose cut off at the top).
+   Like the small-phone block: the section is exactly one screen,
+   the rocket takes whatever height the copy leaves, and its parts
+   are sized from the viewport height.
+========================================= */
+
+@media (min-width: 481px) and (max-width: 1024px) {
+  .rocket-sec {
+    height: 100svh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .rocket-sec__inner {
+    display: grid !important;
+    height: 100svh !important;
+    min-height: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    gap: 14px !important;
+    padding: 72px 28px 22px !important;
+  }
+
+  .rocket-stage {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .rocket {
+    width: clamp(48px, 8svh, 110px) !important;
+  }
+
+  .rocket__module {
+    height: clamp(30px, 5.2svh, 96px) !important;
+  }
+
+  .rocket__module svg {
+    width: clamp(18px, 3svh, 30px) !important;
+    height: clamp(18px, 3svh, 30px) !important;
+  }
+
+  .rocket__fins {
+    width: clamp(70px, 12svh, 150px) !important;
+    height: clamp(46px, 8svh, 96px) !important;
+  }
+
+  .rocket__flame {
+    width: clamp(20px, 3.4svh, 34px);
+    height: clamp(34px, 6.5svh, 75px);
+  }
+
+  .rocket-copy {
+    padding: 0 !important;
+  }
+
+  .rocket-copy__head {
+    margin-bottom: 12px !important;
+  }
+
+  .rocket-copy__head h2 {
+    font-size: clamp(24px, 3.6svh, 38px) !important;
+    margin-top: 6px !important;
+  }
+
+  /* panels crossfade (absolute): reserve the tallest (final + button) */
+  .rocket-panels {
+    min-height: 196px !important;
+    height: auto !important;
+  }
+
+  .rocket-panel h3 {
+    font-size: clamp(20px, 3.2svh, 30px) !important;
+    margin: 6px 0 8px !important;
+  }
+
+  .rocket-panel p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  .rocket-progress {
+    margin-top: 12px !important;
+  }
+}

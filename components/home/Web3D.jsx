@@ -31,6 +31,10 @@ const MOON = {
   sizeMobile: 0.56,
   spin: 1.2, // extra rotation over the pinned scroll
 };
+// Moon diameter / viewport width. Phones and small tablets also cap it
+// by the height, so a wide-but-short screen (e.g. 540×720) doesn't get
+// a moon that crowds out the films and the caption.
+const moonSize = (vw, vh) => (vw < 760 ? Math.min(MOON.sizeMobile, (0.32 * vh) / vw) : MOON.size);
 const TILT = 0.24; // orbit tilt: the far side rides over the moon, the near side under it
 const ENTRY = 2; // scroll units for the fly-in (each film step is 1)
 
@@ -66,14 +70,16 @@ export default function Web3D() {
       const measure = () => {
         const vw = window.innerWidth;
         L.mobile = vw < 760;
-        L.R = L.mobile ? vw * 0.34 : Math.min(vw * 0.3, 600); // orbit radius
-        // phones: steeper, so the moon shows above the film in front
-        L.tilt = L.mobile ? 0.62 : TILT;
+        L.R = L.mobile ? vw * 0.42 : Math.min(vw * 0.3, 600); // orbit radius (phones: wide, so the side films clear the moon)
+        // phones: much steeper, so the front film sits low under the moon and
+        // the far films ride high over it — the moon stays clear between
+        // (vertical spread capped by the height: ~20% of the screen each way)
+        L.tilt = L.mobile ? Math.min(1.0, (window.innerHeight * 0.205) / L.R) : TILT;
         L.w = wins[0]?.offsetWidth || 300;
         L.h = wins[0]?.offsetHeight || 190;
         // the moon's radius on screen (same formula as placeMoon), and the
         // CSS perspective the films are seen through
-        L.moonR = ((L.mobile ? MOON.sizeMobile : MOON.size) * vw) / 2;
+        L.moonR = (moonSize(vw, window.innerHeight) * vw) / 2;
         L.persp = parseFloat(getComputedStyle(q('.web3d__viewport')[0]).perspective) || 1600;
         // the line starts with the leader just off the right edge
         L.s0 = (vw / 2 + L.w) / L.R;
@@ -87,15 +93,20 @@ export default function Web3D() {
         wins.forEach((el, i) => {
           const s = S.v + car(i) * STEP;
           let x, z, ry;
+          // Phones: the orbit is tight and the films are wide, so turned
+          // neighbours would pass through each other in 3D and the browser
+          // slices one film through the other. Keep them almost flat there,
+          // and give the incoming line distinct depths so none are coplanar.
+          const turn = L.mobile ? 0.12 : 1;
           if (s > 0) {
             // the incoming line, in front of the orbit
             x = s * R;
-            z = R;
-            ry = Math.min(s, 1) * -18; // angled into the flight
+            z = L.mobile ? R - s * 8 : R;
+            ry = L.mobile ? 0 : Math.min(s, 1) * -18; // angled into the flight
           } else {
             x = R * Math.sin(s);
             z = R * Math.cos(s);
-            ry = Math.sin(s) * 42; // turned along the curve at the sides, facing us front and back
+            ry = Math.sin(s) * 42 * turn; // turned along the curve at the sides, facing us front and back
           }
           const y = L.tilt * z; // near side lower, far side higher
           const zz = z - R * 0.35;
@@ -143,7 +154,7 @@ export default function Web3D() {
           return;
         }
         const p = trigger.current ? trigger.current.progress : 0;
-        const size = vw < 760 ? MOON.sizeMobile : MOON.size;
+        const size = moonSize(vw, vh);
         // same centre the CSS orbit uses (--cy), so the films circle the moon
         const cy = parseFloat(getComputedStyle(root.current).getPropertyValue('--cy')) / 100 || MOON.centerY;
         const centerY = top + (cy * r.height) / vh;

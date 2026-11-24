@@ -19,7 +19,11 @@ import { makeStars, glowTexture } from './spaceCommon';
 const LAYOUT = {
   desktop: { gx: 0.15, gy: -0.66, tilt: 0.34, moon: { x: 0.74, y: 0.5, r: 0.15 } },
   mobile: { gx: 0.05, gy: -0.62, tilt: 0.24, moon: { x: 0.62, y: 0.78, r: 0.11 } },
+  // portrait tablets (e.g. 960×1440): the desktop moon is sized to the
+  // height, so on a tall screen it was huge and ran off the right edge
+  tablet: { gx: 0.08, gy: -0.64, tilt: 0.28, moon: { x: 0.6, y: 0.66, r: 0.1 } },
 };
+const pickLayout = (mobile, aspect) => (mobile ? LAYOUT.mobile : aspect < 0.9 ? LAYOUT.tablet : LAYOUT.desktop);
 
 export function createHeroScene(container) {
   if (!container) return null;
@@ -297,7 +301,7 @@ export function createHeroScene(container) {
   /* ---------- layout from the viewport ---------- */
   const lay = { hx: 0, hy: 0, tilt: 0, mx: 0, my: 0, mr: 1 };
   const layout = () => {
-    const L = mobile ? LAYOUT.mobile : LAYOUT.desktop;
+    const L = pickLayout(mobile, camera.aspect);
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
 
     // horizon: centre the sphere down-right of the sunrise point so the
