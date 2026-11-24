@@ -128,23 +128,100 @@ export function createHeroScene(container) {
 
   /* ---------- Earth on a diagonal horizon ---------- */
   const EARTH_R = 70;
+  const EARTH_SUN_UP = 0.42; // how far the sun has climbed over the horizon (wider day band)
   const HORIZON_Z = -35;
   const horizon = new THREE.Group();
   scene.add(horizon);
 
+  // Real Earth: NASA day map (oceans, land, ice), moving clouds with their
+  // shadows, sun glint on the oceans, city lights on the night side, a
+  // warm terminator where the sun is rising and a blue Rayleigh haze
+  // towards the limb. The sun sits just over the horizon, so a band of
+  // daylight runs along the limb and fades into night towards the viewer.
+  const res = mobile ? '1k' : '2k';
+  const earthSun = new THREE.Vector3(); // world space, set in layout()
+  const earthMat = new THREE.ShaderMaterial({
+    uniforms: {
+      dayMap: { value: kit.planet('earth_day', res) },
+      nightMap: { value: kit.planet('earth_night', res) },
+      cloudMap: { value: kit.data(`planets/earth_clouds_${res}.webp`) },
+      specMap: { value: kit.data('planets/earth_spec_1k.webp') },
+      sunDir: { value: earthSun },
+      cloudShift: { value: 0 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec2 vUv;
+      varying vec3 vN;
+      varying vec3 vPos;
+      void main() {
+        vUv = uv;
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vPos = wp.xyz;
+        vN = normalize(mat3(modelMatrix) * normal);
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D dayMap;
+      uniform sampler2D nightMap;
+      uniform sampler2D cloudMap;
+      uniform sampler2D specMap;
+      uniform vec3 sunDir;
+      uniform float cloudShift;
+      varying vec2 vUv;
+      varying vec3 vN;
+      varying vec3 vPos;
+
+      void main() {
+        vec3 N = normalize(vN);
+        vec3 V = normalize(cameraPosition - vPos);
+        vec3 L = normalize(sunDir);
+        float ndl = dot(N, L);
+        float nv = clamp(dot(N, V), 0.0, 1.0);
+
+        // day ↔ night with a soft twilight band
+        float day = smoothstep(-0.08, 0.22, ndl);
+        float twilight = exp(-pow((ndl - 0.02) * 7.0, 2.0));
+
+        vec2 cuv = vUv + vec2(cloudShift, 0.0);
+        float cloud = texture2D(cloudMap, cuv).r;
+        float shadow = texture2D(cloudMap, cuv + L.xy * 0.0015).r;
+
+        // surface: day map, darkened under cloud shadows
+        vec3 albedo = texture2D(dayMap, vUv).rgb * (1.0 - shadow * 0.45);
+        float light = max(ndl, 0.0);
+        vec3 sunCol = mix(vec3(1.0, 0.55, 0.28), vec3(1.0, 0.97, 0.92), smoothstep(0.0, 0.35, ndl));
+        vec3 col = albedo * sunCol * light * 2.1;
+
+        // oceans: sun glint
+        float water = texture2D(specMap, vUv).r;
+        vec3 H = normalize(L + V);
+        col += sunCol * pow(max(dot(N, H), 0.0), 220.0) * water * day * (1.0 - cloud) * 0.9;
+
+        // clouds over everything on the lit side
+        col = mix(col, sunCol * (0.08 + light * 1.6), cloud * 0.92 * smoothstep(-0.1, 0.12, ndl));
+
+        // city lights on the night side, dimmed by cloud
+        vec3 lights = texture2D(nightMap, vUv).rgb * vec3(1.0, 0.78, 0.5);
+        col += lights * (1.0 - day) * (1.0 - cloud * 0.75) * 2.2;
+
+        // sunrise: warm glow along the terminator
+        col += vec3(1.0, 0.42, 0.12) * twilight * 0.22 * (0.4 + cloud);
+
+        // atmosphere seen through: blue haze grows towards the limb
+        float fres = pow(1.0 - nv, 2.6);
+        vec3 sky = mix(vec3(1.0, 0.5, 0.2), vec3(0.32, 0.56, 1.0), smoothstep(-0.02, 0.3, ndl));
+        col = mix(col, sky * (0.35 + light), fres * smoothstep(-0.25, 0.25, ndl) * 0.75);
+
+        gl_FragColor = vec4(col, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  });
   const earth = new THREE.Mesh(
     new THREE.SphereGeometry(EARTH_R, mobile ? 128 : 220, mobile ? 64 : 110),
-    new THREE.MeshStandardMaterial({
-      color: 0x0a0e14,
-      roughness: 1,
-      metalness: 0,
-      emissive: 0xffc685,
-      emissiveIntensity: 2.4,
-      emissiveMap: kit.planet('earth_night', mobile ? '1k' : '2k'),
-      envMap: kit.environment(sunDir),
-      envMapIntensity: 0.25,
-      fog: false,
-    })
+    earthMat
   );
   earth.rotation.x = -1.13; // mid-latitude city lights face the camera
   horizon.add(earth);
@@ -231,6 +308,14 @@ export function createHeroScene(container) {
     LIMB.copy(P.sub(C)).applyAxisAngle(new THREE.Vector3(0, 0, 1), -L.tilt);
     [flareWide, flareCore, flarePoint, flareHalo].forEach((f) => f.position.copy(LIMB));
 
+    // Earth's sun: just risen over the horizon behind the planet, so
+    // daylight lies along the limb and fades to night towards the viewer
+    earthSun
+      .set(-Math.sin(L.tilt), Math.cos(L.tilt), 0)
+      .multiplyScalar(EARTH_SUN_UP)
+      .add(new THREE.Vector3(-0.25, 0, -1))
+      .normalize();
+
     // moon: top right, sized to the viewport height
     const mHalfH = (CAM_Z - MOON_Z) * tan;
     lay.mx = L.moon.x * mHalfH * camera.aspect;
@@ -290,6 +375,7 @@ export function createHeroScene(container) {
     earthAt(t, earthPos);
     horizon.position.set(earthPos.x, earthPos.y - rise - p * 4, earthPos.z);
     earth.rotation.y = -0.15 + t * 0.004;
+    earthMat.uniforms.cloudShift.value = t * 0.0008; // clouds drift over the ground
 
     // the moon draws slowly closer (bigger, nearer) and leans with the cursor
     const d = driftAt(t);
