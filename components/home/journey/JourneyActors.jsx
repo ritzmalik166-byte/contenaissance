@@ -349,7 +349,7 @@ export default function JourneyActors() {
             rotation: rot,
             scale: size / ROCKET_H,
           });
-          if (flameEl) gsap.set(flameEl, { scaleY: 1 - smooth(0.82, 1, d) * 0.92, transformOrigin: '50% 0%' });
+          if (flameEl) flameEl.style.transform = `scale(1, ${(1 - smooth(0.82, 1, d) * 0.92).toFixed(3)})`;
           if (arrow) arrow.style.opacity = String(1 - smooth(0.7, 0.95, d));
 
           // touchdown: gold pulse on the orbit + a light flash in space

@@ -138,14 +138,16 @@ export function createHeroScene(container) {
   // warm terminator where the sun is rising and a blue Rayleigh haze
   // towards the limb. The sun sits just over the horizon, so a band of
   // daylight runs along the limb and fades into night towards the viewer.
-  const res = mobile ? '1k' : '2k';
+  // Earth fills a big part of the frame, so desktop gets 4k surface and
+  // clouds (the day map is the Blue Marble colour with 8k relief detail).
+  const res = mobile ? '1k' : '4k';
   const earthSun = new THREE.Vector3(); // world space, set in layout()
   const earthMat = new THREE.ShaderMaterial({
     uniforms: {
       dayMap: { value: kit.planet('earth_day', res) },
-      nightMap: { value: kit.planet('earth_night', res) },
+      nightMap: { value: kit.planet('earth_night', mobile ? '1k' : '2k') },
       cloudMap: { value: kit.data(`planets/earth_clouds_${res}.webp`) },
-      specMap: { value: kit.data('planets/earth_spec_1k.webp') },
+      specMap: { value: kit.data(`planets/earth_spec_${mobile ? '1k' : '2k'}.webp`) },
       sunDir: { value: earthSun },
       cloudShift: { value: 0 },
     },
@@ -180,38 +182,54 @@ export function createHeroScene(container) {
         float nv = clamp(dot(N, V), 0.0, 1.0);
 
         // day ↔ night with a soft twilight band
-        float day = smoothstep(-0.08, 0.22, ndl);
-        float twilight = exp(-pow((ndl - 0.02) * 7.0, 2.0));
-
-        vec2 cuv = vUv + vec2(cloudShift, 0.0);
-        float cloud = texture2D(cloudMap, cuv).r;
-        float shadow = texture2D(cloudMap, cuv + L.xy * 0.0015).r;
-
-        // surface: day map, darkened under cloud shadows
-        vec3 albedo = texture2D(dayMap, vUv).rgb * (1.0 - shadow * 0.45);
+        float day = smoothstep(-0.06, 0.2, ndl);
+        float twilight = exp(-pow((ndl - 0.03) * 9.0, 2.0));
         float light = max(ndl, 0.0);
-        vec3 sunCol = mix(vec3(1.0, 0.55, 0.28), vec3(1.0, 0.97, 0.92), smoothstep(0.0, 0.35, ndl));
-        vec3 col = albedo * sunCol * light * 2.1;
+        // sunlight reddens only where it grazes the terminator
+        vec3 sunCol = mix(vec3(1.0, 0.62, 0.36), vec3(1.0, 0.98, 0.95), smoothstep(0.0, 0.25, ndl));
 
-        // oceans: sun glint
+        // clouds: crisp, dense cores with thin wispy edges
+        vec2 cuv = vUv + vec2(cloudShift, 0.0);
+        float cloudRaw = texture2D(cloudMap, cuv).r;
+        float cloud = smoothstep(0.08, 0.75, cloudRaw);
+        float shadow = smoothstep(0.08, 0.75, texture2D(cloudMap, cuv + L.xy * 0.0012).r);
+
+        // surface: satellite colour, a touch of contrast, cloud shadows
+        vec3 albedo = texture2D(dayMap, vUv).rgb;
+        albedo = pow(albedo, vec3(1.08)) * (1.0 - shadow * 0.55);
         float water = texture2D(specMap, vUv).r;
-        vec3 H = normalize(L + V);
-        col += sunCol * pow(max(dot(N, H), 0.0), 220.0) * water * day * (1.0 - cloud) * 0.9;
+        // deep ocean reads darker and bluer than the land
+        albedo = mix(albedo, albedo * vec3(0.72, 0.85, 1.05), water * 0.6);
 
-        // clouds over everything on the lit side
-        col = mix(col, sunCol * (0.08 + light * 1.6), cloud * 0.92 * smoothstep(-0.1, 0.12, ndl));
+        vec3 col = albedo * sunCol * light * 1.85;
+        // faint blue skylight so the day side never goes flat-black
+        col += albedo * vec3(0.05, 0.08, 0.14) * day;
+
+        // oceans: sky reflection at grazing angles, wide sheen + tight glint
+        vec3 H = normalize(L + V);
+        float nh = max(dot(N, H), 0.0);
+        float fresW = 0.02 + 0.98 * pow(1.0 - nv, 5.0);
+        vec3 oceanSpec = sunCol * (pow(nh, 60.0) * 0.25 + pow(nh, 600.0) * 1.6);
+        col += (oceanSpec + vec3(0.18, 0.32, 0.6) * fresW * 0.35) * water * day * (1.0 - cloud);
+
+        // clouds: bright, lit by the sun, a little shaded where thin
+        vec3 cloudCol = sunCol * (0.04 + light * 1.75) * mix(0.82, 1.0, cloud);
+        col = mix(col, cloudCol, cloud * smoothstep(-0.08, 0.1, ndl));
 
         // city lights on the night side, dimmed by cloud
         vec3 lights = texture2D(nightMap, vUv).rgb * vec3(1.0, 0.78, 0.5);
-        col += lights * (1.0 - day) * (1.0 - cloud * 0.75) * 2.2;
+        col += lights * (1.0 - day) * (1.0 - cloud * 0.8) * 2.0;
 
-        // sunrise: warm glow along the terminator
-        col += vec3(1.0, 0.42, 0.12) * twilight * 0.22 * (0.4 + cloud);
+        // sunrise: warm light caught mostly by the cloud tops at the terminator
+        col += vec3(1.0, 0.45, 0.15) * twilight * (0.04 + cloud * 0.22);
 
-        // atmosphere seen through: blue haze grows towards the limb
-        float fres = pow(1.0 - nv, 2.6);
-        vec3 sky = mix(vec3(1.0, 0.5, 0.2), vec3(0.32, 0.56, 1.0), smoothstep(-0.02, 0.3, ndl));
-        col = mix(col, sky * (0.35 + light), fres * smoothstep(-0.25, 0.25, ndl) * 0.75);
+        // atmosphere seen through: Rayleigh in-scatter grows with the
+        // path length through the air (thin overhead, thick at the limb)
+        float path = 1.0 - exp(-0.09 / max(nv, 0.04));
+        vec3 rayleigh = vec3(0.26, 0.5, 1.0) * (0.12 + light * 0.9);
+        col = mix(col, rayleigh, path * smoothstep(-0.15, 0.2, ndl) * 0.85);
+        // and the thin bright blue line right on the limb
+        col += vec3(0.35, 0.6, 1.0) * pow(1.0 - nv, 8.0) * day * 0.6;
 
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>
@@ -248,7 +266,7 @@ export function createHeroScene(container) {
   });
   horizon.add(blueAtmo);
   goldAtmo.userData.materials[0].uniforms.intensity.value = 0.18;
-  blueAtmo.userData.materials[0].uniforms.intensity.value = 0.08;
+  blueAtmo.userData.materials[0].uniforms.intensity.value = 0.2;
 
   // Flares sit on the visible limb (computed in layout()), depth-tested
   // so the planet hides their lower half. Sprites don't inherit the

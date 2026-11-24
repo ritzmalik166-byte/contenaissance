@@ -266,8 +266,11 @@
   overflow: visible;
 }
 
+/* scaled (style.transform = scale(1, s)) from the nozzle exit, in the
+   sprite's viewBox units, so it stays attached at any length */
 .rsprite__flame {
-  transform-box: fill-box;
+  transform-box: view-box;
+  transform-origin: 52px 238px;
   animation: rsprite-flicker 0.12s steps(2, end) infinite;
 }
 

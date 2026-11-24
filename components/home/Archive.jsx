@@ -423,7 +423,10 @@ export default function Archive() {
       /* flame burns hotter while the route is moving */
       const burn = () => {
         boost *= 0.9;
-        gsap.set(flame, { scaleY: 0.85 + boost * 0.9, transformOrigin: '50% 0%' });
+        // set directly: GSAP's SVG origin math fights the CSS origin
+        // (Universe.css .rsprite__flame) and detaches the flame
+        const s = `scale(1, ${(0.85 + boost * 0.9).toFixed(3)})`;
+        flame.forEach((el) => el && (el.style.transform = s));
       };
       gsap.ticker.add(burn);
 
