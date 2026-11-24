@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap, useGSAP, isTouch, ScrollTrigger } from '@/lib/user/gsap';
+import { gsap, useGSAP, ScrollTrigger } from '@/lib/user/gsap';
 import { getUniverse } from '@/lib/user/universe';
 import { webExperiences } from '@/lib/user/content';
 import './Web3D.css';
@@ -49,7 +49,7 @@ export default function Web3D() {
   const total = ENTRY + (steps - 1); // scroll units over the pin
 
   useGSAP(
-    (ctx, contextSafe) => {
+    () => {
       const q = gsap.utils.selector(root);
       const wins = q('.bwin');
       const n = wins.length;
@@ -68,7 +68,12 @@ export default function Web3D() {
         L.R = L.mobile ? vw * 0.34 : Math.min(vw * 0.3, 600); // orbit radius
         // phones: steeper, so the moon shows above the film in front
         L.tilt = L.mobile ? 0.62 : TILT;
-        L.w = wins[0]?.offsetWidth || 360;
+        L.w = wins[0]?.offsetWidth || 300;
+        L.h = wins[0]?.offsetHeight || 190;
+        // the moon's radius on screen (same formula as placeMoon), and the
+        // CSS perspective the films are seen through
+        L.moonR = ((L.mobile ? MOON.sizeMobile : MOON.size) * vw) / 2;
+        L.persp = parseFloat(getComputedStyle(q('.web3d__viewport')[0]).perspective) || 1600;
         // the line starts with the leader just off the right edge
         L.s0 = (vw / 2 + L.w) / L.R;
       };
@@ -92,13 +97,34 @@ export default function Web3D() {
             ry = Math.sin(s) * 42; // turned along the curve at the sides, facing us front and back
           }
           const y = L.tilt * z; // near side lower, far side higher
+          const zz = z - R * 0.35;
           const front = z / R; // 1 in front … -1 behind the moon
           el.style.transform =
-            `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${(z - R * 0.35).toFixed(1)}px) ` +
+            `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${zz.toFixed(1)}px) ` +
             `rotateY(${ry.toFixed(2)}deg)`;
           // dims going round behind the moon (still seen, so it reads as an
           // orbit), brightens coming back round
-          el.style.opacity = ((0.22 + 0.78 * smooth(-0.7, 0.35, front)) * (s > L.s0 ? 0 : 1)).toFixed(3);
+          el.style.opacity = ((0.35 + 0.65 * smooth(-0.7, 0.35, front)) * (s > L.s0 ? 0 : 1)).toFixed(3);
+
+          // Behind the moon: the moon is drawn in WebGL under the page, so
+          // cut the moon's disc out of the far-side films instead. The
+          // perspective origin is the moon's centre, so in the film's own
+          // px the moon sits at (w/2 - x, h/2 - y) and its radius shrinks
+          // by the film's perspective scale (and cos of its turn, across).
+          const mask =
+            front < 0.15
+              ? (() => {
+                  const k = L.persp / (L.persp - zz);
+                  const c = Math.max(0.3, Math.cos((ry * Math.PI) / 180));
+                  const rx = (L.moonR / k / c).toFixed(1);
+                  const rr = (L.moonR / k).toFixed(1);
+                  const lx = (L.w / 2 - x / c).toFixed(1);
+                  const ly = (L.h / 2 - y).toFixed(1);
+                  return `radial-gradient(ellipse ${rx}px ${rr}px at ${lx}px ${ly}px, transparent 97%, #000 100%)`;
+                })()
+              : 'none';
+          el.style.webkitMaskImage = mask;
+          el.style.maskImage = mask;
         });
       };
 
@@ -199,18 +225,8 @@ export default function Web3D() {
         onLeaveBack: () => getUniverse()?.setMoon({ vis: 0 }),
       });
 
-      if (isTouch()) return;
-      const tiltX = gsap.quickTo('.web3d__stage', 'rotateX', { duration: 1.2, ease: 'power3.out' });
-      const tiltY = gsap.quickTo('.web3d__stage', 'rotateY', { duration: 1.2, ease: 'power3.out' });
-      const move = contextSafe((e) => {
-        const nx = e.clientX / window.innerWidth - 0.5;
-        const ny = e.clientY / window.innerHeight - 0.5;
-        tiltY(nx * 8);
-        tiltX(-ny * 5);
-        getUniverse()?.setMoon({ px: nx * 2, py: -ny * 2 });
-      });
-      root.current.addEventListener('pointermove', move);
-      return () => root.current?.removeEventListener('pointermove', move);
+      // (no cursor tilt / moon drift here: the far-side films are cut
+      // exactly around the moon, so the two have to stay locked together)
     },
     { scope: root }
   );

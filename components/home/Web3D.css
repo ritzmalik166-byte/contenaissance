@@ -1,7 +1,7 @@
 /* ---------- web3d ---------- */
 
 .web3d {
-  --w: min(19vw, 340px); /* film width */
+  --w: min(15vw, 280px); /* film width — small, so the ring reads as a circle */
   --cy: 50%; /* moon / orbit centre (the moon reads this in Web3D.jsx) */
   position: relative;
   isolation: isolate;
