@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion, isTouch } from '@/lib/user/gsap';
 import { getPortfolioScene } from '@/lib/user/portfolioScene';
 import { SHOWREEL_SRC } from '@/lib/user/portfolio-content';
+import { getPosterUrl } from '@/lib/user/video-assets';
 import LazyVideo from '../LazyVideo';
 import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
@@ -102,7 +103,7 @@ export default function PfShowreel() {
 
         <div className="pf-reel__stage">
           <div className="pf-reel__frame" data-cursor="Play">
-            <LazyVideo src={SHOWREEL_SRC} poster="/posters/mzha.jpg" eager />
+            <LazyVideo src={SHOWREEL_SRC} poster={getPosterUrl('showreel')} eager />
             <span className="pf-reel__shade" aria-hidden="true" />
 
             <div className="pf-reel__ui">

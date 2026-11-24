@@ -4,14 +4,14 @@ import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
 import { applyHolo, lerpHolo, holoMid, holoFull } from '@/lib/user/journey';
 import Video from '../Video';
-import { getVideoUrl } from '@/lib/user/video-assets';
+import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
 import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
 import './Showreel.css';
 
 const VIDEO_ASSET = 'showreel';
 const videoUrl = getVideoUrl(VIDEO_ASSET); // full-screen modal uses the same file
-const posterUrl = '/posters/mzha.jpg';
+const posterUrl = getPosterUrl(VIDEO_ASSET);
 
 /* =====================================================
    SHOWREEL — "Transmission incoming".

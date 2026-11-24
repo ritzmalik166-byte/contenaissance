@@ -178,7 +178,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       ring.rotation.set(1.2, 0.2, -0.32);
       saturn.add(ring);
       g.add(saturn);
-      spinners.push({ obj: saturn.userData.body, speed: 0.06 });
+      spinners.push({ obj: saturn.userData.body, speed: 0.32 }); // a visible, steady spin
 
       const belt = makeAsteroidBelt(kit, {
         count: mobile ? 16 : 34,

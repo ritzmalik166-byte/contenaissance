@@ -6,7 +6,7 @@ import { gsap, useGSAP } from '@/lib/user/gsap';
 import { formats } from '@/lib/user/content';
 import { openVideo } from '../VideoModal';
 import Video from '../Video';
-import { getVideoUrl } from '@/lib/user/video-assets';
+import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
 import { getUniverse } from '@/lib/user/universe';
 
 /* Card → Azure asset (lib/user/video-assets.js). Same clips as the
@@ -56,14 +56,28 @@ export default function Solutions() {
             video.muted = true;
             video.loop = true;
             video.playsInline = true;
+            video.preload = 'auto';
 
             video.play().catch(() => { });
           } else {
             video.pause();
+            video.preload = 'metadata';
           }
         });
 
         setActive(index);
+      };
+
+      // Off the pinned section: stop every card so it doesn't keep
+      // playing / downloading while the Mission Archive needs the network
+      const stopVideos = () => {
+        currentIndex = -1;
+        activeRef.current = -1;
+        videos.forEach((video) => {
+          if (!video) return;
+          video.pause();
+          video.preload = 'metadata';
+        });
       };
 
       // Initial card setup
@@ -179,9 +193,16 @@ export default function Solutions() {
           pin: true,
           scrub: true,
           invalidateOnRefresh: true,
+          onLeave: () => stopVideos(),
         },
 
         onUpdate() {
+          // past the end of the pin (on into the archive) — stay stopped
+          if (this.scrollTrigger && this.scrollTrigger.progress >= 1) {
+            stopVideos();
+            renderAtmo();
+            return;
+          }
           const index = Math.min(
             cards.length - 1,
             Math.max(0, Math.round(this.time() - ENTRY - 0.25))
@@ -303,10 +324,10 @@ export default function Solutions() {
                     (preload="auto") once the section is a viewport away. */}
                 <Video
                   src={cardVideoUrl(f)}
-                  poster={f.video.poster}
+                  poster={getPosterUrl(ASSET_BY_TITLE[f.title]) ?? f.video.poster}
                   autoPlay={false}
                   pauseWhenHidden={false}
-                  preload="auto"
+                  preload="metadata" /* the active card switches to 'auto' — six full downloads at once starve the rest of the page */
                   rootMargin="100% 0px"
                   placeholder={false}
                   showPlayButton="never"

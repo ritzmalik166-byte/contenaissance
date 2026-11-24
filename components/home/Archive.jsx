@@ -7,7 +7,7 @@ import { useLenis } from '@/components/SmoothScrollProvider';
 import { getUniverse } from '@/lib/user/universe';
 import { archive } from '@/lib/user/content';
 import Video from '../Video';
-import { getVideoUrl } from '@/lib/user/video-assets';
+import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
 import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';
 import Split from '../Split';
@@ -74,17 +74,21 @@ function Film({ item, index, isActive, onSelect, onReady }) {
         onClick={() => (isActive ? openVideo(url) : onSelect(index))}
         aria-label={isActive ? `Play ${item.title}` : `Go to ${item.title}`}
       >
+        {/* The edge must come BEFORE the frame: GSAP sets opacity on .afilm,
+            which flattens its 3D, and flattened children paint in DOM order —
+            after the frame it would cover the video and poster entirely. */}
+        <span className="afilm__edge" aria-hidden="true" />
         <span className="afilm__frame">
           {/* GSAP owns play / pause: only the station in front plays */}
           <Video
             src={url}
-            poster={item.video.poster}
+            poster={getPosterUrl(ASSET_BY_TITLE[item.title]) ?? item.video.poster}
             className="afilm__video"
             fit="cover"
             autoPlay={false}
             pauseWhenHidden={false}
             preload="metadata"
-            rootMargin="100% 0px"
+            lazy={false} /* the 3D route confuses "near the viewport" checks; metadata only, so it stays light */
             placeholder={false}
             showPlayButton="never"
             respectReducedMotion={false}
@@ -105,7 +109,6 @@ function Film({ item, index, isActive, onSelect, onReady }) {
           <i className="afilm__c afilm__c--bl" />
           <i className="afilm__c afilm__c--br" />
         </span>
-        <span className="afilm__edge" aria-hidden="true" />
         <span className="afilm__title">{item.title}</span>
       </button>
     </div>
@@ -180,7 +183,6 @@ export default function Archive() {
 
       const side = (i) => (L.mobile ? 0 : i % 2 ? 1 : -1);
       const xAt = (t) => L.amp * Math.sin(Math.PI * (t - 0.5));
-      const dxAt = (t) => L.amp * Math.PI * Math.cos(Math.PI * (t - 0.5));
       const zAt = (t) => -t * L.gap;
       const stationT = (i) => i + 1;
       const dotT = (k) => T_START + 0.3 + k / DOTS_PER_STATION;
@@ -213,9 +215,17 @@ export default function Archive() {
           if (!v) return;
           if (i === idx) {
             v.muted = true;
-            v.play().catch(() => {});
-          } else if (!v.paused) {
-            v.pause();
+            v.preload = 'auto'; // buffer the film in front fully
+            const attempt = () => v.play().catch(() => {});
+            attempt();
+            // if it couldn't start yet (still buffering), try again once
+            // enough data has arrived
+            if (v.readyState < 3) v.addEventListener('canplay', () => playing === i && v.paused && attempt(), { once: true });
+          } else {
+            if (!v.paused) v.pause();
+            // stop buffering films that left the front so they don't hold
+            // the browser's few connections to the video host
+            v.preload = 'metadata';
           }
         });
       };
@@ -300,15 +310,28 @@ export default function Archive() {
            the ring */
         const rt = gsap.utils.clamp(T_PIN, L.portalAt + 0.25, T);
         const climb = smooth(n + 0.2, L.portalAt, T);
-        const lean = (Math.atan2(dxAt(rt), L.gap * 0.9) * 180) / Math.PI;
         const through = smooth(L.portalAt - 0.08, L.portalAt + 0.12, T);
         // fly ∈ 0..1 over the pan: screen-space sweep from off the left
         // edge to the rocket's resting spot in the (sliding) archive panel
         const fly = S.p > 0 ? 1 : easeInOut(S.a);
         const ry = L.rocketY + (L.ringY - L.rocketY) * climb;
+        // Nose along the route as it appears on screen: project the
+        // rocket's position and a point a little further down the route
+        // through the camera, and aim along the line between them (the
+        // route curves left/right and recedes toward the next film).
+        // Measured along the glowing route on the floor (where receding
+        // into depth reads clearly on screen), looking well ahead, and
+        // capped so it banks believably instead of lying sideways.
+        const proj = (t) => {
+          const k = L.persp / (L.persp + (camZ - zAt(t)));
+          return { x: (xAt(t) - camX) * k, y: (L.floor - camY) * k };
+        };
+        const pa = proj(rt);
+        const pb = proj(rt + 0.4);
+        const headDeg = gsap.utils.clamp(-50, 50, (Math.atan2(pb.x - pa.x, pa.y - pb.y) * 180) / Math.PI);
         rocket.style.transform =
           `translate3d(${xAt(rt)}px, ${ry}px, ${zAt(rt)}px) translate(-50%, -50%) ` +
-          `rotateZ(${lean * 0.6}deg) scale(${1 - through * 0.6})`;
+          `rotateZ(${headDeg * (1 - climb)}deg) scale(${1 - through * 0.6})`;
         if (fly < 1) {
           // The crossing happens in flat screen space (3D perspective
           // distorts badly that far off-axis): a twin sprite flies in
@@ -322,7 +345,8 @@ export default function Archive() {
           const ey = rest.top + rest.height / 2;
           const sx = -W * 0.18 + (ex + W * 0.18) * fly;
           const sy = ey + (1 - fly) * 40 - Math.sin(Math.PI * fly) * 80;
-          const turn = 90 * (1 - smooth(0.62, 1, fly)); // nose right → nose into the route
+          // nose right → turns to the route heading the 3D rocket takes over at
+          const turn = 90 + (headDeg - 90) * smooth(0.62, 1, fly);
           const scale = rest.height / (transit.offsetHeight || 1);
           transit.style.visibility = 'visible';
           transit.style.transform =
