@@ -39,14 +39,14 @@ const easeOut = gsap.parseEase('power3.out');
 // h = height as a fraction of the viewport, r* in radians.
 const POSES = {
   desktop: {
-    start: (rx) => ({ vis: 1, x: rx, y: 1.3, h: 0.14, rx: -2.4, ry: 3.2, rz: 5.5, arm: 0, glow: 0 }),
+    start: (rx) => ({ vis: 1, x: rx, y: 1.3, h: 0.14, rx: -1.3, ry: 1.9, rz: 2.8, arm: 0, glow: 0 }),
     land: { x: 0.8, y: -0.36, h: 0.46, rx: 0.12, ry: -0.6, rz: 0.14 },
     rest: { y: -0.02 },
     present: { x: -0.52, y: -0.22, h: 0.6, rx: 0.06, ry: 0.62, rz: -0.06, arm: 1 },
     exit: { x: -1.5, y: -0.55, h: 0.8, rz: 0.3, arm: 0.4, glow: 0 },
   },
   mobile: {
-    start: (rx) => ({ vis: 1, x: rx, y: 1.3, h: 0.1, rx: -2.4, ry: 3.2, rz: 5.5, arm: 0, glow: 0 }),
+    start: (rx) => ({ vis: 1, x: rx, y: 1.3, h: 0.1, rx: -1.3, ry: 1.9, rz: 2.8, arm: 0, glow: 0 }),
     land: { x: 0.7, y: -0.6, h: 0.22, rx: 0.12, ry: -0.6, rz: 0.14 },
     rest: { y: -0.66 },
     present: { x: -0.3, y: -0.56, h: 0.36, rx: 0.06, ry: 0.55, rz: -0.06, arm: 1 },
@@ -121,22 +121,27 @@ export default function JourneyActors() {
           trigger: about,
           start: launchScroll,
           end: 'top 55%', // About is short — leave room before the hologram
-          scrub: 1,
+          scrub: 1.6, // heavier lag: the pilot floats rather than snaps
           invalidateOnRefresh: true,
           refreshPriority: -1, // after the rocket pin is measured
         },
       });
 
+      // The rocket pin now holds on after the launch (Rocket.jsx), so this
+      // whole timeline gets ~3 screens of scroll: the pilot ejects as the
+      // rocket clears the top, then drifts down slowly with a gentle
+      // tumble that unwinds as it settles beside the About copy.
       eject
         // camera follows the rocket up…
-        .fromTo(lift, { v: 0 }, { v: 1, duration: 0.45, ease: 'power2.out', onUpdate: pushLift }, 0)
+        .fromTo(lift, { v: 0 }, { v: 1, duration: 0.4, ease: 'power2.out', onUpdate: pushLift }, 0)
         // …then drifts back down with the falling pilot
-        .to(lift, { v: 0, duration: 0.4, ease: 'power2.inOut', onUpdate: pushLift }, 0.55)
-        // the pilot ejects once the rocket has left the screen
-        .fromTo(A, { vis: 0 }, { vis: 1, duration: 0.02 }, 0.5)
+        .to(lift, { v: 0, duration: 0.45, ease: 'sine.inOut', onUpdate: pushLift }, 0.45)
+        // the pilot fades in just above the frame as the rocket leaves…
+        .fromTo(A, { vis: 0 }, { vis: 1, duration: 0.08, ease: 'sine.out' }, 0.4)
+        // …and floats down into place
         .fromTo(
           A,
-          { x: rocketNDCX, y: () => P().start(0).y, h: () => P().start(0).h, rx: -2.4, ry: 3.2, rz: 5.5 },
+          { x: rocketNDCX, y: () => P().start(0).y, h: () => P().start(0).h, rx: -1.3, ry: 1.9, rz: 2.8 },
           {
             x: () => P().land.x,
             y: () => P().land.y,
@@ -144,10 +149,10 @@ export default function JourneyActors() {
             rx: () => P().land.rx,
             ry: () => P().land.ry,
             rz: () => P().land.rz,
-            duration: 0.38,
-            ease: 'power3.out',
+            duration: 0.48,
+            ease: 'sine.out',
           },
-          0.5
+          0.4
         )
         .to(A, { y: () => P().rest.y, duration: 0.12, ease: 'sine.inOut' }, 0.88);
 

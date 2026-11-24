@@ -98,11 +98,15 @@ export default function RocketFlight() {
         scene?.wake();
       };
 
-      // Lift-off ends LAUNCH_SPAN into the hero; the landing ends as the
-      // Rocket pin starts and the assembly happens inside the pin.
+      // Lift-off ends LAUNCH_SPAN into the hero; the swoop carries on into
+      // the Rocket pin and lands at the end of its lead-in (Rocket.jsx
+      // dataset.land), where the assembly starts.
       const measureEnds = () => {
         launchEnd = hero.offsetHeight * LAUNCH_SPAN;
-        travelEnd = Math.max(launchEnd + 1, pinTriggerOf(sec)?.start ?? docTop(sec));
+        const st = pinTriggerOf(sec);
+        const land = parseFloat(sec.dataset.land) || 0;
+        const end = st ? st.start + (st.end - st.start) * land : docTop(sec);
+        travelEnd = Math.max(launchEnd + 1, end);
       };
       const trigger = ScrollTrigger.create({
         start: 0,

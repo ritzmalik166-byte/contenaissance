@@ -486,7 +486,7 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     }
 
     // smoothed scroll progress gives the rocket some weight
-    state.travel += (input.travel - state.travel) * Math.min(1, dt * 7);
+    state.travel += (input.travel - state.travel) * Math.min(1, dt * 4.5);
     if (Math.abs(input.travel - state.travel) < 0.0005) state.travel = input.travel;
     const tr = state.travel;
     const time = input.time;
@@ -495,7 +495,7 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     // (below) climbs back up from under the screen onto the DOM rocket,
     // where the usual hologram + assembly takes over.
     if (launch) {
-      state.launch += (input.launch - state.launch) * Math.min(1, dt * 7);
+      state.launch += (input.launch - state.launch) * Math.min(1, dt * 4.5);
       if (Math.abs(input.launch - state.launch) < 0.0005) state.launch = input.launch;
       if (state.launch < 1) {
         launchFrame(t, state.launch, input);
@@ -616,57 +616,68 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
 
   /* ---------- launch mode: one continuous flight path ----------
      g ∈ [0, 2] along the whole journey (screen px, y down):
-       0 → 1  lift-off: climbs along its tilted axis to the upper right
-              of the hero, staying on screen
-       1 → 2  the swoop: keeps climbing, banks over in a big loop (nose
-              following its velocity) and rises nose-up into its slot in
-              the Rocket section, where the hologram assembly takes over */
-  const easeG = (u) => u * u * (3 - 2 * u);
+       0 → 1  the dive: from its hero pose it noses forward a little,
+              arcs over to the right (nose following its velocity) and
+              dives out through the bottom of the screen
+       1 → 2  the rise: comes back up from below the screen, nose-up,
+              and eases into its slot in the Rocket section, where the
+              hologram assembly takes over
+     The two halves meet below the screen, so the turn-around between
+     them (nose down → nose up) is never seen. */
+  const bezier = (a, b, c, d, u) => {
+    const v = 1 - u;
+    return {
+      x: v * v * v * a.x + 3 * v * v * u * b.x + 3 * v * u * u * c.x + u * u * u * d.x,
+      y: v * v * v * a.y + 3 * v * v * u * b.y + 3 * v * u * u * c.y + u * u * u * d.y,
+      tx: 3 * v * v * (b.x - a.x) + 6 * v * u * (c.x - b.x) + 3 * u * u * (d.x - c.x),
+      ty: 3 * v * v * (b.y - a.y) + 6 * v * u * (c.y - b.y) + 3 * u * u * (d.y - c.y),
+    };
+  };
+  // nose along a velocity (rz is counter-clockwise, screen y is down)
+  const heading = (tx, ty, fallback) => (Math.hypot(tx, ty) > 1e-3 ? -Math.atan2(tx, -ty) : fallback);
+  // starts gently, still moving at the end (no stall off-screen)
+  const easeDive = (g) => 1.5 * g * g - 0.5 * g * g * g;
+  const easeRise = (u) => 1 - Math.pow(1 - u, 3); // decelerates into the slot
+
   function pathAt(g, input, bob = 0) {
     const hero = input.hero;
     const flameH = flame.userData.h || 100;
     const heroScale = (hero.h * 0.94) / (L + flameH * 1.3);
     const tilt = heroTilt(mobile);
-    const cy0 = hero.cy - (flameH * 1.3 * heroScale) / 2 + bob;
-    // lift-off ends with the rocket's centre high on the right
-    const climb = Math.max(0, cy0 - H * (mobile ? 0.3 : 0.26));
-    // sideways drift along the tilt, kept inside narrow (phone) screens
-    const drift = Math.max(0, Math.min(climb * Math.tan(-tilt), W * 0.74 - hero.cx));
-    const lift = (P) => ({
-      x: hero.cx + P * drift,
-      y: cy0 - P * climb,
-      s: heroScale * (1 - 0.15 * P),
-    });
+    const E0 = { x: hero.cx, y: hero.cy - (flameH * 1.3 * heroScale) / 2 + bob };
+
     if (g <= 1) {
-      const p = lift(g * g); // accelerates like a real lift-off
-      return { x: p.x, y: p.y, scale: p.s, rz: tilt };
+      const u = easeDive(Math.max(0, g));
+      const len = (L + flameH) * heroScale; // rocket + flame, on screen
+      // a short push along its axis, a wide bank to the right, then
+      // straight down and out past the bottom edge
+      const up = { x: -Math.sin(tilt), y: -Math.cos(tilt) };
+      const reach = H * (mobile ? 0.1 : 0.14);
+      const p1 = { x: E0.x + up.x * reach, y: E0.y + up.y * reach };
+      const p2 = { x: Math.min(E0.x + W * (mobile ? 0.22 : 0.16), W * 0.9), y: E0.y - H * 0.02 };
+      const p3 = { x: Math.min(E0.x + W * (mobile ? 0.26 : 0.2), W * 0.94), y: H + len };
+      const b = bezier(E0, p1, p2, p3, u);
+      return {
+        x: b.x,
+        y: b.y,
+        scale: heroScale * (1 - 0.12 * u),
+        rz: u < 1e-4 ? tilt : heading(b.tx, b.ty, tilt),
+      };
     }
-    const E = lift(1);
-    const u = easeG(Math.min(1, g - 1));
-    const dx3 = input.dest.cx;
-    const dy3 = input.dest.top + L / 2;
-    // cubic: carry on up-right, bank over the top of the screen to the
-    // left (clear of the section copy), then come straight down onto
-    // the slot
-    const up = { x: -Math.sin(tilt), y: -Math.cos(tilt) };
-    const reach = H * (mobile ? 0.16 : 0.22);
-    const p1 = { x: Math.min(E.x + up.x * reach, W * 0.82), y: E.y + up.y * reach };
-    const p2 = { x: dx3, y: dy3 - H * (mobile ? 0.4 : 0.55) };
-    const v = 1 - u;
-    const x = v * v * v * E.x + 3 * v * v * u * p1.x + 3 * v * u * u * p2.x + u * u * u * dx3;
-    const y = v * v * v * E.y + 3 * v * v * u * p1.y + 3 * v * u * u * p2.y + u * u * u * dy3;
-    const tx = 3 * v * v * (p1.x - E.x) + 6 * v * u * (p2.x - p1.x) + 3 * u * u * (dx3 - p2.x);
-    const ty = 3 * v * v * (p1.y - E.y) + 6 * v * u * (p2.y - p1.y) + 3 * u * u * (dy3 - p2.y);
-    // nose along the velocity (rz is counter-clockwise, screen y is down)…
-    const vel = Math.hypot(tx, ty) > 1e-3 ? -Math.atan2(tx, -ty) : 0;
-    // …until the landing flip: it pitches back upright and descends
-    // tail-first on its flame (it approaches from the right, so the
-    // heading stays in (−π, π) and blending to 0 is the short way)
-    const flip = smooth(0.42, 0.86, u);
-    // grows mostly after the flip, when it's upright and fits the screen
-    // phones: stays upright the whole way (the path barely moves sideways
-    // on a narrow screen, so banking along it just reads as a crooked rocket)
-    return { x, y, scale: lerp(E.s, 1, u * u), rz: mobile ? 0 : vel * (1 - flip) };
+
+    const u = easeRise(Math.min(1, g - 1));
+    const dx = input.dest.cx;
+    const dy = input.dest.top + L / 2;
+    // start fully below the screen (and below the slot, while the
+    // section is still sliding up), slightly to the right, then rise
+    // nose-up straight into place
+    const sy = Math.max(H, dy) + L * 0.85;
+    const sx = dx + W * (mobile ? 0.04 : 0.08);
+    const x = lerp(sx, dx, smooth(0, 0.75, u));
+    const y = lerp(sy, dy, u);
+    // leans a touch into the drift, straightening up as it settles
+    const rz = (mobile ? 0.05 : 0.14) * (1 - smooth(0.2, 0.85, u));
+    return { x, y, scale: 1, rz };
   }
 
   // keep the roll continuous through the loop (no ±π flips)

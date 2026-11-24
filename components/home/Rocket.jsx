@@ -89,11 +89,9 @@ export default function Rocket() {
         }, 5.6)
         .call(() => getUniverse()?.pulse(), null, 5.6)
         .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
-        .to({}, { duration: 0.4 });
-
-      // Where in the pin the launch happens — the journey actors
-      // (camera follow + astronaut eject) start from this point.
-      root.current.dataset.launch = String(5.6 / tl.duration());
+        // stay pinned a while after the launch, so the pilot's eject
+        // (JourneyActors) plays out slowly instead of all at once
+        .to({}, { duration: 1.8 });
 
       const markers = [
         0.6,  // S1
@@ -126,17 +124,24 @@ export default function Rocket() {
         active = idx;
       };
 
-      gsap.timeline({
+      // LEAD: an empty stretch at the start of the pin where the hero's
+      // 3D rocket finishes its swoop and lands (RocketFlight.jsx reads
+      // dataset.land), so the flight gets real scroll room instead of
+      // being squeezed into the gap before the pin. UNIT: viewport
+      // heights of scroll per second of timeline (assembly pace).
+      const LEAD = 1.6;
+      const UNIT = 0.79;
+      const pinned = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 6}`,
+          end: () => `+=${window.innerHeight * UNIT * (LEAD + tl.duration())}`,
           pin: true,
           scrub: 0.8,
           invalidateOnRefresh: true,
         },
         onUpdate() {
-          const time = this.time();
+          const time = Math.max(0, this.time() - LEAD);
           rocketClock.time = time; // drives the 3D hologram hand-off
           let idx = 0;
           markers.forEach((m, i) => time >= m && (idx = i));
@@ -146,7 +151,13 @@ export default function Rocket() {
             l.classList.toggle('is-on', time >= i + 0.6);
           });
         },
-      }).add(tl);
+      }).add(tl, LEAD);
+
+      // Fractions of the pin, read by the journey: where the hero rocket
+      // touches down (RocketFlight) and where the launch happens
+      // (JourneyActors: camera follow + astronaut eject).
+      root.current.dataset.land = String(LEAD / pinned.duration());
+      root.current.dataset.launch = String((LEAD + 5.6) / pinned.duration());
     },
     { scope: root }
   );
