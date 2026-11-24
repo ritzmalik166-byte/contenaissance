@@ -3,7 +3,6 @@ import "./user.css";
 
 import Shell from "@/components/Shell";
 import Script from "next/script";
-import VideoModal from '@/components/VideoModal';
 
 import {
   Plus_Jakarta_Sans,
@@ -197,7 +196,7 @@ export default function UserLayout({ children }) {
 
       <Shell>
         {children}
-        <VideoModal />
+        {/* <VideoModal /> is rendered by <Shell> — a second copy opened two players */}
         <FloatingContact />
         </Shell>
     </div>

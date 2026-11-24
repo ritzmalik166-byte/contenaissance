@@ -664,7 +664,9 @@ export function createRocketFlight(container, { getInputs, launch = false }) {
     // heading stays in (−π, π) and blending to 0 is the short way)
     const flip = smooth(0.42, 0.86, u);
     // grows mostly after the flip, when it's upright and fits the screen
-    return { x, y, scale: lerp(E.s, 1, u * u), rz: vel * (1 - flip) };
+    // phones: stays upright the whole way (the path barely moves sideways
+    // on a narrow screen, so banking along it just reads as a crooked rocket)
+    return { x, y, scale: lerp(E.s, 1, u * u), rz: mobile ? 0 : vel * (1 - flip) };
   }
 
   // keep the roll continuous through the loop (no ±π flips)

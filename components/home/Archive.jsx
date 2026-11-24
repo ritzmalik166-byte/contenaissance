@@ -57,7 +57,7 @@ const FILM_LIFT = 28; // films hover this far above their pads (matches the pad 
 const T_START = -1.3; // route position before the section arrives (rocket below frame)
 const T_PIN = -0.35; // route position when the pin starts
 
-function Film({ item, index, isActive, onSelect, onReady }) {
+function Film({ item, index, isActive, onReady }) {
   const url = workVideoUrl(item);
   const portrait = item.ratio?.startsWith('9');
 
@@ -71,7 +71,8 @@ function Film({ item, index, isActive, onSelect, onReady }) {
       <button
         className="afilm"
         style={{ '--ratio': item.ratio }}
-        onClick={() => (isActive ? openVideo(url) : onSelect(index))}
+        data-index={index}
+        /* clicks are handled on .archive__viewport (see onFilmClick) */
         aria-label={isActive ? `Play ${item.title}` : `Go to ${item.title}`}
       >
         {/* The edge must come BEFORE the frame: GSAP sets opacity on .afilm,
@@ -132,6 +133,27 @@ export default function Archive() {
       video.muted = true;
       video.play().catch(() => {});
     }
+  };
+
+  /* Film clicks. Chrome mis-hit-tests the nested 3D transforms (the real
+     click lands on .archive__cam, not the film it draws on top), so find
+     the film from its on-screen box instead. Keyboard clicks (Enter /
+     Space on the button) still arrive with the film as the target. */
+  const onFilmClick = (e) => {
+    let film = e.target.closest?.('.afilm');
+    if (!film) {
+      const { clientX: x, clientY: y } = e;
+      const hits = [...root.current.querySelectorAll('.afilm')].filter((f) => {
+        if (f.style.pointerEvents === 'none' || f.closest('.astation').style.visibility === 'hidden') return false;
+        const r = f.querySelector('.afilm__frame').getBoundingClientRect();
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+      });
+      film = hits.find((f) => +f.dataset.index === activeRef.current) ?? hits[0];
+    }
+    if (!film) return;
+    const index = +film.dataset.index;
+    if (index === activeRef.current) openVideo(workVideoUrl(archive[index]));
+    else jumpRef.current?.(index);
   };
 
   useGSAP(
@@ -555,7 +577,7 @@ export default function Archive() {
       <div className="archive__transit" aria-hidden="true">
         <RocketSprite />
       </div>
-      <div className="archive__viewport">
+      <div className="archive__viewport" onClick={onFilmClick}>
         <div className="archive__cam">
           <div className="archive__world">
             {Array.from({ length: dotCount }, (_, k) => (
@@ -568,7 +590,6 @@ export default function Archive() {
                 item={item}
                 index={i}
                 isActive={i === active}
-                onSelect={(idx) => jumpRef.current?.(idx)}
                 onReady={onReady}
               />
             ))}
