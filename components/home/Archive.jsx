@@ -12,6 +12,7 @@ import { openVideo } from '../VideoModal';
 import { ArrowUpRight } from '../Icons';
 import Split from '../Split';
 import RocketSprite from './journey/RocketSprite';
+import Button from '../common/Button';
 import './MissionArchive.css';
 
 /* =====================================================
@@ -170,6 +171,8 @@ export default function Archive() {
       const rocket = q('.archive__rocket')[0];
       const transit = q('.archive__transit')[0];
       const flame = [rocket, transit].map((el) => el.querySelector('.rsprite__flame'));
+      const engineLight = [rocket, transit].map((el) => el.querySelector('.rsprite__enginelight'));
+      const sprites = [rocket, transit].map((el) => el.querySelector('.rsprite'));
       const glow = q('.archive__rocket-glow')[0];
       const ring = q('.archive__ring')[0];
       const head = q('.archive__head')[0];
@@ -284,6 +287,9 @@ export default function Archive() {
         /* trajectory: lit behind the rocket, hidden behind the camera */
         const litTo = Math.floor((T - (T_START + 0.3)) * DOTS_PER_STATION);
         const hideTo = Math.floor((ct - L.back / L.gap + 0.12 - (T_START + 0.3)) * DOTS_PER_STATION);
+        // past the last film there's nothing left to fly to: the route
+        // fades away while the rocket climbs to the portal
+        section.style.setProperty('--route-a', (1 - smooth(n + 0.3, n + 0.75, T)).toFixed(3));
         // the route draws in once the panel has mostly slid into view
         const draw = clamp01((S.a - 0.62) / 0.38);
         const shown = S.p > 0 ? dots.length : Math.floor(draw * dots.length);
@@ -427,6 +433,14 @@ export default function Archive() {
         // (Universe.css .rsprite__flame) and detaches the flame
         const s = `scale(1, ${(0.85 + boost * 0.9).toFixed(3)})`;
         flame.forEach((el) => el && (el.style.transform = s));
+        // engine light on the hull brightens with the burn, and the
+        // airframe buzzes a little under thrust (the CSS `translate`
+        // property composes with the transform the route sets)
+        engineLight.forEach((el) => el && (el.style.opacity = (0.45 + boost * 0.55).toFixed(3)));
+        const j = boost * 1.1;
+        sprites.forEach((el) => {
+          if (el) el.style.translate = `${((Math.random() - 0.5) * j).toFixed(2)}px ${((Math.random() - 0.5) * j).toFixed(2)}px`;
+        });
       };
       gsap.ticker.add(burn);
 
@@ -667,9 +681,9 @@ export default function Archive() {
         <div className="archive__portal">
           <p className="mono archive__portal-kicker">End of transmission</p>
           <h3 className="display archive__portal-title">More stories wait inside.</h3>
-          <Link href="/portfolio" className="btn btn--light">
-            Explore the archive <ArrowUpRight size={14} />
-          </Link>
+          <Button href="/portfolio" variant="light">
+            Explore the archive
+          </Button>
           <p className="mono archive__portal-note">Concept imagery / A glimpse of our visual language</p>
         </div>
       </div>

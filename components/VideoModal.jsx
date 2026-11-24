@@ -15,15 +15,15 @@ export default function VideoModal() {
   const video = useRef(null);
   const isOpen = useRef(false);
 
+  // Mark closed right away: popstate arrives asynchronously, so a second
+  // call in the same click (the × button, then the backdrop it bubbles
+  // to) would otherwise call history.back() twice and leave the site.
   const closeModal = useCallback(() => {
     if (!isOpen.current) return;
-
-    if (window.history.state?.videoModal) {
-      window.history.back();
-    } else {
-      isOpen.current = false;
-      setSrc(null);
-    }
+    isOpen.current = false;
+    setSrc(null);
+    // drop the history entry the modal added (so Back doesn't reopen it)
+    if (window.history.state?.videoModal) window.history.back();
   }, []);
 
   useEffect(() => {
@@ -98,7 +98,10 @@ export default function VideoModal() {
           <button
             type="button"
             className="vmodal__close"
-            onClick={closeModal}
+            onClick={(e) => {
+              e.stopPropagation(); // don't also trigger the backdrop's close
+              closeModal();
+            }}
             aria-label="Close video"
           >
             <Close />

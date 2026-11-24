@@ -142,6 +142,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   };
 
   const spinners = []; // { obj, speed }
+  const movers = []; // (t) => void — per-frame motion for station decor
   const belts = [];
 
   // The camera flies through belts between stations — push rocks out
@@ -163,22 +164,97 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     // Solutions card instead (Showreel.jsx), so no planet is needed.
 
     work(g) {
-      const saturn = makeRealPlanet(kit, {
+      // Mars, not Saturn: Saturn's surface is horizontal bands, so its
+      // spin is invisible. Mars' craters, dark plains and polar cap
+      // visibly travel across the face as it turns.
+      const planet = makeRealPlanet(kit, {
         radius: 2.1,
-        surface: 'saturn',
-        tint: 0xf1dfc0,
+        surface: 'mars',
+        tint: 0xffe2cc,
         sunDir,
-        atmosphere: { color: '#f3d29a', intensity: 0.8, thickness: 0.05, power: 3.2 },
-        glowColor: '#e9c58a',
+        atmosphere: { color: '#ffb07a', intensity: 0.9, thickness: 0.05, power: 3.2 },
+        glowColor: '#e98a5a',
         glowScale: 3,
-        glowOpacity: 0.22,
+        glowOpacity: 0.2,
       });
-      saturn.position.set(-9, 3, -18);
-      const ring = makePlanetRing(kit, { inner: 2.6, outer: 4.1, tint: 0xe2c49a, opacity: 0.8 });
-      ring.rotation.set(1.2, 0.2, -0.32);
-      saturn.add(ring);
-      g.add(saturn);
-      spinners.push({ obj: saturn.userData.body, speed: 0.32 }); // a visible, steady spin
+      // on a rig that floats and slowly rolls, so it reads as a body in
+      // space rather than a picture
+      const saturnRig = new THREE.Group();
+      saturnRig.position.set(-9, 3, -18);
+      g.add(saturnRig);
+      planet.rotation.z = 0.42; // axial tilt: the spin reads as a globe turning
+      saturnRig.add(planet);
+      spinners.push({ obj: planet.userData.body, speed: 0.45 }); // a clearly visible spin
+
+      // a small moon on a tilted orbit: it swings in front of the planet
+      // and disappears behind it, which sells the depth
+      const moonlet = makeRealPlanet(kit, {
+        radius: 0.34,
+        surface: 'mercury',
+        tint: 0xd9cfc0,
+        sunDir,
+        atmosphere: { intensity: 0 },
+        glowColor: '#e9c58a',
+        glowScale: 2.2,
+        glowOpacity: 0.12,
+        segments: 32,
+      });
+      const moonOrbit = new THREE.Group();
+      moonOrbit.rotation.set(0.35, 0, -0.32);
+      saturnRig.add(moonOrbit);
+      moonOrbit.add(moonlet);
+      spinners.push({ obj: moonlet.userData.body, speed: 0.6 });
+
+      movers.push((t) => {
+        saturnRig.position.set(-9 + Math.sin(t * 0.21) * 0.45, 3 + Math.sin(t * 0.33) * 0.35, -18 + Math.cos(t * 0.17) * 0.8);
+        saturnRig.rotation.set(Math.sin(t * 0.13) * 0.06, 0, Math.sin(t * 0.11) * 0.08);
+        const a = t * 0.42;
+        moonlet.position.set(Math.cos(a) * 5.2, 0, Math.sin(a) * 5.2);
+      });
+
+      // drifting space dust between the camera and the planet: near
+      // motes stream past faster than far ones (parallax)
+      const DUST = mobile ? 160 : 380;
+      const dPos = new Float32Array(DUST * 3);
+      const dSpd = new Float32Array(DUST);
+      for (let i = 0; i < DUST; i++) {
+        dPos[i * 3] = (Math.random() - 0.5) * 34;
+        dPos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+        dPos[i * 3 + 2] = -30 + Math.random() * 30;
+        dSpd[i] = 0.4 + Math.random() * 1.1;
+      }
+      const dustGeo = new THREE.BufferGeometry();
+      dustGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+      const dust = new THREE.Points(
+        dustGeo,
+        new THREE.PointsMaterial({
+          map: glow('#f3dcae'),
+          color: 0xf3dcae,
+          size: 0.16,
+          transparent: true,
+          opacity: 0.7,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          sizeAttenuation: true,
+        })
+      );
+      g.add(dust);
+      let lastT = 0;
+      movers.push((t) => {
+        const dt = Math.min(0.05, Math.max(0, t - lastT));
+        lastT = t;
+        for (let i = 0; i < DUST; i++) {
+          const k = i * 3;
+          dPos[k + 2] += dSpd[i] * dt; // toward the camera
+          dPos[k] += Math.sin(t * 0.3 + i) * 0.004; // a little sideways sway
+          if (dPos[k + 2] > 2) {
+            dPos[k + 2] = -30;
+            dPos[k] = (Math.random() - 0.5) * 34;
+            dPos[k + 1] = (Math.random() - 0.5) * 18;
+          }
+        }
+        dustGeo.attributes.position.needsUpdate = true;
+      });
 
       const belt = makeAsteroidBelt(kit, {
         count: mobile ? 16 : 34,
@@ -697,6 +773,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
 
     if (!reducedMotion) {
       for (const s of spinners) s.obj.rotation.y = t * s.speed;
+      for (const m of movers) m(t);
       for (const b of belts) {
         updateAsteroidBelt(b, t);
       }

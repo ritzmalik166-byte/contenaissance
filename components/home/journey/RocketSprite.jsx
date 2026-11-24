@@ -84,18 +84,67 @@ export default function RocketSprite({ className = '' }) {
         <filter id={id('blur')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="7" />
         </filter>
+        <filter id={id('soft')} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" />
+        </filter>
+        {/* turbulent plume: animated noise ripples the flame edges */}
+        <filter id={id('fire')} x="-60%" y="-20%" width="220%" height="160%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035 0.11" numOctaves="2" seed="3" result="n">
+            <animate attributeName="baseFrequency" dur="0.7s" repeatCount="indefinite" values="0.035 0.11;0.04 0.14;0.032 0.1;0.035 0.11" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <linearGradient id={id('plume')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffb25a" />
+          <stop offset="0.3" stopColor="#ff6a24" />
+          <stop offset="0.75" stopColor="#c8321a" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#8a1e10" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={id('core')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.35" stopColor="#fff3c4" />
+          <stop offset="1" stopColor="#ffd066" stopOpacity="0" />
+        </linearGradient>
+        {/* engine light thrown up onto the lower hull */}
+        <radialGradient id={id('engineLight')} cx="0.5" cy="1" r="0.75">
+          <stop offset="0" stopColor="#ff9a3c" stopOpacity="0.6" />
+          <stop offset="0.5" stopColor="#ff7a2a" stopOpacity="0.18" />
+          <stop offset="1" stopColor="#ff7a2a" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={id('rim')} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#dfe9ff" stopOpacity="0.55" />
+          <stop offset="0.06" stopColor="#dfe9ff" stopOpacity="0" />
+          <stop offset="0.93" stopColor="#ffb070" stopOpacity="0" />
+          <stop offset="1" stopColor="#ffb070" stopOpacity="0.45" />
+        </linearGradient>
       </defs>
 
-      {/* flame (scaled by .rsprite__flame from its top edge) */}
+      {/* flame (scaled by .rsprite__flame from the nozzle exit) */}
       <g className="rsprite__flame">
-        <ellipse cx="52" cy="262" rx="30" ry="40" fill="#ff8a3c" opacity="0.55" filter={`url(#${id('blur')})`} />
-        <path d="M30 238h44l-7 48c-4 26-9 40-15 44-6-4-11-18-15-44Z" fill={`url(#${id('flameOut')})`} />
-        <path d="M40 238h24l-4 30c-2 16-5 24-8 26-3-2-6-10-8-26Z" fill={`url(#${id('flameIn')})`} />
+        {/* wide heat bloom */}
+        <ellipse cx="52" cy="272" rx="36" ry="50" fill="#ff7a2e" opacity="0.5" filter={`url(#${id('blur')})`} />
+        {/* turbulent outer plume */}
+        <g filter={`url(#${id('fire')})`}>
+          <path d="M28 240h48l-6 40c-5 30-11 46-18 50-7-4-13-20-18-50Z" fill={`url(#${id('plume')})`} />
+          <path d="M33 240h38l-6 34c-3 22-8 34-13 37-5-3-10-15-13-37Z" fill={`url(#${id('flameOut')})`} />
+        </g>
+        {/* white-hot core + shock diamonds */}
+        <path d="M41 240h22l-4 24c-2 13-4 20-7 22-3-2-5-9-7-22Z" fill={`url(#${id('core')})`} filter={`url(#${id('soft')})`} />
+        <g fill="#fff6d8" filter={`url(#${id('soft')})`}>
+          <ellipse cx="52" cy="258" rx="5" ry="3.2" opacity="0.85" />
+          <ellipse cx="52" cy="275" rx="4" ry="2.6" opacity="0.6" />
+          <ellipse cx="52" cy="290" rx="3" ry="2" opacity="0.38" />
+        </g>
       </g>
 
-      {/* rear fins (behind the hull), shaded */}
+      {/* rear fins (behind the hull), shaded, lit warm at the base */}
       <path d="M4 186 L-34 246 Q-36 258 -26 258 L4 236 Z" fill={`url(#${id('fin')})`} />
       <path d="M100 186 L138 246 Q140 258 130 258 L100 236 Z" fill={`url(#${id('finDark')})`} />
+      <path d="M4 186 L-34 246 Q-36 258 -26 258 L4 236 Z" fill={`url(#${id('engineLight')})`} opacity="0.7" />
+      <path d="M100 186 L138 246 Q140 258 130 258 L100 236 Z" fill={`url(#${id('engineLight')})`} opacity="0.7" />
+      {/* fin leading-edge highlights */}
+      <path d="M4 188 L-33 246" stroke="#ffd2a6" strokeOpacity="0.5" strokeWidth="1.4" fill="none" />
+      <path d="M100 188 L137 246" stroke="#ffd2a6" strokeOpacity="0.25" strokeWidth="1.2" fill="none" />
 
       {/* nozzle bell */}
       <path d="M34 232h36l6 14H28Z" fill={`url(#${id('bell')})`} />
@@ -118,6 +167,10 @@ export default function RocketSprite({ className = '' }) {
         <rect x="35" y="30" width="2" height="206" fill="#fff" opacity="0.18" />
         {/* soft shadow on the far side */}
         <rect x="74" y="0" width="30" height="236" fill="#000" opacity="0.18" />
+        {/* rim light: cool sky on the lit edge, warm on the far edge */}
+        <rect x="0" y="0" width="104" height="236" fill={`url(#${id('rim')})`} />
+        {/* the engine's glow lighting the lower hull */}
+        <rect className="rsprite__enginelight" x="-10" y="150" width="124" height="90" fill={`url(#${id('engineLight')})`} />
       </g>
 
       {/* fuselage portholes: gold bezel, dark glass, highlight */}

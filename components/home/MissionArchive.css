@@ -67,6 +67,7 @@
   border-radius: 6px;
   background: rgba(244, 241, 234, 0.42);
   box-shadow: 0 0 10px rgba(244, 241, 234, 0.15);
+  opacity: var(--route-a, 1); /* fades out after the last film (Archive.jsx) */
   transition: background 0.35s, box-shadow 0.35s;
 }
 

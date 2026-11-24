@@ -9,15 +9,13 @@
   position: relative;
   isolation: isolate;
   overflow-x: clip;
-  /* Figma type system (fonts loaded in app/(user)/portfolio/page.js) */
-  --font-heading: var(--pf-text), 'Plus Jakarta Sans', sans-serif;
-  --font-body: var(--pf-text), 'Plus Jakarta Sans', sans-serif;
-  --font-mono: var(--pf-mono), 'JetBrains Mono', monospace;
-  --pf-head: var(--pf-display), 'Montserrat', sans-serif;
+  /* the site's two families (app/(user)/layout.js): headings in Plus
+     Jakarta Sans, everything else in Roboto */
+  --pf-head: var(--font-heading);
   font-family: var(--font-body);
 }
 
-/* Display face: Montserrat, as in the Figma headlines. */
+/* Display titles: the heading face (Plus Jakarta Sans). */
 .pf-hero__title,
 .pf-archive__title,
 .pf-stages__title,
@@ -792,7 +790,7 @@
 
 .pf-marquee__track span {
   flex: none;
-  font-family: var(--pf-marquee), 'Inter', sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(64px, 8.4vw, 160px);
   font-weight: 800;
   letter-spacing: -0.02em;

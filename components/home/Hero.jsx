@@ -1,11 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { onSiteReady } from '@/lib/user/ready';
 import Split from '../Split';
-import { ArrowUpRight } from '../Icons';
+import Button from '../common/Button';
 
 /* =====================================================
    HERO — copy on the left, a rocket climbing out of
@@ -188,9 +187,7 @@ export default function Hero() {
           </h1>
 
           <div className="hero__actions hero__fade">
-            <Link href="/portfolio" className="btn hero__btn hero__btn--gold">
-              Explore The Work <ArrowUpRight size={14} />
-            </Link>
+            <Button href="/portfolio">Explore The Work</Button>
           </div>
         </div>
       </div>

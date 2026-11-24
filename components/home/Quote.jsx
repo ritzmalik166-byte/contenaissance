@@ -36,35 +36,31 @@ export default function Quote() {
         // cream filling the whole screen → the universe can rest
         getUniverse()?.setOccluded('quote', k >= 0.999 && r.top <= 0.5 && r.bottom >= vh - 0.5);
 
-        // flare peaks just before the bloom opens, and again as it folds
-        const flare = Math.max(
-          smooth(0, 0.18, pin) * (1 - smooth(0.25, 0.5, pin)),
-          // (softer on the way out — the camera passes close to the star)
-          0.5 * smooth(0.55, 0.9, pout) * (1 - smooth(0.95, 1.1, pout))
-        );
-        getUniverse()?.setStarFlare(reduced ? 0 : flare);
-
         if (reduced) {
           section.style.clipPath = '';
           section.style.opacity = String(Math.min(smooth(0, 0.6, pin), 1 - smooth(0.5, 1, pout)));
           return;
         }
 
-        // bloom centre = the star on screen (section-local px)
-        const s = getUniverse()?.getAnchorNDC('star');
-        let x = r.width / 2;
-        let y = vh / 2 - r.top;
-        if (s && s.z < 1 && Math.abs(s.x) < 1.4 && Math.abs(s.y) < 1.4) {
-          x = ((s.x + 1) / 2) * vw - r.left;
-          y = ((1 - s.y) / 2) * vh - r.top;
-        }
-        const far = Math.hypot(Math.max(x, r.width - x), Math.max(y, r.height - y));
-        const R = k * far;
-        section.style.clipPath = k >= 0.999 ? '' : `circle(${R.toFixed(1)}px at ${x.toFixed(1)}px ${y.toFixed(1)}px)`;
-        section.style.setProperty('--bx', `${x.toFixed(1)}px`);
-        section.style.setProperty('--by', `${y.toFixed(1)}px`);
-        section.style.setProperty('--br', `${R.toFixed(1)}px`);
-        section.style.setProperty('--ring', (k > 0.001 && k < 0.999 ? 1 : 0).toString());
+        // Card → full bleed: the cream section starts as a rounded card in
+        // the middle of the screen and opens out to the edges (and folds
+        // back into a card on the way out). Inset in px of the visible
+        // part of the section, so the card stays centred on screen.
+        const e = k * k * (3 - 2 * k);
+        const visTop = Math.max(0, -r.top);
+        const visBot = Math.max(0, r.bottom - vh);
+        const ix = (1 - e) * vw * 0.16;
+        const iy = (1 - e) * vh * 0.2;
+        const rad = (1 - e) * 56;
+        section.style.clipPath =
+          k >= 0.999
+            ? ''
+            : k <= 0.001
+              ? 'inset(50% 50%)'
+              : `inset(${(visTop + iy).toFixed(1)}px ${ix.toFixed(1)}px ${(visBot + iy).toFixed(1)}px round ${rad.toFixed(1)}px)`;
+        // the content inside settles from slightly zoomed out as it opens
+        section.style.setProperty('--qs', (0.92 + 0.08 * e).toFixed(4));
+        section.style.setProperty('--ring', '0');
       };
 
       ScrollTrigger.create({
@@ -78,7 +74,8 @@ export default function Quote() {
       });
       renderBloom();
 
-      // the star drifts with the camera easing — keep the bloom on it
+      getUniverse()?.setStarFlare(0);
+      // re-render on resize too (the inset is in px)
       const follow = () => {
         if (k > 0 && k < 1) renderBloom();
       };

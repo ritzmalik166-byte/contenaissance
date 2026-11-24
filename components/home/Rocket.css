@@ -1019,9 +1019,7 @@
 
     transform: none !important;
     margin: 16px 0 0 !important;
-    padding: 12px 15px;
-
-    font-size: 12px;
+    /* size, padding and font come from the shared Button (common/Button.css) */
     white-space: nowrap;
     z-index: 20;
   }
@@ -1993,8 +1991,6 @@
     visibility: visible !important;
     opacity: 1;
     margin: 10px 0 0 !important;
-    padding: 9px 12px;
-    font-size: 11px;
   }
 
   .rocket-progress {

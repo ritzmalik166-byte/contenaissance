@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap, useGSAP, ScrollTrigger } from '@/lib/user/gsap';
 import { getUniverse } from '@/lib/user/universe';
 import { webExperiences } from '@/lib/user/content';
+import { openVideo } from '../VideoModal';
 import './Web3D.css';
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -262,8 +263,23 @@ export default function Web3D() {
 
   const current = webExperiences[active];
 
+  /* Film clicks. Chrome mis-hit-tests the films' nested 3D transforms
+     (the click lands on the section/viewport, not the film drawn on top
+     — same issue as the Mission Archive), so find the film from its
+     on-screen box: the one in front wins, then the nearest visible one. */
+  const onStageClick = (e) => {
+    if (e.target.closest?.('.wchip, a, button')) return;
+    const { clientX: x, clientY: y } = e;
+    const hits = [...root.current.querySelectorAll('.bwin')]
+      .map((el, i) => ({ el, i, r: el.getBoundingClientRect(), o: parseFloat(el.style.opacity || '1') }))
+      .filter(({ r, o }) => o > 0.3 && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+    if (!hits.length) return;
+    const pick = hits.find((h) => h.i === active) ?? hits.sort((a, b) => b.o - a.o)[0];
+    openVideo(webExperiences[pick.i].video.src);
+  };
+
   return (
-    <section ref={root} className="web3d" id="web">
+    <section ref={root} className="web3d" id="web" onClick={onStageClick}>
       <h2 className="web3d__title" aria-label="Visually Stunning 3D Websites">
         <span className="split-line" aria-hidden="true">
           <span>
@@ -282,8 +298,14 @@ export default function Web3D() {
               <article
                 key={w.title}
                 className={`bwin${i === active ? ' is-on' : ''}`}
-                onClick={() => goTo(i)}
-                data-cursor={i === active ? undefined : 'View'}
+                // any film opens full-size in the shared video modal (the
+                // side chips still turn the orbit); mouse clicks are
+                // resolved on the section (onStageClick), keys here
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), openVideo(w.video.src))}
+                aria-label={`Play ${w.title}`}
+                data-cursor="Play"
               >
                 <div className="bwin__bar">
                   <i />

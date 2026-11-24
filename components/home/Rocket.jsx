@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { getUniverse } from '@/lib/user/universe';
 import { rocketClock, ASSEMBLY, explodeOffset } from '@/lib/user/rocketFlight';
 import { stages } from '@/lib/user/content';
-import { StageIcon, ArrowRight } from '../Icons';
+import { StageIcon } from '../Icons';
 import { createLaunchSmoke } from './launchSmoke';
+import Button from '../common/Button';
 import './Rocket.css';
 
 const finalPanel = {
@@ -337,14 +337,16 @@ export default function Rocket() {
               <p className="rocket-panel__num">{finalPanel.num}</p>
               <h3>{finalPanel.title}</h3>
               <p>{finalPanel.body}</p>
-              <Link
+              <Button
                 href="/services"
-                className="btn btn--ghost rocket-panel__button"
+                variant="ghost"
+                icon="right"
+                className="rocket-panel__button"
                 style={{ marginTop: 22 }}
                 onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
-                See every stage <ArrowRight />
-              </Link>
+                See every stage
+              </Button>
             </article>
           </div>
 

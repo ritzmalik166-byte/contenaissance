@@ -17,9 +17,14 @@
   --paper: #f7f5f0;
   --ink: #121110;
 
+  /* Two families only: Plus Jakarta Sans (headings), Roboto (the rest).
+     The real faces come from next/font on the layout wrapper
+     (.site-fonts, below); these are the plain-name fallbacks. */
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Roboto', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: var(--font-heading);
+  --font-hero: var(--font-heading);
+  --font-mono: var(--font-body);
 
   --pad: clamp(20px, 4.4vw, 64px);
   --max: 1440px;
@@ -50,14 +55,27 @@ body {
   overflow-x: hidden;
 }
 
-/* All headings */
+/* The layout wrapper carries the next/font faces (--font-heading,
+   --font-body); the legacy names used across the components are
+   re-pointed here so they resolve to those same two faces. */
+.site-fonts {
+  --font-display: var(--font-heading);
+  --font-hero: var(--font-heading);
+  --font-mono: var(--font-body);
+  --font-sans: var(--font-body);
+  font-family: var(--font-body);
+}
+
+/* All headings — and everything inside them (split-text spans, <b>,
+   <em>…) — are Plus Jakarta Sans, whatever a component class says. */
 h1,
 h2,
 h3,
 h4,
 h5,
-h6 {
-  font-family: var(--font-heading);
+h6,
+:is(h1, h2, h3, h4, h5, h6) * {
+  font-family: var(--font-heading) !important;
 }
 
 /* Other elements */
@@ -4400,7 +4418,7 @@ textarea {
 .jcard__title {
   margin: 0 0 13px;
   color: #171747;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-heading);
   font-size: clamp(19px, 1.45vw, 25px);
   font-weight: 700;
   line-height: 1.23;
@@ -5514,7 +5532,7 @@ textarea {
     text-align: center;
   }
 
-  .hjournal__head .btn {
+  .hjournal__head .cbtn {
     margin: 0 auto;
   }
 }

@@ -4,17 +4,15 @@ import "./user.css";
 import Shell from "@/components/Shell";
 import Script from "next/script";
 
-import {
-  Plus_Jakarta_Sans,
-  Roboto,
-  JetBrains_Mono,
-  Montserrat,
-} from "next/font/google";
+// Only two families on the site: Plus Jakarta Sans for every heading,
+// Roboto for everything else (body, links, labels, buttons).
+import { Plus_Jakarta_Sans, Roboto } from "next/font/google";
 import FloatingContact from "@/components/common/FloatingContact";
 
 const heading = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"], // the hero's italic line
   variable: "--font-heading",
   display: "swap",
 });
@@ -26,21 +24,6 @@ const body = Roboto({
   display: "swap",
 });
 
-// Hero display face (light upright + bold italic, per the hero design)
-const hero = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
-  variable: "--font-hero",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
-  display: "swap",
-});
 
 export const metadata = {
   metadataBase: new URL("https://www.contenaissance.com"),
@@ -133,7 +116,7 @@ export const viewport = {
 export default function UserLayout({ children }) {
   return (
     <div
-      className={`${heading.variable} ${body.variable} ${mono.variable} ${hero.variable}`}
+      className={`${heading.variable} ${body.variable} site-fonts`}
     >
       <link
         rel="dns-prefetch"
