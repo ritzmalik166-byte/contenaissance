@@ -60,7 +60,7 @@
 }
 
 .holo {
-  --c: 111, 247, 255;
+  --c: 233, 185, 73; /* brand gold (logo, --gold #e9b949) */
   position: absolute;
   left: 0;
   top: 0;

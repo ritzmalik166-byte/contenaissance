@@ -7,6 +7,7 @@ import { getUniverse } from '@/lib/user/universe';
 import { rocketClock, ASSEMBLY, explodeOffset } from '@/lib/user/rocketFlight';
 import { stages } from '@/lib/user/content';
 import { StageIcon, ArrowRight } from '../Icons';
+import { createLaunchSmoke } from './launchSmoke';
 import './Rocket.css';
 
 const finalPanel = {
@@ -78,7 +79,6 @@ export default function Rocket() {
           ease: 'power2.in',
         }, 4.8)
         .to(q('.rocket'), { x: '+=3', yoyo: true, repeat: 7, duration: 0.06, ease: 'none' }, 5.1)
-        .to(q('.rocket__smoke'), { opacity: 1, scale: 1.6, duration: 0.8 }, 5.2)
         // flies fully out of frame and fades, so it's gone before the
         // astronaut ejects into the About / Showreel sections
         .to(q('.rocket'), { y: () => -window.innerHeight * 1.8, duration: 1.6, ease: 'power2.in' }, 5.6)
@@ -88,10 +88,23 @@ export default function Rocket() {
           duration: 1.2,
         }, 5.6)
         .call(() => getUniverse()?.pulse(), null, 5.6)
-        .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
         // stay pinned a while after the launch, so the pilot's eject
         // (JourneyActors) plays out slowly instead of all at once
-        .to({}, { duration: 1.8 });
+        .to({}, { duration: 1.8 }, 7.2); // ends at 9.0
+
+      // Launch smoke (launchSmoke.js): a ground cloud at ignition and an
+      // exhaust column trailing the real nozzle; it then dissolves over a
+      // few seconds on its own.
+      const smokeCanvas = q('.launch-smoke')[0];
+      const nozzle = q('.rocket__nozzle')[0];
+      const smoke = smokeCanvas
+        ? createLaunchSmoke(smokeCanvas, () => {
+            const c = smokeCanvas.getBoundingClientRect();
+            const r = nozzle.getBoundingClientRect();
+            if (!r.width) return null;
+            return { x: r.left + r.width / 2 - c.left, y: r.bottom - c.top };
+          })
+        : null;
 
       const markers = [
         0.6,  // S1
@@ -143,6 +156,7 @@ export default function Rocket() {
         onUpdate() {
           const time = Math.max(0, this.time() - LEAD);
           rocketClock.time = time; // drives the 3D hologram hand-off
+          smoke?.setTime(time);
           let idx = 0;
           markers.forEach((m, i) => time >= m && (idx = i));
           setActive(idx);
@@ -158,6 +172,8 @@ export default function Rocket() {
       // (JourneyActors: camera follow + astronaut eject).
       root.current.dataset.land = String(LEAD / pinned.duration());
       root.current.dataset.launch = String((LEAD + 5.6) / pinned.duration());
+
+      return () => smoke?.destroy();
     },
     { scope: root }
   );
@@ -174,6 +190,9 @@ export default function Rocket() {
       className="rocket-sec"
       id="stages"
     >
+      {/* launch smoke (launchSmoke.js) — under the rocket and the copy */}
+      <canvas className="launch-smoke" aria-hidden="true" />
+
       <div className="container rocket-sec__inner">
         <div className="rocket-stage">
           <div className="rocket">

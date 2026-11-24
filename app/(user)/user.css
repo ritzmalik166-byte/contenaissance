@@ -831,7 +831,7 @@ textarea {
   right: max(var(--hero-left), 120px); /* clear of the floating WhatsApp / call buttons */
   bottom: clamp(28px, 5svh, 64px);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* only the scroll cue now, kept on the right */
   align-items: center;
   gap: 20px;
 }

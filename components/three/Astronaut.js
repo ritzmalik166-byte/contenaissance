@@ -283,7 +283,7 @@ export function createAstronaut(kit, { sunDir } = {}) {
   });
   const sole = new THREE.MeshStandardMaterial({ color: 0x26282c, roughness: 0.95 });
   const hoseMat = new THREE.MeshStandardMaterial({ color: 0xbfbcb5, roughness: 0.7, envMap: env });
-  const screen = new THREE.MeshBasicMaterial({ color: 0x6ff7ff, toneMapped: false });
+  const screen = new THREE.MeshBasicMaterial({ color: 0xf3c94f, toneMapped: false });
   const lamp = new THREE.MeshBasicMaterial({ color: 0xfff4d6, toneMapped: false });
   const lens = new THREE.MeshStandardMaterial({ color: 0x101216, metalness: 0.4, roughness: 0.1, envMap: env });
   const patch = new THREE.MeshStandardMaterial({ map: patchTexture(), roughness: 0.8 });
@@ -523,8 +523,8 @@ export function createAstronaut(kit, { sunDir } = {}) {
   device.add(wrist);
   const deviceGlow = new THREE.Sprite(
     new THREE.SpriteMaterial({
-      map: glowTexture('#6ff7ff'),
-      color: 0x6ff7ff,
+      map: glowTexture('#f3c94f'),
+      color: 0xf3c94f,
       transparent: true,
       opacity: 0,
       depthWrite: false,
@@ -533,7 +533,7 @@ export function createAstronaut(kit, { sunDir } = {}) {
   );
   deviceGlow.scale.setScalar(0.45);
   wrist.add(deviceGlow);
-  const deviceLight = new THREE.PointLight(0x6ff7ff, 0, 1.6, 2);
+  const deviceLight = new THREE.PointLight(0xf3c94f, 0, 1.6, 2);
   wrist.add(deviceLight);
 
   /* ---------- legs ---------- */

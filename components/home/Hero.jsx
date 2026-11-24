@@ -56,8 +56,7 @@ export default function Hero() {
           .to(s, { v: 1, duration: 2.6, ease: 'power3.out', onUpdate: () => scene && (scene.state.intro = s.v) }, 0)
           .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.4, stagger: 0.025 }, 0.1)
           .to(fades, { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 0.5)
-          .fromTo(q('.hero__halo'), { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power2.out' }, 0)
-          .fromTo(q('.hero__bars i'), { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 1);
+          .fromTo(q('.hero__halo'), { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power2.out' }, 0);
       });
       const off = onSiteReady(intro);
 
@@ -180,11 +179,6 @@ export default function Hero() {
 
       <div className="hero__inner">
         <div className="hero__content">
-          <p className="hero__eyebrow hero__fade">
-            <span className="hero__eyebrow-line" aria-hidden="true" />
-            AI Storytelling Studio
-          </p>
-
           <div className="hero__headline">
             <Split as="p" className="hero__title" lines={['Our AI Stages.', 'One Launch.']} />
           </div>
@@ -197,28 +191,11 @@ export default function Hero() {
             <Link href="/portfolio" className="btn hero__btn hero__btn--gold">
               Explore The Work <ArrowUpRight size={14} />
             </Link>
-            <Link href="/contact" className="hero__mission">
-              <span className="hero__mission-icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 14 14">
-                  <path d="M3.5 1.8v10.4L12 7 3.5 1.8Z" fill="currentColor" />
-                </svg>
-              </span>
-              Start a mission
-            </Link>
           </div>
         </div>
       </div>
 
       <div className="hero__foot">
-        <div className="hero__count hero__fade" aria-hidden="true">
-          <span className="hero__count-num">01 / 04</span>
-          <span className="hero__bars">
-            <i />
-            <b />
-            <b />
-            <b />
-          </span>
-        </div>
         <div className="scroll-cue hero__fade">
           Scroll to explore
           <span className="hero__cue-sep" aria-hidden="true" />

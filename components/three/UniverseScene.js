@@ -318,7 +318,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   beamGeo.setAttribute('alpha', new THREE.BufferAttribute(new Float32Array([1, 0.22, 0.22, 0.22, 0.22]), 1));
   beamGeo.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1]);
   const beamMat = new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color(0x6ff7ff) }, uStrength: { value: 0 } },
+    uniforms: { uColor: { value: new THREE.Color(0xe9b949) }, uStrength: { value: 0 } },
     vertexShader: /* glsl */ `
       attribute float alpha;
       varying float vAlpha;
