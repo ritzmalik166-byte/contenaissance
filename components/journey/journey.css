@@ -978,17 +978,20 @@
   background: #b1b1b1;
   transition: 0.5s;
   transform: rotate(0deg) skewY(-45deg);
+  backface-visibility: hidden;
 }
 .m-footer .m-footer__social > li a::after {
   content: '';
   position: absolute;
-  top: 80px;
-  left: -11px;
-  height: 20px;
-  width: 100%;
+  top: 79px;
+  left: -10px;
+  width: calc(100% + 1px);
+  height: 21px;
   background: #b1b1b1;
-  transition: all 1s;
-  transform: rotate(0deg) skewX(-45deg);
+  transform: skewX(-45deg);
+  transform-origin: center;
+  transition: background 0.5s ease;
+  backface-visibility: hidden;
 }
 .m-footer .m-footer__social > li a:hover,
 .m-footer .m-footer__social > li a:focus-visible {
@@ -1113,6 +1116,7 @@
 .m-footer__top:hover span {
   transform: translateY(-3px);
 }
+
 
 /* laptops / tablets: brand on its own row */
 @media (max-width: 1100px) {
