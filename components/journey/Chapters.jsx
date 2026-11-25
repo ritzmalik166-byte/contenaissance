@@ -440,6 +440,8 @@ export function ClientsChapter() {
 }
 
 /* 12 — LOGO + CALL TO ACTION */
+const SHOW_CTA = false;
+
 export function LogoChapter() {
   return (
     <section id="contact" className="j-ch j-logo" data-ch="logo" aria-labelledby="j-cta-title">
@@ -447,6 +449,8 @@ export function LogoChapter() {
         <p className="j-beat j-hint" data-in="0.02" data-out="0.6" aria-hidden="true">
           Keep scrolling · the mark is forming
         </p>
+        {/* "Start a mission" CTA — hidden for now; flip SHOW_CTA to bring it back */}
+        {SHOW_CTA && (
         <div className="j-beat j-cta" data-in="0.84" data-out="9">
           <Kicker>Start a mission</Kicker>
           <h2 id="j-cta-title" className="j-display j-display--lg">
@@ -464,6 +468,7 @@ export function LogoChapter() {
             <a href={site.phoneHref}>{site.phone}</a>
           </p>
         </div>
+        )}
       </div>
     </section>
   );
