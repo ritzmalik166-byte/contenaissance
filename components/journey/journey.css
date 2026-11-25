@@ -992,10 +992,13 @@
 }
 .m-footer .m-footer__social > li a:hover,
 .m-footer .m-footer__social > li a:focus-visible {
-  transform: perspective(1000px) rotate(-30deg) skew(25deg) translate(20px, -20px);
-  /* a box-shaped grey slab below-left of the lifted tile (the reference's -50/50 offset),
-     kept crisp so it reads as a box on black; offset > the 20px sides so they don't cover it */
-  box-shadow: 3px -3px 5px rgba(90, 90, 90, 0.7), -48px 48px 6px rgba(90, 90, 90, 0.85), -60px 60px 40px rgba(120, 120, 120, 0.3);
+  transform: perspective(1000px) rotate(-30deg) skew(25deg)
+    translate(20px, -20px);
+
+  box-shadow:
+    3px -3px 5px rgba(90, 90, 90, 0.25),
+    -48px 48px 6px rgba(90, 90, 90, 0.25),
+    -60px 60px 30px rgba(120, 120, 120, 0.12);
 }
 .m-footer .m-footer__social > li:hover .fa,
 .m-footer .m-footer__social > li:focus-within .fa {
