@@ -855,7 +855,8 @@
   color: var(--gold);
 }
 .m-footer__col {
-  padding: 0 clamp(28px, 3.2vw, 56px);
+  /* content sits close to its left divider; the space before the next divider stays */
+  padding: 0 clamp(28px, 3.2vw, 56px) 0 clamp(16px, 1.4vw, 24px);
   border-left: 1px solid var(--line);
 }
 .m-footer__col:last-child {
@@ -921,83 +922,118 @@
   color: var(--ink);
 }
 
-/* 3D isometric social tiles — the CodePen recipe (80px tile, 20px depth) scaled by --t.
-   White tile, grey sides, dark icon; on hover the tile lifts and takes the brand colour. */
-.m-footer ul.m-footer__social {
-  --t: 34px; /* tile size; every other measure is a fraction of it, as in the original */
+/* 3D social icons — the CodePen code as-is (80px tiles, Font Awesome 4.7 glyphs),
+   scoped to the footer. `zoom` shrinks the whole row to fit the column without
+   touching a single value. Hover colours are keyed by platform, not nth-child. */
+.m-footer .m-footer__social {
+  zoom: 0.42;
   display: flex;
-  flex-wrap: nowrap;
-  gap: calc(var(--t) * 0.95);
-  padding: 4px calc(var(--t) * 0.4) calc(var(--t) * 0.45) calc(var(--t) * 0.4);
+  gap: 0;
+  margin: 0;
+  padding: 0 0 24px 24px;
 }
-.m-footer .m-footer__social a {
-  --face: #fff;
-  --side: #b1b1b1;
-  --base: #b1b1b1;
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: var(--t);
-  height: var(--t);
-  background: var(--face);
+.m-footer .m-footer__social > li {
+  list-style: none;
+  margin: 0 40px;
+}
+.m-footer .m-footer__social > li:first-child {
+  margin-left: 0;
+}
+.m-footer .m-footer__social > li .fa {
+  font-size: 40px;
   color: #262626;
-  transform: perspective(100px) rotate(-30deg) skew(25deg) translate(0, 0);
-  box-shadow: calc(var(--t) * -0.25) calc(var(--t) * 0.25) calc(var(--t) * 0.125) rgba(0, 0, 0, 0.5);
-  transition: all 0.7s;
+  line-height: 80px;
+  transition: 0.5s;
 }
-.m-footer .m-footer__social a::before,
-.m-footer .m-footer__social a::after {
+/* X has no Font Awesome 4 glyph: same size/colour as the .fa icons */
+.m-footer .m-footer__social > li .m-fa-x {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  margin-top: 22px;
+  vertical-align: top;
+  fill: #262626;
+  transition: 0.5s;
+}
+.m-footer .m-footer__social > li a {
+  position: relative;
+  display: block;
+  width: 80px;
+  height: 80px;
+  background-color: #fff;
+  text-align: center;
+  transform: perspective(100px) rotate(-30deg) skew(25deg) translate(0, 0);
+  transition: all 0.7s;
+  /* original: rgb(0 0 0 / .5) — lifted to charcoal so it shows on the black footer */
+  /* + a thin charcoal edge on the top and right sides so all four edges read */
+  box-shadow: 3px -3px 5px rgba(90, 90, 90, 0.7), -20px 20px 10px rgba(64, 64, 64, 0.75);
+}
+.m-footer .m-footer__social > li a::before {
   content: '';
   position: absolute;
-  background: var(--side);
-}
-/* left side: top 10 / left -20 / width 20 of 80 */
-.m-footer .m-footer__social a::before {
-  top: calc(var(--t) * 0.125);
-  left: calc(var(--t) * -0.25);
-  width: calc(var(--t) * 0.25);
+  top: 10px;
+  left: -20px;
   height: 100%;
+  width: 20px;
+  background: #b1b1b1;
   transition: 0.5s;
   transform: rotate(0deg) skewY(-45deg);
 }
-/* bottom side: top 80 / left -11 / height 20 of 80 */
-.m-footer .m-footer__social a::after {
-  top: var(--t);
-  left: calc(var(--t) * -0.1375);
+.m-footer .m-footer__social > li a::after {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: -11px;
+  height: 20px;
   width: 100%;
-  height: calc(var(--t) * 0.25);
-  background: var(--base);
+  background: #b1b1b1;
   transition: all 1s;
   transform: rotate(0deg) skewX(-45deg);
 }
-.m-footer .m-footer__social a:hover,
-.m-footer .m-footer__social a:focus-visible {
+.m-footer .m-footer__social > li a:hover,
+.m-footer .m-footer__social > li a:focus-visible {
+  transform: perspective(1000px) rotate(-30deg) skew(25deg) translate(20px, -20px);
+  /* a box-shaped grey slab below-left of the lifted tile (the reference's -50/50 offset),
+     kept crisp so it reads as a box on black; offset > the 20px sides so they don't cover it */
+  box-shadow: 3px -3px 5px rgba(90, 90, 90, 0.7), -48px 48px 6px rgba(90, 90, 90, 0.85), -60px 60px 40px rgba(120, 120, 120, 0.3);
+}
+.m-footer .m-footer__social > li:hover .fa,
+.m-footer .m-footer__social > li:focus-within .fa {
   color: #fff;
-  transform: perspective(1000px) rotate(-30deg) skew(25deg) translate(calc(var(--t) * 0.25), calc(var(--t) * -0.25));
-  box-shadow: calc(var(--t) * -0.625) calc(var(--t) * 0.625) calc(var(--t) * 0.625) rgba(0, 0, 0, 0.5);
 }
-/* icon = half the tile, like font-size 40px on an 80px tile */
-.m-footer__social svg {
-  position: relative;
-  z-index: 1;
-  width: calc(var(--t) * 0.5);
-  height: calc(var(--t) * 0.5);
-  transition: 0.5s;
+.m-footer .m-footer__social > li:hover .m-fa-x,
+.m-footer .m-footer__social > li:focus-within .m-fa-x {
+  fill: #fff;
 }
-.m-footer__social .is-facebook a:hover,
-.m-footer__social .is-facebook a:focus-visible { --face: #1877f2; --side: #0f5fc7; --base: #1468d8; }
-.m-footer__social .is-instagram a:hover,
-.m-footer__social .is-instagram a:focus-visible {
-  --face: linear-gradient(#400080, transparent), linear-gradient(200deg, #d047d1, #ff0000, #ffff00);
-  --side: var(--face);
-  --base: var(--face);
+
+.m-footer .m-footer__social > li.is-youtube:hover a { background: #ff0000; }
+.m-footer .m-footer__social > li.is-youtube:hover a::before { background: #b10f0f; }
+.m-footer .m-footer__social > li.is-youtube:hover a::after { background: #a70606; }
+
+.m-footer .m-footer__social > li.is-twitter:hover a { background: #000000; }
+.m-footer .m-footer__social > li.is-twitter:hover a::before { background: #000000; }
+.m-footer .m-footer__social > li.is-twitter:hover a::after { background: rgb(16, 15, 15); }
+
+.m-footer .m-footer__social > li.is-linkedin:hover a { background: #0077b5; }
+.m-footer .m-footer__social > li.is-linkedin:hover a::before { background: #036aa0; }
+.m-footer .m-footer__social > li.is-linkedin:hover a::after { background: #0d82bf; }
+
+.m-footer .m-footer__social > li.is-instagram:hover a,
+.m-footer .m-footer__social > li.is-instagram:hover a::before,
+.m-footer .m-footer__social > li.is-instagram:hover a::after {
+  background: linear-gradient(#400080, transparent), linear-gradient(200deg, #d047d1, #ff0000, #ffff00);
 }
-.m-footer__social .is-linkedin a:hover,
-.m-footer__social .is-linkedin a:focus-visible { --face: #0077b5; --side: #036aa0; --base: #0d82bf; }
-.m-footer__social .is-twitter a:hover,
-.m-footer__social .is-twitter a:focus-visible { --face: #000; --side: #000; --base: rgb(16, 15, 15); }
-.m-footer__social .is-youtube a:hover,
-.m-footer__social .is-youtube a:focus-visible { --face: #ff0000; --side: #b10f0f; --base: #a70606; }
+
+/* not in the CodePen: Facebook blue in the same three-shade pattern */
+.m-footer .m-footer__social > li.is-facebook:hover a { background: #1877f2; }
+.m-footer .m-footer__social > li.is-facebook:hover a::before { background: #0f5fc7; }
+.m-footer .m-footer__social > li.is-facebook:hover a::after { background: #1468d8; }
+
+@media (max-width: 720px) {
+  .m-footer .m-footer__social {
+    zoom: 0.36;
+  }
+}
 
 /* ---- bottom bar ---- */
 .m-footer__bar {
