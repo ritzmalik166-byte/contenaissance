@@ -31,7 +31,11 @@ export default function Shell({ children }) {
     window.__lenis = lenis;
     lenis.on('scroll', ScrollTrigger.update);
 
-    const tick = (time) => lenis.raf(time * 1000);
+    const tick = (time) => {
+      lenis.raf(time * 1000);
+      // the home page's WebGL journey renders in the same tick, after the scroll moved
+      window.__journeyFrame?.(performance.now());
+    };
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
@@ -49,14 +53,18 @@ export default function Shell({ children }) {
     return () => clearTimeout(id);
   }, [pathname]);
 
+  // The home page is an immersive WebGL journey with its own navigation,
+  // cursor and footer (components/journey), so the standard chrome steps aside.
+  const immersive = pathname === '/';
+
   return (
     <>
       <PageTransition />
       <Motion />
-      <Cursor />
-      <Header />
+      {!immersive && <Cursor />}
+      {!immersive && <Header />}
       <main>{children}</main>
-      <Footer />
+      {!immersive && <Footer />}
       <VideoModal />
     </>
   );

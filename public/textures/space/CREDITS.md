@@ -13,5 +13,8 @@ All files are re-encoded to WebP (resized / cropped) for the web.
 | `pbr/rock_*` | Poly Haven, *Rock Boulder Dry* | CC0 |
 | `pbr/metal_*` | ambientCG, *MetalPlates008* | CC0 |
 | `pbr/solar_*` | ambientCG, *SolarPanel003* | CC0 |
+| `planets/jupiter_1k`, `venus_1k`, `uranus_1k` | [Solar System Scope](https://www.solarsystemscope.com/textures/) 2k maps, resized | CC BY 4.0 |
+| `fx/cloud*`, `fx/smoke` | Procedural (fractal noise), made for this site | — |
+| `/models/saturn-v.glb` | [NASA 3D Resources](https://science.nasa.gov/3d-resources/saturn-v/), Saturn V | NASA media usage guidelines (free to use) |
 
 `pbr/*_arm_*` maps pack ambient occlusion (R), roughness (G) and metalness (B).
