@@ -4,9 +4,10 @@ import "./user.css";
 import Shell from "@/components/Shell";
 import Script from "next/script";
 
-// Only two families on the site: Plus Jakarta Sans for every heading,
-// Roboto for everything else (body, links, labels, buttons).
-import { Plus_Jakarta_Sans, Roboto } from "next/font/google";
+// Plus Jakarta Sans for every heading, Roboto for everything else
+// (body, links, labels, buttons). Cinzel is only the footer's gold
+// CONTENAISSANCE wordmark (it matches the logo's lettering).
+import { Plus_Jakarta_Sans, Roboto, Cinzel } from "next/font/google";
 import FloatingContact from "@/components/common/FloatingContact";
 
 const heading = Plus_Jakarta_Sans({
@@ -21,6 +22,13 @@ const body = Roboto({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
   variable: "--font-body",
+  display: "swap",
+});
+
+const wordmark = Cinzel({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-wordmark",
   display: "swap",
 });
 
@@ -116,7 +124,7 @@ export const viewport = {
 export default function UserLayout({ children }) {
   return (
     <div
-      className={`${heading.variable} ${body.variable} site-fonts`}
+      className={`${heading.variable} ${body.variable} ${wordmark.variable} site-fonts`}
     >
       <link
         rel="dns-prefetch"

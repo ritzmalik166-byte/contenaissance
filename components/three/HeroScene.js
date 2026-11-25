@@ -25,7 +25,17 @@ const LAYOUT = {
 };
 const pickLayout = (mobile, aspect) => (mobile ? LAYOUT.mobile : aspect < 0.9 ? LAYOUT.tablet : LAYOUT.desktop);
 
-export function createHeroScene(container) {
+/**
+ * opts (optional — the footer reuses this scene):
+ *   getLayout(aspect, mobile) → { gx, gy, tilt, moon: { x, y, r } }
+ *     overrides LAYOUT (same NDC units)
+ *   drift: false → Earth and moon hold still instead of slowly drifting
+ *   sunUp: how far the sun has risen over the limb (default 0.42;
+ *     lower = more of the night side and its city lights)
+ *   res: desktop Earth surface/cloud texture size ('2k' | '4k', default '4k')
+ *   realClouds: true → the photoreal cloud pass in the Earth shader
+ */
+export function createHeroScene(container, opts = {}) {
   if (!container) return null;
 
   let mobile = window.innerWidth < 760;
@@ -110,7 +120,7 @@ export function createHeroScene(container) {
   // Slow "still flying" drift while the page rests: Earth falls away
   // behind the rocket and the moon draws closer, easing to a stop over
   // about a minute so nothing ever leaves the frame.
-  const driftAt = (t) => 1 - Math.exp(-t / 22);
+  const driftAt = opts.drift === false ? () => 0 : (t) => 1 - Math.exp(-t / 22);
 
   /* ---------- crescent moon ---------- */
   const MOON_Z = -10;
@@ -132,7 +142,8 @@ export function createHeroScene(container) {
 
   /* ---------- Earth on a diagonal horizon ---------- */
   const EARTH_R = 70;
-  const EARTH_SUN_UP = 0.42; // how far the sun has climbed over the horizon (wider day band)
+  // how far the sun has climbed over the horizon (wider day band)
+  const EARTH_SUN_UP = opts.sunUp ?? 0.42;
   const HORIZON_Z = -35;
   const horizon = new THREE.Group();
   scene.add(horizon);
@@ -144,7 +155,7 @@ export function createHeroScene(container) {
   // daylight runs along the limb and fades into night towards the viewer.
   // Earth fills a big part of the frame, so desktop gets 4k surface and
   // clouds (the day map is the Blue Marble colour with 8k relief detail).
-  const res = mobile ? '1k' : '4k';
+  const res = mobile ? '1k' : opts.res || '4k';
   const earthSun = new THREE.Vector3(); // world space, set in layout()
   const earthMat = new THREE.ShaderMaterial({
     uniforms: {
@@ -154,6 +165,10 @@ export function createHeroScene(container) {
       specMap: { value: kit.data(`planets/earth_spec_${mobile ? '1k' : '2k'}.webp`) },
       sunDir: { value: earthSun },
       cloudShift: { value: 0 },
+      // photoreal cloud pass (relief-lit tops, soft shadows, silver
+      // lining, city light glowing through the deck) — opts.realClouds
+      hq: { value: opts.realClouds ? 1 : 0 },
+      cloudBump: { value: 2.2 }, // how strongly the cloud tops are relief-lit
     },
     vertexShader: /* glsl */ `
       varying vec2 vUv;
@@ -174,6 +189,8 @@ export function createHeroScene(container) {
       uniform sampler2D specMap;
       uniform vec3 sunDir;
       uniform float cloudShift;
+      uniform float hq;
+      uniform float cloudBump;
       varying vec2 vUv;
       varying vec3 vN;
       varying vec3 vPos;
@@ -197,6 +214,33 @@ export function createHeroScene(container) {
         float cloudRaw = texture2D(cloudMap, cuv).r;
         float cloud = smoothstep(0.08, 0.75, cloudRaw);
         float shadow = smoothstep(0.08, 0.75, texture2D(cloudMap, cuv + L.xy * 0.0012).r);
+        vec3 Nc = N;
+        if (hq > 0.5) {
+          // softer density curve: thin cirrus veils stay translucent, cores stay dense
+          cloud = pow(smoothstep(0.03, 0.82, cloudRaw), 1.15);
+          // soft-edged shadows cast along the sun direction
+          vec2 so = L.xy * 0.0016;
+          shadow = smoothstep(0.05, 0.8,
+            0.5 * texture2D(cloudMap, cuv + so).r +
+            0.25 * texture2D(cloudMap, cuv + so * 1.7).r +
+            0.25 * texture2D(cloudMap, cuv + so * 0.6).r);
+          // relief: tilt the cloud-top normal by the density gradient,
+          // sampled a couple of texels apart (smooth, no faceting when
+          // the map is magnified) along a per-pixel cotangent frame
+          vec2 ts = 2.0 / vec2(textureSize(cloudMap, 0));
+          float gu = texture2D(cloudMap, cuv + vec2(ts.x, 0.0)).r - texture2D(cloudMap, cuv - vec2(ts.x, 0.0)).r;
+          float gv = texture2D(cloudMap, cuv + vec2(0.0, ts.y)).r - texture2D(cloudMap, cuv - vec2(0.0, ts.y)).r;
+          vec3 dp1 = dFdx(vPos);
+          vec3 dp2 = dFdy(vPos);
+          vec2 duv1 = dFdx(vUv);
+          vec2 duv2 = dFdy(vUv);
+          vec3 dp2perp = cross(dp2, N);
+          vec3 dp1perp = cross(N, dp1);
+          vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+          vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+          float invmax = inversesqrt(max(max(dot(T, T), dot(B, B)), 1e-12));
+          Nc = normalize(N - (T * gu + B * gv) * invmax * cloudBump);
+        }
 
         // surface: satellite colour, a touch of contrast, cloud shadows
         vec3 albedo = texture2D(dayMap, vUv).rgb;
@@ -216,13 +260,35 @@ export function createHeroScene(container) {
         vec3 oceanSpec = sunCol * (pow(nh, 60.0) * 0.25 + pow(nh, 600.0) * 1.6);
         col += (oceanSpec + vec3(0.18, 0.32, 0.6) * fresW * 0.35) * water * day * (1.0 - cloud);
 
-        // clouds: bright, lit by the sun, a little shaded where thin
-        vec3 cloudCol = sunCol * (0.04 + light * 1.75) * mix(0.82, 1.0, cloud);
-        col = mix(col, cloudCol, cloud * smoothstep(-0.08, 0.1, ndl));
-
-        // city lights on the night side, dimmed by cloud
         vec3 lights = texture2D(nightMap, vUv).rgb * vec3(1.0, 0.78, 0.5);
-        col += lights * (1.0 - day) * (1.0 - cloud * 0.8) * 2.0;
+        if (hq > 0.5) {
+          float night = 1.0 - day;
+          float cLight = max(dot(Nc, L), 0.0);
+          // thick cores self-shadow on the side away from the sun
+          float thick = smoothstep(0.45, 1.0, cloudRaw);
+          float ao = mix(1.0, 0.68, thick * (1.0 - cLight));
+          // silver lining: thin edges glow when the sun is behind them
+          float forward = pow(max(dot(-V, L), 0.0), 6.0) * cloud * (1.0 - cloud) * 4.0;
+          // cloud tops sit high in clear air: they stay white except
+          // right on the terminator, where they catch the sunrise
+          vec3 cloudSun = mix(vec3(1.0, 0.6, 0.34), vec3(1.0, 0.985, 0.97), smoothstep(-0.03, 0.09, ndl));
+          vec3 cloudCol = cloudSun * (cLight * 1.7 + forward * 1.3) * ao;
+          cloudCol += vec3(0.32, 0.45, 0.7) * 0.1 * day * ao; // blue skylight in the shade
+          cloudCol *= mix(0.78, 1.0, smoothstep(0.1, 0.6, cloudRaw)); // thin veils are dimmer
+          cloudCol += vec3(0.010, 0.013, 0.02) * night; // faint moonlit deck at night
+          col = mix(col, cloudCol, cloud * mix(0.85, 1.0, day));
+
+          // city lights: sharp under clear sky, diffused up through the cloud deck
+          vec3 glow = texture2D(nightMap, vUv, 3.5).rgb * vec3(1.0, 0.7, 0.42);
+          col += lights * night * (1.0 - cloud * 0.92) * 2.0;
+          col += glow * night * (cloud * 0.45 + (1.0 - cloud) * 0.12);
+        } else {
+          // clouds: bright, lit by the sun, a little shaded where thin
+          vec3 cloudCol = sunCol * (0.04 + light * 1.75) * mix(0.82, 1.0, cloud);
+          col = mix(col, cloudCol, cloud * smoothstep(-0.08, 0.1, ndl));
+          // city lights on the night side, dimmed by cloud
+          col += lights * (1.0 - day) * (1.0 - cloud * 0.8) * 2.0;
+        }
 
         // sunrise: warm light caught mostly by the cloud tops at the terminator
         col += vec3(1.0, 0.45, 0.15) * twilight * (0.04 + cloud * 0.22);
@@ -301,7 +367,7 @@ export function createHeroScene(container) {
   /* ---------- layout from the viewport ---------- */
   const lay = { hx: 0, hy: 0, tilt: 0, mx: 0, my: 0, mr: 1 };
   const layout = () => {
-    const L = pickLayout(mobile, camera.aspect);
+    const L = opts.getLayout ? opts.getLayout(camera.aspect, mobile) : pickLayout(mobile, camera.aspect);
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
 
     // horizon: centre the sphere down-right of the sunrise point so the
