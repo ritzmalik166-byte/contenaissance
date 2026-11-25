@@ -32,7 +32,7 @@ export function Blog({ posts = [] }) {
           </Link>
         </header>
         <div className="m-blog__grid">
-          {posts.slice(0, 3).map((p, i) => (
+          {posts.slice(0, 4).map((p, i) => (
             <article key={p.slug} className={`m-post${i === 0 ? ' m-post--lead' : ''}`} data-reveal style={{ '--i': i }}>
               <Link href={`/blog/${p.slug}`} className="m-post__link" data-cursor="READ">
                 <span className="m-post__media">

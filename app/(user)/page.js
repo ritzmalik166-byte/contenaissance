@@ -25,7 +25,7 @@ export default async function Home() {
   // the homepage always shows field notes: fall back to the bundled snapshot
   if (!posts?.length) posts = (blogSnapshot?.data || []).map(normalizePost).filter(Boolean);
   const latest = (posts || [])
-    .slice(0, 3)
+    .slice(0, 4)
     .map(({ slug, title, image, date, readTime, excerpt, description }) => ({
       slug,
       title,

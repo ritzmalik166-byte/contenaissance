@@ -124,10 +124,7 @@
   color: var(--gold);
 }
 .m-kicker--gold::before {
-  content: '';
-  width: 26px;
-  height: 1px;
-  background: var(--gold);
+  display: none;
 }
 .m-center .m-kicker--gold::after {
   content: '';
@@ -330,10 +327,13 @@
   gap: 28px;
   padding: 18px var(--pad);
   opacity: 0;
-  transition: background 0.5s, padding 0.5s var(--ease), opacity 0.8s 0.2s;
+  transition: background 0.5s, padding 0.5s var(--ease), opacity 0.8s 0.2s, transform 0.5s var(--ease);
 }
 .is-ready .m-nav {
   opacity: 1;
+}
+.m-nav.is-hidden {
+  transform: translateY(-110%);
 }
 .m-nav.is-solid {
   padding: 10px var(--pad);
@@ -571,17 +571,20 @@
 .m-blog__grid {
   display: grid;
   grid-template-columns: 1.45fr 1fr;
-  grid-template-rows: auto auto;
+  /* extra height from the lead goes below the 2nd card, so the side cards stay stacked tight */
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
   gap: clamp(20px, 2.4vw, 36px);
 }
 .m-post--lead {
-  grid-row: 1 / 3;
+  grid-row: 1 / 4;
 }
 .m-post {
   transition-delay: calc(var(--i) * 0.1s) !important;
 }
 .m-post__link {
   display: grid;
+  align-content: start;
   gap: 18px;
   color: var(--ink);
   text-decoration: none;
@@ -593,15 +596,17 @@
 .m-post__media {
   display: block;
   overflow: hidden;
-  aspect-ratio: 16 / 10;
+  align-self: start;
   border: 1px solid var(--line);
   background: #0b0b0b;
   transition: transform 0.8s var(--ease), border-color 0.4s;
 }
+/* show the full artwork: the box follows the image's own ratio, no crop */
 .m-post__media img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   transition: transform 1.2s var(--ease);
 }
 .m-post__link:hover .m-post__media {
@@ -640,7 +645,30 @@
   -webkit-line-clamp: 3;
 }
 .m-post:not(.m-post--lead) .m-post__excerpt {
+  font-size: 13.5px;
+  line-height: 1.5;
   -webkit-line-clamp: 2;
+}
+/* compact side cards */
+.m-post:not(.m-post--lead) .m-post__link {
+  gap: 16px;
+}
+.m-post:not(.m-post--lead) .m-post__text {
+  gap: 6px;
+}
+.m-post:not(.m-post--lead) .m-post__meta {
+  font-size: 11px;
+}
+.m-post:not(.m-post--lead) .m-post__title {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: clamp(16px, 1.15vw, 19px);
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.m-post:not(.m-post--lead) .m-post__cta {
+  font-size: 11px;
 }
 .m-post__cta {
   font-size: 12px;
@@ -665,13 +693,20 @@
 .m-footer__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px;
-  padding: 44px 0;
+  gap: 48px;
+  padding: 56px 0 48px;
   border-top: 1px solid var(--line-gold);
+  text-align: center;
+}
+.m-footer__grid > * {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .m-footer ul {
   display: grid;
-  gap: 10px;
+  gap: 14px;
+  justify-items: center;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -687,6 +722,7 @@
 }
 .m-footer__addr {
   max-width: 34ch;
+  margin-inline: auto;
   font-size: 13px;
   line-height: 1.6;
   color: var(--ink-3);
@@ -694,17 +730,21 @@
 .m-footer__bar {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px 24px;
-  padding-top: 22px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-top: 24px;
   border-top: 1px solid var(--line);
+  text-align: center;
   font-size: 12px;
   color: var(--ink-3);
 }
 .m-footer__legal {
   display: flex;
   flex-wrap: wrap;
-  gap: 22px;
+  justify-content: center;
+  gap: 12px 24px;
 }
 .m-footer__legal button,
 .m-footer__legal a {
@@ -838,6 +878,9 @@ html:has(.journey) .floating-contact {
   height: 1px;
   background: var(--gold);
 }
+.m-kicker--gold::after {
+  display: none;
+}
 .j-center .j-lead {
   margin-inline: auto;
 }
@@ -864,6 +907,7 @@ html:has(.journey) .floating-contact {
 }
 .j-display--xl {
   font-size: clamp(50px, 8.4vw, 140px);
+  
   letter-spacing: -0.045em;
 }
 .j-display--lg {
@@ -1065,7 +1109,7 @@ html:has(.journey) .floating-contact {
 }
 .j-hero__sub {
   display: block;
-  max-width: 58ch;
+  max-width: 72ch;
   margin-top: 26px;
   font-family: var(--font-body);
   font-size: clamp(14.5px, 1.1vw, 17px);
@@ -1582,7 +1626,7 @@ html:has(.journey) .floating-contact {
 }
 .j-transmission blockquote p {
   margin: 0;
-  font-family: var(--font-heading);
+  /* font-family: var(--font-heading); */
   font-size: clamp(20px, 1.9vw, 28px);
   line-height: 1.34;
   color: var(--ink);

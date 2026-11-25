@@ -31,8 +31,8 @@ export function EarthChapter() {
               <br />
               of creativity.
             </span>
-            <span className="j-hero__sub">{hero.sub}</span>
           </h1>
+          <span className="j-hero__sub">{hero.sub}</span>
           <p className="j-scrollhint" aria-hidden="true">
             <i /> Scroll to begin the journey
           </p>
@@ -187,7 +187,7 @@ export function ShowreelChapter() {
     const v = vid.current;
     if (!v) return;
     if (!v.src) v.src = showreel.preview;
-    v.play().catch(() => {});
+    v.play().catch(() => { });
   };
   const leave = () => {
     setHot(false);

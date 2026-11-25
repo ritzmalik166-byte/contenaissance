@@ -9,6 +9,7 @@ export default function Navigation() {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState('');
   const [solid, setSolid] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const logo = useRef(null);
 
   useEffect(() => {
@@ -37,7 +38,15 @@ export default function Navigation() {
       const el = document.getElementById(n.href.slice(1));
       if (el) io.observe(el);
     });
-    const onScroll = () => setSolid(window.scrollY > 40);
+    // hide on scroll down, reveal on scroll up (always shown near the top)
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setSolid(y > 40);
+      if (Math.abs(y - lastY) < 6) return;
+      setHidden(y > 80 && y > lastY);
+      lastY = y;
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
@@ -66,7 +75,7 @@ export default function Navigation() {
 
   return (
     <>
-      <header className={`m-nav${solid ? ' is-solid' : ''}${open ? ' is-open' : ''}`}>
+      <header className={`m-nav${solid ? ' is-solid' : ''}${hidden && !open ? ' is-hidden' : ''}${open ? ' is-open' : ''}`}>
         <Link href="/" className="m-nav__brand" aria-label="Contenaissance, home" data-cursor="HOME">
           <img ref={logo} src="/images/logo.png" alt="Contenaissance — Ritz GenAI Storytelling Studios" width="274" height="133" />
         </Link>
