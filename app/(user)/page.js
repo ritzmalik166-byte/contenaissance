@@ -1,18 +1,6 @@
-import Hero from '@/components/home/Hero';
-import Rocket from '@/components/home/Rocket';
-import About from '@/components/home/About';
-import Showreel from '@/components/home/Showreel';
-import Solutions from '@/components/home/Solutions';
-import Archive from '@/components/home/Archive';
-import Web3D from '@/components/home/Web3D';
-import Testimonials from '@/components/home/Testimonials';
-import Journal from '@/components/home/Journal';
-import Quote from '@/components/home/Quote';
-import Cta from '@/components/Cta';
-import UniverseCanvas from '@/components/home/journey/UniverseCanvas';
-import JourneyActors from '@/components/home/journey/JourneyActors';
-import RocketFlight from '@/components/home/journey/RocketFlight';
-import { getPosts } from '@/lib/user/blog';
+import Journey from '@/components/journey/Journey';
+import { getPosts, normalizePost } from '@/lib/user/blog';
+import blogSnapshot from '@/lib/user/blog.json';
 export const revalidate = 3600;
 
 export const metadata = {
@@ -28,7 +16,14 @@ export const metadata = {
 };
 
 export default async function Home() {
-  const posts = await getPosts();
+  let posts = [];
+  try {
+    posts = await getPosts();
+  } catch {
+    posts = [];
+  }
+  // the homepage always shows field notes: fall back to the bundled snapshot
+  if (!posts?.length) posts = (blogSnapshot?.data || []).map(normalizePost).filter(Boolean);
   const latest = (posts || [])
     .slice(0, 3)
     .map(({ slug, title, image, date, readTime, excerpt, description }) => ({
@@ -40,25 +35,5 @@ export default async function Home() {
       excerpt: excerpt || description || '',
     }));
 
-  return (
-    <div className="journey">
-      <Hero />
-      <Rocket />
-      <About />
-      <Showreel />
-      <Solutions />
-      <Archive />
-      <Web3D />
-      <Testimonials />
-      <Journal posts={latest} />
-      <Quote />
-      <Cta />
-      {/* Shared 3D universe behind every section (fixed, z-index -1) */}
-      <UniverseCanvas />
-      {/* Rocket / astronaut that carry the viewer between sections */}
-      <JourneyActors />
-      {/* Hero's 3D rocket — flies into the Rocket section and assembles */}
-      <RocketFlight />
-    </div>
-  );
+  return <Journey posts={latest} />;
 }
