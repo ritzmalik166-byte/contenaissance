@@ -1,12 +1,19 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LegalPolicyModal } from './LegalPolicyModal';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { site } from '@/lib/user/content';
 import FooterWord from './FooterWord';
 
+/* =====================================================
+   FOOTER — deep space: the homepage hero's Earth (night
+   side, golden sunrise on the limb) rising under the gold
+   CONTENAISSANCE wordmark, and its crescent moon top right.
+   The scene is three/HeroScene, re-laid-out through its
+   getLayout option so the limb sits under the letters.
+===================================================== */
 
 const SocialIcon = ({ platform }) => {
   const paths = {
@@ -63,9 +70,106 @@ const SocialIcon = ({ platform }) => {
   );
 };
 
+const MailIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+    <path d="M3 5.5h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1Zm.9 2.1v.2l8.1 5.6 8.1-5.6v-.2H3.9Zm16.2 2.5-7.5 5.2a1 1 0 0 1-1.2 0l-7.5-5.2v6.4h16.2v-6.4Z" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+    <path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1L6.6 10.8Z" />
+  </svg>
+);
+
+// NDC y (-1 bottom … 1 top) of the line the gold wordmark stands on, so
+// Earth's sunrise limb sits right under the letters at any screen size.
+// offsetTop (not getBoundingClientRect) so the scroll parallax on
+// .footer__inner doesn't skew it.
+const wordBaseline = (footer) => {
+  const row = footer.querySelector('.fword__row');
+  if (!row || !footer.offsetHeight) return -0.4;
+  let y = 0;
+  for (let n = row; n && n !== footer; n = n.offsetParent) y += n.offsetTop;
+  const base = y + row.offsetHeight * 0.9;
+  return 1 - (2 * base) / footer.offsetHeight;
+};
+
 export default function Footer() {
   const root = useRef(null);
+  const space = useRef(null);
   const [activePolicy, setActivePolicy] = useState(null);
+
+  /* ---------- Earth + moon backdrop ---------- */
+  useEffect(() => {
+    const footer = root.current;
+    const wrap = space.current;
+    if (!footer || !wrap) return undefined;
+    let scene = null;
+    let dead = false;
+    let intro = null;
+
+    // HeroScene draws the visible limb a little above gy (it's seen from
+    // above), more so on tall phone footers — pull it back onto the letters
+    const getLayout = (aspect, mobile) => ({
+      gx: 0,
+      gy: wordBaseline(footer) - (mobile ? 0.1 : 0.04),
+      tilt: 0,
+      moon: mobile
+        ? { x: 0.74, y: 0.74, r: Math.min(0.3, 0.34 * aspect) }
+        : { x: 0.92, y: 0.8, r: Math.min(0.38, 0.3 * aspect) },
+    });
+
+    const boot = () => {
+      import('./three/HeroScene').then(({ createHeroScene }) => {
+        if (dead || !space.current) return;
+        scene = createHeroScene(space.current, {
+          getLayout,
+          drift: false,
+          sunUp: 0.2, // enough daylight along the limb to light the clouds
+          res: '4k', // the cloud deck is seen up close here
+          realClouds: true,
+        });
+        if (!scene) return;
+        // the horizon rises into place as the footer scrolls in
+        intro = gsap.to(scene.state, {
+          intro: 1,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: footer, start: 'top bottom', end: 'bottom bottom', scrub: 1 },
+        });
+        document.fonts?.ready.then(() => !dead && scene.resize());
+      });
+    };
+
+    // three.js only loads once the footer is getting close
+    const near = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        near.disconnect();
+        boot();
+      },
+      { rootMargin: '800px 0px' }
+    );
+    near.observe(footer);
+
+    // the moon leans gently with the cursor
+    const onMove = (e) => {
+      if (!scene) return;
+      const r = footer.getBoundingClientRect();
+      scene.setPointer(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
+    };
+    footer.addEventListener('pointermove', onMove);
+
+    return () => {
+      dead = true;
+      near.disconnect();
+      footer.removeEventListener('pointermove', onMove);
+      intro?.scrollTrigger?.kill();
+      intro?.kill();
+      scene?.destroy();
+    };
+  }, []);
+
   useGSAP(
     () => {
       gsap.fromTo(
@@ -98,6 +202,7 @@ export default function Footer() {
   return (
     <>
       <footer ref={root} className="footer">
+        <div ref={space} className="footer__space" aria-hidden="true" />
         <div className="container footer__inner">
           <div className="footer__top">
             <div className="footer__brand">
@@ -108,7 +213,6 @@ export default function Footer() {
             </div>
 
             <div className="footer__cols">
-
               {/* Explore */}
               <div className="footer__col">
                 <p>Explore</p>
@@ -122,8 +226,14 @@ export default function Footer() {
               {/* Reach */}
               <div className="footer__col">
                 <p>Reach</p>
-                <a href={`mailto:${site.email}`}>{site.email}</a>
-                <a href={site.phoneHref}>{site.phone}</a>
+                <a className="footer__reach" href={`mailto:${site.email}`}>
+                  <MailIcon />
+                  <span>{site.email}</span>
+                </a>
+                <a className="footer__reach" href={site.phoneHref}>
+                  <PhoneIcon />
+                  <span>{site.phone}</span>
+                </a>
               </div>
 
               {/* Follow Us */}
@@ -145,9 +255,7 @@ export default function Footer() {
                   ))}
                 </div>
               </div>
-
             </div>
-
           </div>
 
           <FooterWord />
@@ -155,30 +263,28 @@ export default function Footer() {
           <div className="footer__bottom">
             <span>© {new Date().getFullYear()} Contenaissance. All rights reserved.</span>
             <div className="footer__legal">
-              <button
-                type="button"
-                onClick={() => setActivePolicy('privacy')}
-              >
+              <button type="button" onClick={() => setActivePolicy('privacy')}>
                 Privacy Policy
               </button>
 
-              <button
-                type="button"
-                onClick={() => setActivePolicy('cookies')}
-              >
+              <span className="footer__legal-sep" aria-hidden="true">|</span>
+
+              <button type="button" onClick={() => setActivePolicy('cookies')}>
                 Cookies Policy
               </button>
             </div>
             <button className="footer__top-link" onClick={toTop}>
-              End of transmission / Back to top ↑
+              <span>Back to Top</span>
+              <span className="footer__top-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+              </span>
             </button>
           </div>
         </div>
       </footer>
-      <LegalPolicyModal
-        policyId={activePolicy}
-        onClose={() => setActivePolicy(null)}
-      />
+      <LegalPolicyModal policyId={activePolicy} onClose={() => setActivePolicy(null)} />
     </>
   );
 }

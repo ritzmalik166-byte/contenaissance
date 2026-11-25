@@ -1,10 +1,9 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { gsap, useGSAP, isTouch } from '@/lib/user/gsap';
 import Split from './Split';
-import { ArrowUpRight } from './Icons';
+import Button from './common/Button';
 
 export default function Cta() {
   const root = useRef(null);
@@ -45,9 +44,9 @@ export default function Cta() {
           <p className="kicker">09 / Open a new flight plan</p>
           <Split as="h2" className="display cta__title" lines={['What’s your ', 'next big story?']} />
           <div className="cta__row">
-            <Link href="/contact" className="btn btn--gold cta__btn">
-              Let’s make it happen <ArrowUpRight />
-            </Link>
+            <Button href="/contact" className="cta__btn">
+              Let’s make it happen
+            </Button>
             <p>Bring the spark. We’ll help you find a world it can live in.</p>
           </div>
         </div>

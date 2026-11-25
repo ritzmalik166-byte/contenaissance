@@ -776,6 +776,12 @@
   box-sizing: border-box;
 }
 
+/* …except headings in the article: Plus Jakarta Sans, like every heading */
+.ct-blog-content-body :is(h1, h2, h3, h4, h5, h6),
+.ct-blog-content-body :is(h1, h2, h3, h4, h5, h6) * {
+  font-family: var(--font-heading) !important;
+}
+
 .ct-blog-content-body [style*="text-align"],
 .ct-blog-content-body p,
 .ct-blog-content-body li,

@@ -3,18 +3,17 @@ import "./user.css";
 
 import Shell from "@/components/Shell";
 import Script from "next/script";
-import VideoModal from '@/components/VideoModal';
 
-import {
-  Plus_Jakarta_Sans,
-  Roboto,
-  JetBrains_Mono,
-} from "next/font/google";
+// Plus Jakarta Sans for every heading, Roboto for everything else
+// (body, links, labels, buttons). Cinzel is only the footer's gold
+// CONTENAISSANCE wordmark (it matches the logo's lettering).
+import { Plus_Jakarta_Sans, Roboto, Cinzel } from "next/font/google";
 import FloatingContact from "@/components/common/FloatingContact";
 
 const heading = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"], // the hero's italic line
   variable: "--font-heading",
   display: "swap",
 });
@@ -26,12 +25,13 @@ const body = Roboto({
   display: "swap",
 });
 
-const mono = JetBrains_Mono({
+const wordmark = Cinzel({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
+  weight: ["700"],
+  variable: "--font-wordmark",
   display: "swap",
 });
+
 
 export const metadata = {
   metadataBase: new URL("https://www.contenaissance.com"),
@@ -124,7 +124,7 @@ export const viewport = {
 export default function UserLayout({ children }) {
   return (
     <div
-      className={`${heading.variable} ${body.variable} ${mono.variable}`}
+      className={`${heading.variable} ${body.variable} ${wordmark.variable} site-fonts`}
     >
       <link
         rel="dns-prefetch"
@@ -187,7 +187,7 @@ export default function UserLayout({ children }) {
 
       <Shell>
         {children}
-        <VideoModal />
+        {/* <VideoModal /> is rendered by <Shell> — a second copy opened two players */}
         <FloatingContact />
         </Shell>
     </div>

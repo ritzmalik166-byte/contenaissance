@@ -5,11 +5,30 @@ import { useRef, useState } from 'react';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { formats } from '@/lib/user/content';
 import { openVideo } from '../VideoModal';
+import Video from '../Video';
+import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
 import { getUniverse } from '@/lib/user/universe';
+
+/* Card → Azure asset (lib/user/video-assets.js). Same clips as the
+   previous local /videos/NN.mp4 files (durations match), keyed by the
+   card title so each video stays in its exact position. */
+const ASSET_BY_TITLE = {
+  'Brand Films': 'video01',   // was /videos/01.mp4
+  Commercials: 'video03',     // was /videos/03.mp4
+  'Social Content': 'video09', // was /videos/09.mp4
+  'Music Videos': 'video12',  // was /videos/12.mp4
+  Documentary: 'video10',     // was /videos/10.mp4
+};
+
+/** Azure URL for a card; falls back to the local file if unmapped */
+const cardVideoUrl = (f) =>
+  getVideoUrl(ASSET_BY_TITLE[f?.title]) ?? f?.video?.full ?? f?.video?.preview ?? null;
 
 export default function Solutions() {
   const root = useRef(null);
   const [active, setActive] = useState(0);
+  // the card GSAP wants playing (read by <Video onReady>)
+  const activeRef = useRef(0);
 
   useGSAP(
     () => {
@@ -28,6 +47,7 @@ export default function Solutions() {
         if (currentIndex === index) return;
 
         currentIndex = index;
+        activeRef.current = index;
 
         videos.forEach((video, i) => {
           if (!video) return;
@@ -36,14 +56,28 @@ export default function Solutions() {
             video.muted = true;
             video.loop = true;
             video.playsInline = true;
+            video.preload = 'auto';
 
             video.play().catch(() => { });
           } else {
             video.pause();
+            video.preload = 'metadata';
           }
         });
 
         setActive(index);
+      };
+
+      // Off the pinned section: stop every card so it doesn't keep
+      // playing / downloading while the Mission Archive needs the network
+      const stopVideos = () => {
+        currentIndex = -1;
+        activeRef.current = -1;
+        videos.forEach((video) => {
+          if (!video) return;
+          video.pause();
+          video.preload = 'metadata';
+        });
       };
 
       // Initial card setup
@@ -107,30 +141,24 @@ export default function Solutions() {
 
       tl.to({}, { duration: 0.4 });
 
-      /* ---------- Mars atmosphere (journey) ----------
-         The section is see-through while it scrolls in: the camera
-         dives onto Mars in the shared universe. Once pinned, the
-         orange "atmosphere" blooms out from Mars on screen, the
-         content arrives, the cards flip, and on the way out the
-         atmosphere contracts back into Mars as the camera pulls away
-         toward the Archive. */
+      /* ---------- Showreel → Solutions (journey) ----------
+         This section slides in transparent over the end of the
+         Showreel pin (see .solutions-wrap) while the showreel film
+         swings in 3D and shrinks into the first card's spot
+         (Showreel.jsx). The real card fades in exactly there, then
+         the orange atmosphere blooms out from the card and the rest
+         of the content rises out of depth. On the way out it all
+         folds back and the atmosphere collapses into the card. */
       const section = root.current;
-      const content = gsap.utils.toArray(
-        '.solutions__label, .solutions__count, .solutions__marquee, .solutions__stage, .solutions__list, .solutions__desc',
-        section
-      );
+      const q = gsap.utils.selector(section);
+      const stage = q('.solutions__stage');
+      const marquee = q('.solutions__marquee');
+      const copy = q('.solutions__label, .solutions__count, .solutions__list, .solutions__desc');
       const atmo = { v: 0 };
-      const dive = { v: 0 };
       const ENTRY = 0.9;
-      const EXIT = 0.9;
+      const EXIT = 0.25;
 
       const renderAtmo = () => {
-        const m = getUniverse()?.getMarsNDC();
-        const onScreen = m && m.z < 1;
-        const ax = onScreen ? ((m.x + 1) / 2) * 100 : 62;
-        const ay = onScreen ? ((1 - m.y) / 2) * 100 : 55;
-        section.style.setProperty('--ax', `${gsap.utils.clamp(-20, 120, ax).toFixed(2)}%`);
-        section.style.setProperty('--ay', `${gsap.utils.clamp(-20, 120, ay).toFixed(2)}%`);
         section.style.setProperty('--atmo', atmo.v.toFixed(4));
         // fully orange and filling the screen → the universe can rest
         const r = section.getBoundingClientRect();
@@ -139,10 +167,9 @@ export default function Solutions() {
           atmo.v >= 0.999 && r.top <= 0.5 && r.bottom >= window.innerHeight - 0.5
         );
       };
-      const pushDive = () => getUniverse()?.setDive(dive.v);
       renderAtmo();
 
-      // approach: Showreel has sliced open, Solutions scrolls in unseen
+      // approach: the card appears as the docking film lands on it
       gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
@@ -152,7 +179,9 @@ export default function Solutions() {
           scrub: true,
           invalidateOnRefresh: true,
         },
-      }).fromTo(dive, { v: 0 }, { v: 0.65, ease: 'power1.in', onUpdate: pushDive });
+      })
+        .fromTo(stage, { autoAlpha: 0 }, { autoAlpha: 0, duration: 0.9 })
+        .to(stage, { autoAlpha: 1, duration: 0.1 });
 
       // Scroll animation
       const total = ENTRY + tl.duration() + EXIT;
@@ -162,11 +191,18 @@ export default function Solutions() {
           start: 'top top',
           end: () => `+=${window.innerHeight * 3.2 * (total / tl.duration())}`,
           pin: true,
-          scrub: true, // atmosphere must track Mars without lag
+          scrub: true,
           invalidateOnRefresh: true,
+          onLeave: () => stopVideos(),
         },
 
         onUpdate() {
+          // past the end of the pin (on into the archive) — stay stopped
+          if (this.scrollTrigger && this.scrollTrigger.progress >= 1) {
+            stopVideos();
+            renderAtmo();
+            return;
+          }
           const index = Math.min(
             cards.length - 1,
             Math.max(0, Math.round(this.time() - ENTRY - 0.25))
@@ -177,46 +213,41 @@ export default function Solutions() {
         },
       });
 
+      const flipDur = tl.duration();
+
       master
-        // atmosphere entry: the last of the dive, then the bloom
-        .fromTo(dive, { v: 0.65 }, { v: 1, duration: ENTRY * 0.6, ease: 'power2.out', onUpdate: pushDive }, 0)
+        // atmosphere blooms out of the card
         .fromTo(atmo, { v: 0 }, { v: 1, duration: ENTRY, ease: 'power2.in' }, 0)
-        .fromTo(content, { autoAlpha: 0, scale: 1.08 }, { autoAlpha: 1, scale: 1, duration: ENTRY * 0.5, ease: 'power2.out' }, ENTRY * 0.55)
-        .add(tl, ENTRY)
-        .fromTo(
-          '.solutions__marquee',
-          { xPercent: 0 },
-          {
-            xPercent: -50,
-            ease: 'none',
-            duration: tl.duration(),
-          },
-          ENTRY
-        )
+        // the card gives a small 3D bow as it takes over from the film
         .fromTo(
           '.sel-frame',
-          { rotateZ: -4, y: 40 },
-          {
-            rotateZ: 4,
-            y: -40,
-            ease: 'none',
-            duration: tl.duration(),
-          },
-          ENTRY
+          { rotateY: 0, rotateZ: 0, y: 0, z: 0 },
+          { rotateY: -14, z: 60, duration: ENTRY * 0.5, ease: 'power2.out' },
+          0
         )
-        // exit: content leaves, atmosphere collapses back into Mars,
-        // camera pulls out toward the Archive
-        .to(content, { autoAlpha: 0, scale: 0.94, duration: EXIT * 0.4, ease: 'power2.in' }, ENTRY + tl.duration())
-        .to(atmo, { v: 0, duration: EXIT, ease: 'power2.inOut' }, ENTRY + tl.duration())
-        .to(dive, { v: 0, duration: EXIT, ease: 'power2.inOut', onUpdate: pushDive }, ENTRY + tl.duration() + EXIT * 0.25);
-
-      // Mars keeps drifting (camera easing, pointer parallax) even when
-      // the scroll is still — keep the bloom centred on it.
-      const follow = () => {
-        if (atmo.v > 0 && atmo.v < 1) renderAtmo();
-      };
-      gsap.ticker.add(follow);
-      return () => gsap.ticker.remove(follow);
+        .to('.sel-frame', { rotateY: 0, z: 0, duration: ENTRY * 0.5, ease: 'power2.inOut' }, ENTRY * 0.5)
+        // giant marquee flies forward out of depth behind the card
+        .fromTo(
+          marquee,
+          { autoAlpha: 0, z: -1400, rotateX: 50, yPercent: -50, xPercent: 0, transformPerspective: 1000 },
+          { autoAlpha: 1, z: 0, rotateX: 0, duration: ENTRY * 0.7, ease: 'power3.out' },
+          ENTRY * 0.3
+        )
+        // copy rises and tips up into place
+        .fromTo(
+          copy,
+          { autoAlpha: 0, y: 50, rotateX: -70, transformPerspective: 800, transformOrigin: '50% 100%' },
+          { autoAlpha: 1, y: 0, rotateX: 0, duration: ENTRY * 0.45, stagger: 0.06, ease: 'power3.out' },
+          ENTRY * 0.45
+        )
+        .add(tl, ENTRY)
+        .to(marquee, { xPercent: -50, ease: 'none', duration: flipDur }, ENTRY)
+        .to('.sel-frame', { rotateZ: 4, y: -40, ease: 'none', duration: flipDur }, ENTRY)
+        // exit: no fade-out — the section stays whole and slides off to
+        // the left as the Mission Archive pans in from the right
+        // (Archive.jsx), so there's never an empty screen in between.
+        // A short hold lets the last card settle first.
+        .to({}, { duration: EXIT }, ENTRY + flipDur);
 
     },
     { scope: root }
@@ -225,13 +256,16 @@ export default function Solutions() {
   const words = Array.from({ length: 4 });
 
   return (
+    // Overlaps the last viewport of the Showreel pin so the film can
+    // dock straight into the first card (see Showreel.jsx)
+    <div className="solutions-wrap">
     <section
       ref={root}
       className={`solutions ${formats[active]?.title === 'Documentary' ? 'solutions--documentary' : ''}`}
       id="solutions"
     >
-      {/* Mars atmosphere: the orange gradient, revealed by a radial
-          mask that grows from Mars' screen position (--ax/--ay/--atmo) */}
+      {/* Orange atmosphere, revealed by a radial mask that grows
+          out of the card (--atmo) */}
       <div className="solutions__atmo" aria-hidden="true">
         <div className="solutions__noise" />
       </div>
@@ -263,10 +297,7 @@ export default function Solutions() {
           <div
             className="flip"
             onClick={() => {
-              const currentFormat = formats[active];
-              const videoSrc =
-                currentFormat?.video?.full ||
-                currentFormat?.video?.preview;
+              const videoSrc = cardVideoUrl(formats[active]);
 
               if (videoSrc) {
                 openVideo(videoSrc);
@@ -279,26 +310,38 @@ export default function Solutions() {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
 
-                const currentFormat = formats[active];
-                const videoSrc =
-                  currentFormat?.video?.full ||
-                  currentFormat?.video?.preview;
+                const videoSrc = cardVideoUrl(formats[active]);
 
                 if (videoSrc) openVideo(videoSrc);
               }
             }}
           >
 
-            {formats.map((f) => (
+            {formats.map((f, i) => (
               <figure className="flip__card" key={f.title}>
-                <video
-                  src={f.video.preview}
-                  poster={f.video.poster}
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
+                {/* GSAP (activateVideo) owns play/pause: no autoplay and no
+                    visibility pausing here, exactly as before. Buffers fully
+                    (preload="auto") once the section is a viewport away. */}
+                <Video
+                  src={cardVideoUrl(f)}
+                  poster={getPosterUrl(ASSET_BY_TITLE[f.title]) ?? f.video.poster}
+                  autoPlay={false}
+                  pauseWhenHidden={false}
+                  preload="metadata" /* the active card switches to 'auto' — six full downloads at once starve the rest of the page */
+                  rootMargin="100% 0px"
+                  placeholder={false}
+                  showPlayButton="never"
+                  respectReducedMotion={false}
+                  respectDataSaver={false}
+                  style={{ backgroundColor: 'transparent' }}
                   disablePictureInPicture
+                  onReady={(video) => {
+                    // the source attaches after GSAP's first play() call —
+                    // start the active card as soon as it can play
+                    if (i === activeRef.current && video.paused) {
+                      video.play().catch(() => {});
+                    }
+                  }}
                 />
 
                 <figcaption>
@@ -331,5 +374,6 @@ export default function Solutions() {
         think beyond the ordinary.
       </p>
     </section>
+    </div>
   );
 }

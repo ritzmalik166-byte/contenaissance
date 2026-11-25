@@ -66,10 +66,33 @@ export function updateAsteroidBelt(group, t) {
   const rocks = group.userData.rocks;
   if (!rocks) return;
 
+  // Each rock circles its own spot on a small ellipse that runs through
+  // depth (it comes nearer and recedes, so perspective sells the 3D),
+  // bobs, and tumbles on real time (not per frame). The belt as a whole
+  // sways a little.
   for (const rock of rocks) {
-    rock.mesh.rotation.x += rock.spin.x * 0.01;
-    rock.mesh.rotation.y += rock.spin.y * 0.01;
-    rock.mesh.rotation.z += rock.spin.z * 0.01;
-    rock.mesh.position.y = rock.baseY + Math.sin(t * rock.drift + rock.phase) * 0.18;
+    const m = rock.mesh;
+    if (rock.bx === undefined) {
+      rock.bx = m.position.x;
+      rock.bz = m.position.z;
+      rock.r0 = m.rotation.clone();
+      const k = Math.sin(rock.phase * 12.9898) * 43758.5453;
+      const h = k - Math.floor(k); // stable per-rock random
+      rock.orbitR = 0.35 + h * 1.1;
+      rock.orbitW = (0.12 + h * 0.22) * (rock.phase > Math.PI ? 1 : -1);
+    }
+    const a = t * rock.orbitW + rock.phase;
+    m.position.set(
+      rock.bx + Math.cos(a) * rock.orbitR,
+      rock.baseY + Math.sin(t * rock.drift * 8 + rock.phase) * 0.32,
+      rock.bz + Math.sin(a) * rock.orbitR * 1.8
+    );
+    m.rotation.set(
+      rock.r0.x + rock.spin.x * t * 2.2,
+      rock.r0.y + rock.spin.y * t * 2.2,
+      rock.r0.z + rock.spin.z * t * 2.2
+    );
   }
+  group.rotation.y = Math.sin(t * 0.06) * 0.05;
+  group.rotation.z = Math.sin(t * 0.045) * 0.02;
 }

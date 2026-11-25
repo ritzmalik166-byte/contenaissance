@@ -149,7 +149,7 @@ export default function Motion() {
       cleanups.push(() => ctx.revert());
 
       if (!isTouch()) {
-        document.querySelectorAll('.btn:not(.cta__btn), .nav__cta, [data-magnetic]').forEach((el) => cleanups.push(bindMagnetic(el)));
+        document.querySelectorAll('.btn:not(.cta__btn), .cbtn:not(.cta__btn), .nav__cta, [data-magnetic]').forEach((el) => cleanups.push(bindMagnetic(el)));
         document.querySelectorAll('[data-tilt]').forEach((el) => cleanups.push(bindTilt(el)));
       }
 

@@ -60,7 +60,7 @@
 }
 
 .holo {
-  --c: 111, 247, 255;
+  --c: 233, 185, 73; /* brand gold (logo, --gold #e9b949) */
   position: absolute;
   left: 0;
   top: 0;
@@ -183,15 +183,29 @@
 }
 
 /* =====================================================
-   SOLUTIONS — Mars atmosphere
-   The orange gradient blooms out of Mars' screen position
-   (--ax / --ay set by Solutions.jsx) as --atmo goes 0 → 1,
-   and collapses back into it on the way out.
+   SOLUTIONS — orange atmosphere
+   Blooms out of the card in the centre (where the Showreel film
+   docked) as --atmo goes 0 → 1 (Solutions.jsx), and collapses
+   back into it on the way out.
 ===================================================== */
+
+/* Overlaps the last viewport of the Showreel pin: the section is
+   transparent while it slides in, so the docking film shows through
+   and lands exactly on the first card. Matches .reel's 100svh. */
+.solutions-wrap {
+  position: relative;
+  margin-top: -100svh;
+}
+
 .solutions {
   --atmo: 0;
-  --ax: 62%;
-  --ay: 55%;
+  --ax: 50%;
+  --ay: 50%;
+}
+
+.solutions__stage .sel-frame {
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .solutions__atmo {
@@ -252,8 +266,11 @@
   overflow: visible;
 }
 
+/* scaled (style.transform = scale(1, s)) from the nozzle exit, in the
+   sprite's viewBox units, so it stays attached at any length */
 .rsprite__flame {
-  transform-box: fill-box;
+  transform-box: view-box;
+  transform-origin: 52px 238px;
   animation: rsprite-flicker 0.12s steps(2, end) infinite;
 }
 
@@ -300,4 +317,36 @@
     rgba(255, 252, 240, 0.95) calc(var(--br) - 3px),
     transparent var(--br)
   );
+}
+
+/* card → full-bleed reveal (Quote.jsx): the content settles from
+   slightly zoomed out as the card opens to the edges */
+.quote .quote__grid {
+  transform: scale(var(--qs, 1));
+  transform-origin: 50% 50%;
+}
+
+/* 3D rocket (RocketSprite → three/RocketModel.js): the canvas extends
+   past the sprite's box (viewBox -40…144 × 0…330) to x -132…236 and
+   y 0…560, so the fins and a long boosted flame never clip. */
+.rsprite--3d {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rsprite__canvas {
+  position: absolute;
+  left: -50%;
+  top: 0;
+  width: 200%;
+  height: calc(100% * 560 / 330);
+  max-width: none; /* the global canvas { max-width: 100% } would squash it */
+  pointer-events: none;
+}
+
+.rsprite__hook {
+  display: none;
 }

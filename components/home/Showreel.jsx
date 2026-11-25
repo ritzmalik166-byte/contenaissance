@@ -1,320 +1,206 @@
-
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { gsap, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
+import { useRef } from 'react';
+import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from '@/lib/user/gsap';
+import { getUniverse } from '@/lib/user/universe';
 import { applyHolo, lerpHolo, holoMid, holoFull } from '@/lib/user/journey';
-import LazyVideo from '../LazyVideo';
+import Video from '../Video';
+import { getVideoUrl, getPosterUrl } from '@/lib/user/video-assets';
 import { openVideo } from '../VideoModal';
 import { Play } from '../Icons';
 import './Showreel.css';
 
-const videoUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}/Mzha%20Nhi%20Aaya-02.1.mp4`;
-const posterUrl = '/posters/mzha.jpg';
+const VIDEO_ASSET = 'video06';
+const videoUrl = getVideoUrl(VIDEO_ASSET); // full-screen modal uses the same file
+const posterUrl = getPosterUrl(VIDEO_ASSET);
+
+/* =====================================================
+   SHOWREEL — "Transmission incoming".
+
+   1. The astronaut's wrist hologram (JourneyActors) is this
+      section's real film: pinned, it expands to full-bleed.
+   2. Exit: the film swings in 3D and shrinks into the exact
+      spot of the Solutions section's first video card, which
+      slides in (transparent) over this pin and takes over —
+      the showreel literally becomes the first service.
+===================================================== */
+
+// Showreel timeline (units of timeline time)
+const T_FULL = 1; // hologram → full-bleed film
+const T_DOCK = 1.55; // film starts docking into the Solutions card
+const T_DOCK_LEN = 0.95;
 
 export default function Showreel() {
   const root = useRef(null);
-  const spaceWrap = useRef(null);
-  const spaceSceneRef = useRef(null);
   // true while the pinned section is on screen: playback must not depend
   // on the IntersectionObserver (the frame is transformed/clipped there)
   const activeRef = useRef(false);
   const keepPlaying = () => activeRef.current;
 
-  // Initialize 3D space scene
-  useEffect(() => {
-    let disposed = false;
+  useGSAP(
+    () => {
+      const section = root.current;
+      if (!section) return;
 
-    import('../three/ShowreelScene').then(({ createShowreelScene }) => {
-      if (disposed || !spaceWrap.current) return;
+      const frame = section.querySelector('.reel__frame');
+      const video = section.querySelector('.reel__frame video');
+      const head = section.querySelectorAll('.reel__head span');
+      const ui = section.querySelector('.reel__ui');
 
-      spaceSceneRef.current = createShowreelScene(spaceWrap.current);
-    });
+      // Solutions' card (the dock target) — measured from layout, so the
+      // card's own scroll transforms never skew it.
+      const solutions = document.querySelector('.solutions');
+      const flip = solutions?.querySelector('.flip');
+      const dockTarget = () => {
+        const vw = window.innerWidth;
+        const w = flip?.offsetWidth || Math.min(vw * 0.26, 320);
+        const h = flip?.offsetHeight || (w * 16) / 9;
+        const secH = solutions?.offsetHeight || window.innerHeight;
+        return { cx: vw / 2, cy: secH / 2, w, h, rx: 0, ry: 0, r: 0, fx: 0, alpha: 1 };
+      };
 
-    return () => {
-      disposed = true;
-      spaceSceneRef.current?.destroy();
-      spaceSceneRef.current = null;
-    };
-  }, []);
+      // ask <Video> to re-evaluate play/pause (honours keepPlaying)
+      const nudgePlay = () => video?.dispatchEvent(new Event('video:sync'));
 
-  // Cinematic scroll animation
-  useGSAP(() => {
-    const section = root.current;
+      const reduced = prefersReducedMotion();
+      const holo = { k: 0 };
+      const dock = { d: 0 };
+      const easeDock = gsap.parseEase('power2.inOut');
 
-    if (!section) return;
+      // One renderer for the frame: hologram → full-bleed → docked card
+      const render = () => {
+        // Before the pin starts, the About hand-off (JourneyActors) owns
+        // the frame, the fixed .holo overlay and the beam. Rendering here
+        // too let a late scrub update (fast scrolling) re-show the
+        // hologram on top of other sections.
+        if (dock.d <= 0 && section.getBoundingClientRect().top > 0.5) return;
+        const full = reduced ? holoFull(frame) : lerpHolo(holoMid(), holoFull(frame), holo.k);
+        if (dock.d <= 0) {
+          applyHolo(frame, full, 0);
+          return;
+        }
+        const p = easeDock(Math.min(1, dock.d / 0.9));
+        const s = lerpHolo(full, dockTarget(), p);
+        // swing through 3D on the way: turns toward the card, then squares up
+        s.ry = -34 * Math.sin(Math.PI * p);
+        s.rx = 10 * Math.sin(Math.PI * p);
+        // last stretch: the real Solutions card fades in on top
+        s.alpha = 1 - gsap.utils.clamp(0, 1, (dock.d - 0.9) / 0.1);
+        applyHolo(frame, s, 0, { beam: false });
+        frame.style.setProperty('--dock', p.toFixed(3));
+      };
+      render();
 
-    const frame = section.querySelector('.reel__frame');
-    const video = section.querySelector('.reel__frame video');
-    const head = section.querySelectorAll('.reel__head span');
-    const ui = section.querySelector('.reel__ui');
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=330%',
+          pin: true,
+          // no lag: the hologram hand-off with JourneyActors and the dock
+          // into Solutions must stay locked to the scroll position
+          scrub: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate() {
+            if (video?.paused) nudgePlay();
+          },
+          onRefresh: render,
+        },
+      });
 
-    const nudgePlay = () => {
-      if (video && video.paused) video.dispatchEvent(new Event('lazyvideo:play'));
-    };
+      const hideHolo = () => {
+        const o = document.querySelector('.holo');
+        if (o) {
+          o.style.opacity = '0';
+          o.style.visibility = 'hidden';
+          o.classList.remove('is-flicker');
+        }
+        getUniverse()?.setBeam(null);
+        // above the reel the frame is still a (hidden) hologram
+        if (section.getBoundingClientRect().top > 0) frame.style.opacity = '0';
+      };
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
+      // Playback hold window: from the moment the section starts entering
+      // (the hologram already shows the film) until the pin has finished.
+      const hold = ScrollTrigger.create({
         trigger: section,
-        // from the moment the section starts entering (the astronaut's
-        // hologram already shows the film) until it has scrolled away
-        start: 'top top',
-        // 180% for the hologram → film, +150% for the slice exit
-        end: '+=330%',
-        pin: true,
-        // no lag: the hologram hand-off with JourneyActors must stay
-        // locked to the scroll position (Lenis already smooths it)
-        scrub: true,
-        anticipatePin: 1,
+        start: 'top bottom',
+        end: () => tl.scrollTrigger?.end ?? 0,
         invalidateOnRefresh: true,
         onToggle(self) {
           activeRef.current = self.isActive;
-          if (self.isActive) nudgePlay();
+          nudgePlay();
+          // Outside the reel's range the hologram must never show: clear
+          // the fixed overlay + beam (deferred, so it wins over any scrub
+          // update fired in the same frame).
+          if (!self.isActive) requestAnimationFrame(hideHolo);
         },
-        onUpdate: nudgePlay,
-      },
-    });
+      });
 
-    // Video cinematic reveal — the astronaut's wrist hologram (a
-    // floating 16:9 panel, see lib/user/journey.js) expands into the
-    // full-bleed showreel and loses its holographic look.
-    // Reduced motion: no astronaut/hologram — the film is simply there.
-    const reduced = prefersReducedMotion();
-    const holo = { k: 0 };
-    const renderHolo = () =>
-      applyHolo(frame, reduced ? holoFull(frame) : lerpHolo(holoMid(), holoFull(frame), holo.k), 0);
-    renderHolo();
+      /* ---------- 1. hologram → full-bleed film ---------- */
+      tl.fromTo(holo, { k: 0 }, { k: 1, ease: 'power2.inOut', duration: T_FULL, onUpdate: render }, 0);
 
-    tl.fromTo(
-      holo,
-      { k: 0 },
-      {
-        k: 1,
-        ease: 'power2.inOut',
-        duration: 1,
-        onUpdate() {
-          renderHolo();
-          spaceSceneRef.current?.setParallax(this.progress());
-        },
-      }
-    );
-
-    // The section's own planets fade in around the growing panel
-    // (hidden while the astronaut presents the hologram).
-    tl.fromTo(
-      section.querySelector('.reel__space'),
-      { opacity: 0 },
-      { opacity: 1, duration: 0.5, ease: 'none' },
-      0.05
-    );
-
-    // Heading exits in opposite directions
-    tl.to(head[0], {
-      xPercent: -80,
-      opacity: 0,
-      filter: 'blur(12px)',
-      ease: 'power2.in',
-      duration: 0.8,
-    }, 0);
-
-    tl.to(head[1], {
-      xPercent: 80,
-      opacity: 0,
-      filter: 'blur(12px)',
-      ease: 'power2.in',
-      duration: 0.8,
-    }, 0);
-
-    // Video camera zoom
-    if (video) {
+      // Heading folds back into depth, word by word
       tl.fromTo(
-        video,
-        { scale: 1.5 },
-        { scale: 1, ease: 'none', duration: 1 },
+        head,
+        { rotateX: 0, z: 0, yPercent: 0, opacity: 1 },
+        {
+          rotateX: -85,
+          z: -220,
+          yPercent: -30,
+          opacity: 0,
+          transformOrigin: '0% 0%',
+          ease: 'power2.in',
+          duration: 0.6,
+          stagger: 0.12,
+        },
         0
       );
-    }
+      tl.to(section.querySelector('.reel__num'), { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' }, 0);
 
-    // Show video controls
-    tl.fromTo(
-      ui,
-      {
-        opacity: 0,
-        y: 30,
-        filter: 'blur(8px)',
-      },
-      {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 0.5,
-      },
-      0.7
-    );
+      if (video) tl.fromTo(video, { scale: 1.5 }, { scale: 1, ease: 'none', duration: T_FULL }, 0);
 
-    tl.to({}, { duration: 0.3 });
+      tl.fromTo(
+        ui,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        0.7
+      );
 
-    /* ---------- exit: the film slices open onto Mars ----------
-       A seam of light cuts the frame horizontally, then the two
-       halves part like blast doors (top half = the frame itself,
-       bottom half = a synced clone of the video) to reveal the
-       universe behind — and Mars, which the camera dives into
-       as Solutions arrives (see JourneyActors). */
-    const clone = section.querySelector('.reel__slice');
-    const mirror = clone?.querySelector('canvas');
-    const ctx = mirror?.getContext('2d');
-    const seam = section.querySelector('.reel__seam');
-    const slice = { s: 0 };
-    const easeSlice = gsap.parseEase('power3.inOut');
-    let cloneLive = false;
-    let mirrorRaf = 0;
+      /* ---------- 2. dock into the Solutions card ---------- */
+      tl.to([ui, section.querySelector('.reel__play')], { opacity: 0, duration: 0.15 }, T_DOCK - 0.1).fromTo(
+        dock,
+        { d: 0 },
+        { d: 1, duration: T_DOCK_LEN, ease: 'none', onUpdate: render, immediateRender: false },
+        T_DOCK
+      );
 
-    // The bottom half is a live canvas mirror of the ONE playing <video>
-    // (not a second <video>): it can never be blank, out of sync, or
-    // blocked by autoplay policy, and the 40 MB file is streamed once.
-    const drawMirror = () => {
-      mirrorRaf = 0;
-      if (!cloneLive || !mirror || !ctx || !video) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const cw = Math.round(clone.offsetWidth * dpr);
-      const ch = Math.round(clone.offsetHeight * dpr);
-      if (mirror.width !== cw || mirror.height !== ch) {
-        mirror.width = cw;
-        mirror.height = ch;
-      }
-      const vw = video.videoWidth;
-      const vh = video.videoHeight;
-      if (video.readyState >= 2 && vw && vh && cw && ch) {
-        // object-fit: cover — only the bottom half is visible, draw just that
-        const sc = Math.max(cw / vw, ch / vh);
-        const sw = cw / sc;
-        const sh = ch / sc;
-        const sx = (vw - sw) / 2;
-        const sy = (vh - sh) / 2;
-        ctx.drawImage(video, sx, sy + sh / 2, sw, sh / 2, 0, ch / 2, cw, ch / 2);
-      }
-      mirrorRaf = requestAnimationFrame(drawMirror);
-    };
+      // Initial entrance
+      gsap.fromTo('.reel__num', { opacity: 0, x: -25 }, { opacity: 1, x: 0, duration: 1.2, delay: 0.2 });
 
-    const startMirror = () => {
-      nudgePlay(); // the film must keep playing — both halves show it
-      if (!mirrorRaf) mirrorRaf = requestAnimationFrame(drawMirror);
-    };
-    const stopMirror = () => {
-      if (mirrorRaf) cancelAnimationFrame(mirrorRaf);
-      mirrorRaf = 0;
-    };
+      return () => {
+        activeRef.current = false;
+        hold.kill();
+        tl.scrollTrigger?.kill();
+      };
+    },
+    { scope: root }
+  );
 
-    const renderSlice = () => {
-      if (reduced) return; // no slice: the film just scrolls away
-      const s = slice.s;
-      if (s <= 0.0001) {
-        if (cloneLive) {
-          cloneLive = false;
-          stopMirror();
-          gsap.set(clone, { autoAlpha: 0 });
-          gsap.set(seam, { autoAlpha: 0 });
-          renderHolo(); // back to the plain full-bleed film
-        }
-        return;
-      }
-      if (!cloneLive) {
-        cloneLive = true;
-        drawMirror(); // paint a frame before the half is revealed
-        startMirror();
-        gsap.set(clone, { autoAlpha: 1 });
-      }
-      const h = frame.offsetHeight;
-      const half = h / 2;
-      // 0 → 0.25: the seam ignites; 0.2 → 1: the halves part
-      const glow = Math.min(1, s / 0.15) * (1 - gsap.utils.clamp(0, 1, (s - 0.45) / 0.4));
-      const open = easeSlice(gsap.utils.clamp(0, 1, (s - 0.18) / 0.82));
-      const dy = open * h * 0.62;
-      const tilt = open * 14;
-
-      frame.style.clipPath = `inset(0px 0px ${half}px 0px)`;
-      frame.style.transform = `translate3d(0, ${-dy}px, 0) perspective(1400px) rotateX(${tilt}deg)`;
-      frame.style.opacity = '1';
-      clone.style.clipPath = `inset(${half}px 0px 0px 0px)`;
-      clone.style.transform = `translate3d(0, ${dy}px, 0) perspective(1400px) rotateX(${-tilt}deg)`;
-      gsap.set(seam, { autoAlpha: glow, scaleX: 0.2 + Math.min(1, s / 0.12) * 0.8, y: 0 });
-    };
-
-    tl.to([ui, section.querySelector('.reel__num')], { opacity: 0, duration: 0.15 }, '>-0.05')
-      .fromTo(slice, { s: 0 }, { s: 1, duration: 0.8, ease: 'none', onUpdate: renderSlice }, '<')
-      .to(section.querySelector('.reel__space'), { opacity: 0, duration: 0.5, ease: 'none' }, '<+0.25')
-      .to({}, { duration: 0.15 });
-
-    // Initial cinematic entrance
-    gsap.fromTo(
-      '.reel__num',
-      { opacity: 0, x: -25 },
-      { opacity: 1, x: 0, duration: 1.2, delay: 0.2 }
-    );
-
-    return () => {
-      cloneLive = false;
-      stopMirror();
-      activeRef.current = false;
-      tl.scrollTrigger?.kill();
-    };
-
-  }, { scope: root });
-
-  // Interactive space movement
-  const handlePointerMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-
-    if (!rect.width || !rect.height) return;
-
-    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-
-    spaceSceneRef.current?.setPointer(x, y);
-  };
-
-  // Hover cinematic effects
-  const handlePointerEnter = () => {
+  // Hover: soft glow on the film
+  const hover = (on) => () => {
     const section = root.current;
     if (!section) return;
-
-    const frame = section.querySelector('.reel__frame');
-    const play = section.querySelector('.reel__play');
-
-    spaceSceneRef.current?.pulse();
-
-    gsap.to(frame, {
-      boxShadow: '0 0 90px rgba(238, 177, 53, 0.18)',
+    gsap.to(section.querySelector('.reel__frame'), {
+      boxShadow: on ? '0 0 90px rgba(238, 177, 53, 0.18)' : '0 0 0px rgba(238, 177, 53, 0)',
       duration: 1,
       ease: 'power2.out',
     });
-
-    gsap.to(play, {
-      scale: 1.12,
+    gsap.to(section.querySelector('.reel__play'), {
+      scale: on ? 1.12 : 1,
       duration: 0.6,
-      ease: 'back.out(2)',
-    });
-  };
-
-  const handlePointerLeave = () => {
-    const section = root.current;
-    if (!section) return;
-
-    const frame = section.querySelector('.reel__frame');
-    const play = section.querySelector('.reel__play');
-
-    spaceSceneRef.current?.setPointer(0, 0);
-
-    gsap.to(frame, {
-      boxShadow: '0 0 0px rgba(238, 177, 53, 0)',
-      duration: 1,
-      ease: 'power2.out',
-    });
-
-    gsap.to(play, {
-      scale: 1,
-      duration: 0.5,
-      ease: 'power2.out',
+      ease: on ? 'back.out(2)' : 'power2.out',
     });
   };
 
@@ -325,52 +211,43 @@ export default function Showreel() {
       ref={root}
       className="reel"
       id="showreel"
-      onPointerMove={handlePointerMove}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
+      onPointerEnter={hover(true)}
+      onPointerLeave={hover(false)}
     >
-      <div
-        ref={spaceWrap}
-        className="reel__space"
-        aria-hidden="true"
-      />
+      <p className="kicker reel__num">03 / Transmission incoming</p>
 
-      <p className="kicker reel__num">
-        03 / Transmission incoming
-      </p>
-
-      <h2
-        className="reel__head"
-        aria-label="Transmission incoming"
-      >
-        <span>Transmission </span>
+      <h2 className="reel__head" aria-label="Transmission incoming">
+        <span>Transmission</span>
         <span>Incoming</span>
       </h2>
 
       <div className="reel__stage">
         <div className="reel__frame">
-          <LazyVideo src={videoUrl} poster={posterUrl} eager keepPlaying={keepPlaying} />
+          {/* Loads a viewport early, always autoplays muted, the section's
+              own play button opens the modal, held on while pinned. */}
+          <Video
+            asset={VIDEO_ASSET}
+            poster={posterUrl}
+            className="reel__video"
+            rootMargin="100% 0px"
+            keepPlaying={keepPlaying}
+            placeholder={false}
+            showPlayButton="never"
+            respectReducedMotion={false}
+            respectDataSaver={false}
+          />
 
           <div className="reel__ui">
             <div className="reel__ui-top">
               <span>Contenaissance / Showreel</span>
-
-              <button
-                onClick={watch}
-                onPointerEnter={() => spaceSceneRef.current?.pulse()}
-                data-cursor-hover
-              >
+              <button onClick={watch} data-cursor-hover>
                 [ Full screen ↗ ]
               </button>
             </div>
 
             <div className="reel__ui-bottom">
               <span>A glimpse of the possible.</span>
-
-              <button
-                className="sound-btn is-on"
-                onClick={watch}
-              >
+              <button className="sound-btn is-on" onClick={watch}>
                 <span className="sound-btn__bars">
                   <i />
                   <i />
@@ -381,22 +258,10 @@ export default function Showreel() {
             </div>
           </div>
 
-          <button
-            className="reel__play"
-            onClick={watch}
-            onPointerEnter={() => spaceSceneRef.current?.pulse()}
-            aria-label="Play showreel"
-            data-cursor="Play"
-          >
+          <button className="reel__play" onClick={watch} aria-label="Play showreel" data-cursor="Play">
             <Play />
           </button>
         </div>
-
-        {/* exit slice: bottom half of the film (canvas mirror) + light seam */}
-        <div className="reel__slice" aria-hidden="true">
-          <canvas />
-        </div>
-        <div className="reel__seam" aria-hidden="true" />
       </div>
     </section>
   );

@@ -1,0 +1,129 @@
+/* =====================================================
+   BUTTON (components/common/Button.jsx) — one size, one
+   font, one shape for every call-to-action on the site.
+   Variants only change colours. Sizing lives here and
+   nowhere else, so all buttons stay identical.
+===================================================== */
+
+.cbtn {
+  --cbtn-h: 52px;
+  --cbtn-pad: 28px;
+  --cbtn-fs: 15px;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  height: var(--cbtn-h);
+  min-height: var(--cbtn-h);
+  padding: 0 var(--cbtn-pad);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: var(--cbtn-fs);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.4s var(--ease),
+    border-color 0.4s var(--ease),
+    box-shadow 0.4s var(--ease);
+}
+
+/* fill that sweeps up from the bottom on hover */
+.cbtn::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  transform: translateY(101%);
+  transition: transform 0.5s var(--ease);
+}
+
+.cbtn:hover::before,
+.cbtn:focus-visible::before {
+  transform: translateY(0);
+}
+
+.cbtn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.cbtn__label {
+  position: relative;
+}
+
+.cbtn__icon {
+  display: inline-grid;
+  place-items: center;
+  transition: transform 0.5s var(--ease);
+}
+
+.cbtn:hover .cbtn__icon {
+  transform: translateX(3px);
+}
+
+/* ---------- variants (colour only) ---------- */
+
+/* gold: the primary action */
+.cbtn--gold {
+  background: linear-gradient(180deg, #f6cd52, #e8b234);
+  color: #17130c;
+  box-shadow: 0 10px 30px rgba(233, 177, 58, 0.24);
+}
+
+.cbtn--gold::before {
+  background: #fff;
+}
+
+/* light: white, fills gold */
+.cbtn--light {
+  background: #fff;
+  color: var(--ink);
+}
+
+.cbtn--light::before {
+  background: var(--gold);
+}
+
+/* ghost: outline on dark, fills light */
+.cbtn--ghost {
+  background: transparent;
+  border-color: var(--line-2);
+  color: var(--text);
+}
+
+.cbtn--ghost::before {
+  background: var(--text);
+}
+
+.cbtn--ghost:hover,
+.cbtn--ghost:focus-visible {
+  color: var(--ink);
+  border-color: var(--text);
+}
+
+/* ---------- one smaller size for phones (still the same for all) ---------- */
+@media (max-width: 760px) {
+  .cbtn {
+    --cbtn-h: 46px;
+    --cbtn-pad: 22px;
+    --cbtn-fs: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cbtn::before,
+  .cbtn__icon {
+    transition: none;
+  }
+}

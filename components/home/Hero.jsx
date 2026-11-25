@@ -1,11 +1,23 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { onSiteReady } from '@/lib/user/ready';
 import Split from '../Split';
-import { ArrowRight } from '../Icons';
+import Button from '../common/Button';
+
+/* =====================================================
+   HERO — copy on the left, a rocket climbing out of
+   Earth's sunrise on the right.
+
+   - three/HeroScene: deep space, the diagonal Earth horizon
+     with its sunrise bloom, a crescent moon, stars.
+   - journey/RocketFlight: the 3D rocket, fitted into
+     `.hero__stage`, leaning into its climb.
+
+   On scroll the rocket blasts off into the Rocket section
+   while this copy folds away in 3D.
+===================================================== */
 
 export default function Hero() {
   const root = useRef(null);
@@ -13,20 +25,19 @@ export default function Hero() {
 
   useGSAP(
     (ctx, contextSafe) => {
-      let scene;
-      let disposed = false;
+      const q = gsap.utils.selector(root);
+      const hero = root.current;
+      const chars = q('.hero__title .split-char');
+      const fades = q('.hero__fade');
 
-      // Load Three.js scene
+      /* ---------- 3D backdrop (loaded lazily, client only) ---------- */
+      let scene = null;
+      let dead = false;
+
       import('../three/HeroScene').then(({ createHeroScene }) => {
-        if (disposed || !canvasWrap.current) return;
-
+        if (dead || !canvasWrap.current) return;
         scene = createHeroScene(canvasWrap.current);
       });
-
-      // Hero title animation
-      const chars = root.current.querySelectorAll(
-        '.hero__title .split-char'
-      );
 
       gsap.set(chars, {
         yPercent: 120,
@@ -34,211 +45,159 @@ export default function Hero() {
         opacity: 0,
         transformOrigin: '50% 100% -40px',
       });
-
-      gsap.set('.hero__fade', {
-        y: 30,
-        opacity: 0,
-      });
+      gsap.set(fades, { y: 30, opacity: 0 });
 
       const intro = contextSafe(() => {
-        const tl = gsap.timeline({
-          defaults: {
-            ease: 'power4.out',
-          },
-        });
-
-        tl.to(chars, {
-          yPercent: 0,
-          rotateX: 0,
-          opacity: 1,
-          duration: 1.4,
-          stagger: 0.025,
-        })
-          .to(
-            '.hero__fade',
-            {
-              y: 0,
-              opacity: 1,
-              duration: 1,
-              stagger: 0.1,
-            },
-            0.5
-          )
-          .fromTo(
-            '.hero__rays, .hero__glow',
-            {
-              opacity: 0,
-            },
-            {
-              opacity: 1,
-              duration: 2.4,
-              ease: 'power2.out',
-            },
-            0
-          );
-
         const s = { v: 0 };
-
-        tl.to(
-          s,
-          {
-            v: 1,
-            duration: 2.6,
-            ease: 'power3.out',
-            onUpdate: () => {
-              if (scene) {
-                scene.state.intro = s.v;
-              }
-            },
-          },
-          0
-        );
+        gsap
+          .timeline({ defaults: { ease: 'power4.out' } })
+          // the horizon rises and the sunrise blooms
+          .to(s, { v: 1, duration: 2.6, ease: 'power3.out', onUpdate: () => scene && (scene.state.intro = s.v) }, 0)
+          .to(chars, { yPercent: 0, rotateX: 0, opacity: 1, duration: 1.4, stagger: 0.025 }, 0.1)
+          .to(fades, { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 0.5);
       });
-
       const off = onSiteReady(intro);
 
-      // Next section
-      const nextSection = root.current.nextElementSibling;
+      /* ---------- scroll: hero → Rocket section ---------- */
+      const next = hero.nextElementSibling; // .rocket-sec
+      const nextHead = next?.querySelectorAll('.rocket-copy__head .kicker, .rocket-copy__head h2') || [];
+      const nextPanel = next?.querySelector('.rocket-panels');
+      const nextBars = next?.querySelector('.rocket-progress');
 
-      if (nextSection) {
-        gsap.set(nextSection, {
-          opacity: 0,
-        });
-      }
+      if (next) gsap.set(next, { opacity: 0 });
 
-      // Hero scroll animation
-      const heroTl = gsap.timeline({
+      // Held in place until the Rocket section reaches the top — the
+      // 3D rocket lands on it at exactly that moment.
+      const tl = gsap.timeline({
+        defaults: { ease: 'none', immediateRender: false },
         scrollTrigger: {
-          trigger: root.current,
+          trigger: hero,
           start: 'top top',
-          end: '+=45%',
+          end: () => `+=${hero.offsetHeight}`,
           scrub: 1,
           pin: true,
           pinSpacing: false,
           invalidateOnRefresh: true,
-
-          onUpdate: (self) => {
-            if (scene) {
-              scene.state.progress = self.progress;
-            }
-          },
+          // the 3D camera flies forward through the scene as you scroll
+          onUpdate: (self) => scene && (scene.state.progress = self.progress),
         },
       });
 
-      heroTl
-        .to(
-          '.hero__content',
+      tl
+        // the whole copy block tips back into depth
+        .fromTo(
+          q('.hero__content'),
+          { rotateY: 0, rotateX: 0, z: 0 },
+          { rotateY: 14, rotateX: 10, z: -260, ease: 'power1.in', duration: 0.5 },
+          0
+        )
+        // headline words flip back over, one after another
+        .fromTo(
+          q('.hero__title .split-word'),
+          { yPercent: 0, rotateX: 0, opacity: 1 },
           {
+            yPercent: -40,
+            rotateX: 90,
             opacity: 0,
-            scale: 1.3,
-            filter: 'blur(8px)',
-            ease: 'none',
+            transformOrigin: '50% 100%',
+            duration: 0.3,
+            stagger: { amount: 0.16 },
+            ease: 'power2.in',
           },
           0
         )
-        .to(
-          '.hero__foot',
-          {
-            opacity: 0,
-            ease: 'none',
-          },
-          0
+        .fromTo(
+          fades,
+          { y: 0, rotateX: 0, opacity: 1 },
+          { y: -50, rotateX: 50, opacity: 0, duration: 0.24, stagger: 0.04, ease: 'power2.in' },
+          0.04
         )
-        .to(
-          root.current,
-          {
-            opacity: 0,
-            ease: 'none',
-          },
-          0.3
-        );
+        // the hero's sky dissolves into the shared universe behind it (no
+        // hard cut) while the rocket swoops on into the next section
+        .fromTo(q('.hero__canvas, .hero__vignette'), { opacity: 1 }, { opacity: 0, duration: 0.32, ease: 'power1.inOut' }, 0.26)
+        .to(hero, { autoAlpha: 0, duration: 0.02 }, 0.6);
 
-      if (nextSection) {
-        heroTl.to(
-          nextSection,
-          {
-            opacity: 1,
-            ease: 'none',
-          },
-          0.3
-        );
+      if (next) {
+        tl.fromTo(next, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0.3);
+
+        // The Rocket section's copy rises out of depth as the rocket lands.
+        // immediateRender: start hidden from the first frame — otherwise
+        // the copy shows while the section scrolls up, then snaps back
+        // to hidden and comes in again (a visible "come, re-come" stutter).
+        if (nextHead.length) {
+          tl.fromTo(
+            nextHead,
+            { y: 70, rotateX: -75, opacity: 0, transformPerspective: 800, transformOrigin: '50% 100%' },
+            { y: 0, rotateX: 0, opacity: 1, duration: 0.3, stagger: 0.08, ease: 'power3.out', immediateRender: true },
+            0.55
+          );
+        }
+        const rest = [nextPanel, nextBars].filter(Boolean);
+        if (rest.length) {
+          tl.fromTo(
+            rest,
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.25, stagger: 0.06, ease: 'power3.out', immediateRender: true },
+            0.72
+          );
+        }
       }
 
-      // Pointer movement
+      // Pointer: the headline leans toward the cursor, the 3D scene parallaxes
       const move = (e) => {
         const x = (e.clientX / window.innerWidth) * 2 - 1;
         const y = -((e.clientY / window.innerHeight) * 2 - 1);
-
+        gsap.to(q('.hero__title'), { rotateY: x * 6, rotateX: y * 4, duration: 1.2, ease: 'power3.out' });
         scene?.setPointer(x, y);
-
-        gsap.to('.hero__title', {
-          rotateY: x * 6,
-          rotateX: y * 4,
-          duration: 1.2,
-          ease: 'power3.out',
-        });
       };
+      window.addEventListener('pointermove', move, { passive: true });
 
-      window.addEventListener('pointermove', move);
-
-      // Cleanup
       return () => {
-        disposed = true;
-
+        dead = true;
         off();
-
         window.removeEventListener('pointermove', move);
-
         scene?.destroy();
       };
     },
-    {
-      scope: root,
-    }
+    { scope: root }
   );
 
   return (
     <section ref={root} className="hero" id="top">
-      <div ref={canvasWrap} className="hero__canvas" />
+      {/* 3D backdrop — three/HeroScene renders into this */}
+      <div ref={canvasWrap} className="hero__canvas" aria-hidden="true" />
 
-      <div className="hero__glow" />
-      <div className="hero__rays" />
       <div className="hero__vignette" />
 
-      <div className="hero__content">
-        <p className="hero__eyebrow hero__fade">
-          <i /> AI Storytelling Agency &amp; AI Creative Studio
-        </p>
+      {/* No rocket is shown in the hero any more; this invisible box is
+          only the reference point journey/RocketFlight measures its
+          flight path from (the rocket first appears rising into the
+          Rocket section). */}
+      <div className="hero__stage" aria-hidden="true" />
 
-        <Split
-          as="p"
-          className="display hero__title"
-          lines={['Our AI Stages.', 'One Launch.']}
-        />
+      <div className="hero__inner">
+        <div className="hero__content">
+          <div className="hero__headline">
+            <Split as="p" className="hero__title" lines={['Our AI Creative Stages.', 'One Powerful Launch.']} />
+          </div>
 
-        <h1 className="hero__sub hero__fade">
-          AI Creative Agency in India for Brand Films, Advertising &amp;
-          Digital Experiences
-        </h1>
+          <h1 className="hero__sub hero__fade">
+            AI Creative Agency in India for Cinematic Brand Films, Creative Advertising, AI-Powered Campaigns & Immersive Digital Experiences.
+          </h1>
 
-        <div className="hero__actions hero__fade">
-          <Link href="/portfolio" className="btn btn--light">
-            Explore The Work <ArrowRight />
-          </Link>
-
-          <Link href="/contact" className="btn btn--ghost">
-            Start a mission
-          </Link>
+          <div className="hero__actions hero__fade">
+            <Button href="/portfolio">Explore The Work</Button>
+          </div>
         </div>
       </div>
 
       <div className="hero__foot">
-        <p className="hero__ticker hero__fade">
-          “AI is changing so fast in 2026.” <em>But are you?</em>
-        </p>
-
         <div className="scroll-cue hero__fade">
-          Scroll to explore <span className="scroll-cue__line" />
+          Scroll to explore
+          <span className="hero__cue-sep" aria-hidden="true" />
+          <span className="hero__mouse" aria-hidden="true">
+            <i />
+          </span>
         </div>
       </div>
     </section>

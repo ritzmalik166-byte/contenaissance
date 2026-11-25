@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import Split from '../Split';
-import { ArrowUpRight } from '../Icons';
+import Button from '../common/Button';
 import "./Journal.css";
 
 export default function Journal({ posts = [] }) {
@@ -81,14 +81,14 @@ export default function Journal({ posts = [] }) {
             <p className="kicker">07 / Field notes</p>
             <Split as="h2" className="display h-lg hjournal__title" lines={['From the Journal']} />
           </div>
-          <Link href="/blog" className="btn btn--ghost">
-            Read the Blog <ArrowUpRight />
-          </Link>
+          <Button href="/blog" variant="ghost">
+            Read the Blog
+          </Button>
         </div>
 
         <div className="hjournal__grid">
           {items.map((p) => (
-            <Link key={p.slug} href={`/blog/${p.slug}`} className="hjournal__card jcard" data-tilt="8" data-cursor="Read">
+            <Link key={p.slug} href={`/blog/${p.slug}`} className="hjournal__card jcard" data-cursor="Read">
               <div className="jcard__img">
                 <img src={p.image || '/images/logo.png'} alt={p.title || ''} loading="lazy" />
               </div>

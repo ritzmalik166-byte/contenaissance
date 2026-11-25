@@ -1,11 +1,13 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { gsap, useGSAP } from '@/lib/user/gsap';
 import { getUniverse } from '@/lib/user/universe';
+import { rocketClock, ASSEMBLY, explodeOffset } from '@/lib/user/rocketFlight';
 import { stages } from '@/lib/user/content';
-import { StageIcon, ArrowRight } from '../Icons';
+import { StageIcon } from '../Icons';
+import { createLaunchSmoke } from './launchSmoke';
+import Button from '../common/Button';
 import './Rocket.css';
 
 const finalPanel = {
@@ -39,17 +41,21 @@ export default function Rocket() {
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
+      // Each module drops out of the hero rocket's exploded hologram
+      // (journey/RocketFlight.jsx draws it at these same offsets) and
+      // solidifies into place: S1 first, the nose cone last.
+      const moduleH = () => modules[0]?.offsetHeight || 100;
+
       modules.forEach((m, i) => {
-        const side = i % 2 === 0 ? -1 : 1;
-        tl.addLabel(`s${i}`, i)
+        tl.addLabel(`s${i}`, ASSEMBLY.start(i))
           // fromTo (not from): with invalidateOnRefresh, a from() tween
           // re-reads its end state on refresh — if that happens while the
           // module is still in its hidden start pose, it freezes there.
           .fromTo(
             m,
-            { x: side * 220, y: -60, rotation: side * 28, opacity: 0 },
-            { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.8 },
-            i
+            { y: () => explodeOffset(i, moduleH()), rotationY: i % 2 ? 26 : -26, transformPerspective: 700, opacity: 0 },
+            { y: 0, rotationY: 0, opacity: 1, duration: ASSEMBLY.duration(i) },
+            ASSEMBLY.start(i)
           )
           .to(bars[i], { scaleX: 1, duration: 1, ease: 'none' }, i);
       });
@@ -57,8 +63,8 @@ export default function Rocket() {
       tl.addLabel('nose', noseAt)
         .fromTo(
           q('.rocket__nose'),
-          { y: -260, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6 },
+          { y: () => explodeOffset(5, moduleH()), rotationY: 26, transformPerspective: 700, opacity: 0 },
+          { y: 0, rotationY: 0, opacity: 1, duration: ASSEMBLY.duration(5) },
           noseAt
         )
         .to(
@@ -73,19 +79,32 @@ export default function Rocket() {
           ease: 'power2.in',
         }, 4.8)
         .to(q('.rocket'), { x: '+=3', yoyo: true, repeat: 7, duration: 0.06, ease: 'none' }, 5.1)
-        .to(q('.rocket__smoke'), { opacity: 1, scale: 1.6, duration: 0.8 }, 5.2)
-        .to(q('.rocket'), { y: () => -window.innerHeight * 1.3, duration: 1.6, ease: 'power2.in' }, 5.6)
+        // flies fully out of frame and fades, so it's gone before the
+        // astronaut ejects into the About / Showreel sections
+        .to(q('.rocket'), { y: () => -window.innerHeight * 1.8, duration: 1.6, ease: 'power2.in' }, 5.6)
+        .to(q('.rocket'), { autoAlpha: 0, duration: 0.4, ease: 'none' }, 6.8)
         .to(flame, {
           scaleY: 1.8,
           duration: 1.2,
         }, 5.6)
         .call(() => getUniverse()?.pulse(), null, 5.6)
-        .to(q('.rocket__smoke'), { opacity: 0, duration: 0.8 }, 6.4)
-        .to({}, { duration: 0.4 });
+        // stay pinned a while after the launch, so the pilot's eject
+        // (JourneyActors) plays out slowly instead of all at once
+        .to({}, { duration: 1.8 }, 7.2); // ends at 9.0
 
-      // Where in the pin the launch happens — the journey actors
-      // (camera follow + astronaut eject) start from this point.
-      root.current.dataset.launch = String(5.6 / tl.duration());
+      // Launch smoke (launchSmoke.js): a ground cloud at ignition and an
+      // exhaust column trailing the real nozzle; it then dissolves over a
+      // few seconds on its own.
+      const smokeCanvas = q('.launch-smoke')[0];
+      const nozzle = q('.rocket__nozzle')[0];
+      const smoke = smokeCanvas
+        ? createLaunchSmoke(smokeCanvas, () => {
+            const c = smokeCanvas.getBoundingClientRect();
+            const r = nozzle.getBoundingClientRect();
+            if (!r.width) return null;
+            return { x: r.left + r.width / 2 - c.left, y: r.bottom - c.top };
+          })
+        : null;
 
       const markers = [
         0.6,  // S1
@@ -99,26 +118,45 @@ export default function Rocket() {
       let active = 0;
       const setActive = (idx) => {
         if (idx === active) return;
-        gsap.to(panels[active], { opacity: 0, y: -18, pointerEvents: 'none', duration: 0.35, overwrite: true });
+        // panels flip over in 3D, in the scroll direction
+        const dir = idx > active ? 1 : -1;
+        gsap.to(panels[active], {
+          opacity: 0,
+          y: -24 * dir,
+          rotateX: 55 * dir,
+          pointerEvents: 'none',
+          duration: 0.35,
+          ease: 'power2.in',
+          overwrite: true,
+        });
         gsap.fromTo(
           panels[idx],
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, pointerEvents: 'auto', duration: 0.5, delay: 0.1, overwrite: true }
+          { opacity: 0, y: 24 * dir, rotateX: -55 * dir },
+          { opacity: 1, y: 0, rotateX: 0, pointerEvents: 'auto', duration: 0.6, delay: 0.12, ease: 'power3.out', overwrite: true }
         );
         active = idx;
       };
 
-      gsap.timeline({
+      // LEAD: an empty stretch at the start of the pin where the hero's
+      // 3D rocket finishes its swoop and lands (RocketFlight.jsx reads
+      // dataset.land), so the flight gets real scroll room instead of
+      // being squeezed into the gap before the pin. UNIT: viewport
+      // heights of scroll per second of timeline (assembly pace).
+      const LEAD = 1.6;
+      const UNIT = 0.79;
+      const pinned = gsap.timeline({
         scrollTrigger: {
           trigger: root.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 6}`,
+          end: () => `+=${window.innerHeight * UNIT * (LEAD + tl.duration())}`,
           pin: true,
           scrub: 0.8,
           invalidateOnRefresh: true,
         },
         onUpdate() {
-          const time = this.time();
+          const time = Math.max(0, this.time() - LEAD);
+          rocketClock.time = time; // drives the 3D hologram hand-off
+          smoke?.setTime(time);
           let idx = 0;
           markers.forEach((m, i) => time >= m && (idx = i));
           setActive(idx);
@@ -127,7 +165,15 @@ export default function Rocket() {
             l.classList.toggle('is-on', time >= i + 0.6);
           });
         },
-      }).add(tl);
+      }).add(tl, LEAD);
+
+      // Fractions of the pin, read by the journey: where the hero rocket
+      // touches down (RocketFlight) and where the launch happens
+      // (JourneyActors: camera follow + astronaut eject).
+      root.current.dataset.land = String(LEAD / pinned.duration());
+      root.current.dataset.launch = String((LEAD + 5.6) / pinned.duration());
+
+      return () => smoke?.destroy();
     },
     { scope: root }
   );
@@ -144,6 +190,9 @@ export default function Rocket() {
       className="rocket-sec"
       id="stages"
     >
+      {/* launch smoke (launchSmoke.js) — under the rocket and the copy */}
+      <canvas className="launch-smoke" aria-hidden="true" />
+
       <div className="container rocket-sec__inner">
         <div className="rocket-stage">
           <div className="rocket">
@@ -288,14 +337,16 @@ export default function Rocket() {
               <p className="rocket-panel__num">{finalPanel.num}</p>
               <h3>{finalPanel.title}</h3>
               <p>{finalPanel.body}</p>
-              <Link
+              <Button
                 href="/services"
-                className="btn btn--ghost rocket-panel__button"
+                variant="ghost"
+                icon="right"
+                className="rocket-panel__button"
                 style={{ marginTop: 22 }}
                 onPointerEnter={() => getUniverse()?.pulse(0.35)}
               >
-                See every stage <ArrowRight />
-              </Link>
+                See every stage
+              </Button>
             </article>
           </div>
 

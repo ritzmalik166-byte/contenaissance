@@ -142,6 +142,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   };
 
   const spinners = []; // { obj, speed }
+  const movers = []; // (t) => void — per-frame motion for station decor
   const belts = [];
 
   // The camera flies through belts between stations — push rocks out
@@ -156,88 +157,104 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   };
   const anchors = {}; // name → Group at the station, for later phases
 
+  // hero, stages, about and reel have no decor: the 3D rocket and the
+  // astronaut are the subjects there, so the backdrop stays just stars.
   const DECOR = {
-    stages(g) {
-      const neptune = makeRealPlanet(kit, {
-        radius: 1.3,
-        surface: 'neptune',
-        tint: 0xc8d8ee,
-        sunDir,
-        atmosphere: { color: '#7fb6ff', intensity: 1.25, thickness: 0.07, power: 2.8 },
-        glowColor: '#83b9ed',
-        glowScale: 3.2,
-        glowOpacity: 0.3,
-      });
-      // top-left: the rocket copy sits on the right
-      neptune.position.set(-9.5, 4.6, -16);
-      g.add(neptune);
-      spinners.push({ obj: neptune, speed: -0.075 });
-
-      const belt = makeAsteroidBelt(kit, {
-        count: mobile ? 18 : 40,
-        radiusRange: [5, 13],
-        arc: Math.PI * 1.4,
-        y: -1,
-        ySpread: 3.4,
-        z: -18,
-        zSpread: 8,
-      });
-      clearCorridor(belt);
-      g.add(belt);
-      belts.push(belt);
-    },
-
-    about(g) {
-      const mercury = makeRealPlanet(kit, {
-        radius: 0.9,
-        surface: 'mercury',
-        tint: 0xd8cfc4,
-        sunDir,
-        atmosphere: { color: '#ffd9a8', intensity: 0.5, thickness: 0.03, power: 4 },
-        glowColor: '#e9c58a',
-        glowScale: 2.6,
-        glowOpacity: 0.18,
-      });
-      mercury.position.set(-9.5, 4.2, -16);
-      g.add(mercury);
-      spinners.push({ obj: mercury, speed: 0.05 });
-    },
-
-    solutions(g) {
-      // Mars — the "atmosphere" the orange Solutions section enters
-      const mars = makeRealPlanet(kit, {
-        radius: 4.2,
-        surface: 'mars',
-        tint: 0xe9d2bd,
-        sunDir,
-        atmosphere: { color: '#f0a868', intensity: 0.9, thickness: 0.05, power: 3.6 },
-        glowColor: '#e0a65e',
-        glowScale: 3,
-        glowOpacity: 0.32,
-      });
-      mars.position.set(5.5, -1.5, -22);
-      g.add(mars);
-      spinners.push({ obj: mars, speed: 0.04 });
-      anchors.mars = mars;
-    },
+    // solutions: no Mars any more — the Showreel film docks into the
+    // Solutions card instead (Showreel.jsx), so no planet is needed.
 
     work(g) {
-      const saturn = makeRealPlanet(kit, {
+      // Mars, not Saturn: Saturn's surface is horizontal bands, so its
+      // spin is invisible. Mars' craters, dark plains and polar cap
+      // visibly travel across the face as it turns.
+      const planet = makeRealPlanet(kit, {
         radius: 2.1,
-        surface: 'saturn',
-        tint: 0xf1dfc0,
+        surface: 'mars',
+        tint: 0xffe2cc,
         sunDir,
-        atmosphere: { color: '#f3d29a', intensity: 0.8, thickness: 0.05, power: 3.2 },
-        glowColor: '#e9c58a',
+        atmosphere: { color: '#ffb07a', intensity: 0.9, thickness: 0.05, power: 3.2 },
+        glowColor: '#e98a5a',
         glowScale: 3,
-        glowOpacity: 0.22,
+        glowOpacity: 0.2,
       });
-      saturn.position.set(-9, 3, -18);
-      const ring = makePlanetRing(kit, { inner: 2.6, outer: 4.1, tint: 0xe2c49a, opacity: 0.8 });
-      ring.rotation.set(1.2, 0.2, -0.32);
-      saturn.add(ring);
-      g.add(saturn);
-      spinners.push({ obj: saturn.userData.body, speed: 0.06 });
+      // on a rig that floats and slowly rolls, so it reads as a body in
+      // space rather than a picture
+      const saturnRig = new THREE.Group();
+      saturnRig.position.set(-9, 3, -18);
+      g.add(saturnRig);
+      planet.rotation.z = 0.42; // axial tilt: the spin reads as a globe turning
+      saturnRig.add(planet);
+      spinners.push({ obj: planet.userData.body, speed: 0.45 }); // a clearly visible spin
+
+      // a small moon on a tilted orbit: it swings in front of the planet
+      // and disappears behind it, which sells the depth
+      const moonlet = makeRealPlanet(kit, {
+        radius: 0.34,
+        surface: 'mercury',
+        tint: 0xd9cfc0,
+        sunDir,
+        atmosphere: { intensity: 0 },
+        glowColor: '#e9c58a',
+        glowScale: 2.2,
+        glowOpacity: 0.12,
+        segments: 32,
+      });
+      const moonOrbit = new THREE.Group();
+      moonOrbit.rotation.set(0.35, 0, -0.32);
+      saturnRig.add(moonOrbit);
+      moonOrbit.add(moonlet);
+      spinners.push({ obj: moonlet.userData.body, speed: 0.6 });
+
+      movers.push((t) => {
+        saturnRig.position.set(-9 + Math.sin(t * 0.21) * 0.45, 3 + Math.sin(t * 0.33) * 0.35, -18 + Math.cos(t * 0.17) * 0.8);
+        saturnRig.rotation.set(Math.sin(t * 0.13) * 0.06, 0, Math.sin(t * 0.11) * 0.08);
+        const a = t * 0.42;
+        moonlet.position.set(Math.cos(a) * 5.2, 0, Math.sin(a) * 5.2);
+      });
+
+      // drifting space dust between the camera and the planet: near
+      // motes stream past faster than far ones (parallax)
+      const DUST = mobile ? 160 : 380;
+      const dPos = new Float32Array(DUST * 3);
+      const dSpd = new Float32Array(DUST);
+      for (let i = 0; i < DUST; i++) {
+        dPos[i * 3] = (Math.random() - 0.5) * 34;
+        dPos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+        dPos[i * 3 + 2] = -30 + Math.random() * 30;
+        dSpd[i] = 0.4 + Math.random() * 1.1;
+      }
+      const dustGeo = new THREE.BufferGeometry();
+      dustGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+      const dust = new THREE.Points(
+        dustGeo,
+        new THREE.PointsMaterial({
+          map: glow('#f3dcae'),
+          color: 0xf3dcae,
+          size: 0.16,
+          transparent: true,
+          opacity: 0.7,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          sizeAttenuation: true,
+        })
+      );
+      g.add(dust);
+      let lastT = 0;
+      movers.push((t) => {
+        const dt = Math.min(0.05, Math.max(0, t - lastT));
+        lastT = t;
+        for (let i = 0; i < DUST; i++) {
+          const k = i * 3;
+          dPos[k + 2] += dSpd[i] * dt; // toward the camera
+          dPos[k] += Math.sin(t * 0.3 + i) * 0.004; // a little sideways sway
+          if (dPos[k + 2] > 2) {
+            dPos[k + 2] = -30;
+            dPos[k] = (Math.random() - 0.5) * 34;
+            dPos[k + 1] = (Math.random() - 0.5) * 18;
+          }
+        }
+        dustGeo.attributes.position.needsUpdate = true;
+      });
 
       const belt = makeAsteroidBelt(kit, {
         count: mobile ? 16 : 34,
@@ -377,7 +394,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   beamGeo.setAttribute('alpha', new THREE.BufferAttribute(new Float32Array([1, 0.22, 0.22, 0.22, 0.22]), 1));
   beamGeo.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1]);
   const beamMat = new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color(0x6ff7ff) }, uStrength: { value: 0 } },
+    uniforms: { uColor: { value: new THREE.Color(0xe9b949) }, uStrength: { value: 0 } },
     vertexShader: /* glsl */ `
       attribute float alpha;
       varying float vAlpha;
@@ -560,6 +577,52 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
   moon.rotation.z = 0.35;
   moonRig.add(moon);
   const moonState = { vis: 0, crestY: 0.3, size: 0.82, spin: 0, px: 0, py: 0, sx: 0, sy: 0 };
+  let moonVideoTex = null; // setMoonVideo()
+
+  // The film on the moon: a shell just over the surface that shows ONE
+  // whole frame facing the camera (sampled by the view-space normal), so
+  // it never wraps/seams or splits into a lit and an unlit half as the
+  // moon turns. It sits on the shell, not the spinning body. Edges fade
+  // to the moon's own limb, and the craters show through a little.
+  const moonScreenMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uVideo: { value: null },
+      uCrop: { value: 9 / 16 }, // video aspect → square disc (cover)
+      uOpacity: { value: 0 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vN;
+      void main() {
+        vN = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D uVideo;
+      uniform float uCrop;
+      uniform float uOpacity;
+      varying vec3 vN;
+      void main() {
+        vec3 n = normalize(vN);
+        // gentle lens bulge: the centre reads slightly magnified
+        vec2 p = n.xy * mix(0.92, 1.0, n.z);
+        vec2 uv = vec2(0.5 + p.x * 0.5 * uCrop, 0.5 + p.y * 0.5);
+        vec3 col = texture2D(uVideo, uv).rgb;
+        // curved-glass shading + a warm gold limb
+        float shade = mix(0.55, 1.0, pow(n.z, 0.6));
+        float rim = pow(1.0 - n.z, 3.0);
+        col = col * shade + vec3(0.91, 0.72, 0.29) * rim * 0.55;
+        float a = uOpacity * smoothstep(0.0, 0.28, n.z) * 0.9;
+        gl_FragColor = vec4(col, a);
+        #include <colorspace_fragment>
+      }`,
+    transparent: true,
+    depthWrite: false,
+  });
+  const moonScreen = new THREE.Mesh(new THREE.SphereGeometry(1.004, mobile ? 48 : 96, mobile ? 32 : 64), moonScreenMat);
+  moonScreen.renderOrder = 2;
+  moonScreen.visible = false;
+  moon.add(moonScreen);
+  let moonScreenTarget = 0;
 
   const updateMoon = (t, dt) => {
     const on = moonState.vis > 0.001;
@@ -573,6 +636,9 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
     moonRig.position.set(moonState.sx * 0.6, crest - R + moonState.sy * 0.3, -MOON_DEPTH);
     moonRig.scale.setScalar(R * Math.max(0.001, moonState.vis));
     moon.userData.body.rotation.y = (reducedMotion ? 0 : t * 0.025) + moonState.spin;
+    const u = moonScreenMat.uniforms.uOpacity;
+    u.value += (moonScreenTarget - u.value) * Math.min(1, dt * 4);
+    moonScreen.visible = !!moonVideoTex && u.value > 0.003;
   };
 
   /* ---------- hyperspace warp field ---------- */
@@ -755,6 +821,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
 
     if (!reducedMotion) {
       for (const s of spinners) s.obj.rotation.y = t * s.speed;
+      for (const m of movers) m(t);
       for (const b of belts) {
         updateAsteroidBelt(b, t);
       }
@@ -823,6 +890,25 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       Object.assign(moonState, p);
     },
 
+    // The Web3D moon "made of video": the film in front of the orbit is
+    // projected over the moon's surface. Pass a <video> (or null to clear).
+    setMoonVideo(el) {
+      if (!el) {
+        moonScreenTarget = 0; // fade out; keep the last frame while it fades
+        return;
+      }
+      if (moonVideoTex?.image === el) {
+        moonScreenTarget = 1;
+        return;
+      }
+      const old = moonVideoTex;
+      moonVideoTex = new THREE.VideoTexture(el);
+      moonVideoTex.colorSpace = THREE.SRGBColorSpace;
+      moonScreenMat.uniforms.uVideo.value = moonVideoTex;
+      old?.dispose();
+      moonScreenTarget = 1;
+    },
+
     setWarp(v) {
       warpState.v = v;
     },
@@ -876,6 +962,7 @@ export function createUniverseScene(container, { stations = [], loadTrigger } = 
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVisibility);
+      moonVideoTex?.dispose();
 
       scene.traverse((o) => {
         o.geometry?.dispose();

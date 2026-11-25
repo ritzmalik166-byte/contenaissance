@@ -46,7 +46,7 @@
   letter-spacing: -0.055em;
 }
 
-.hjournal__head .btn {
+.hjournal__head .cbtn {
   flex-shrink: 0;
   margin-bottom: 8px;
 }
@@ -81,14 +81,24 @@
   transform-style: preserve-3d;
   backface-visibility: hidden;
 
+  top: 0;
   transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+    top 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
-.hjournal__card:hover {
-  border-color: rgba(239, 185, 67, 0.8);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+/* Homepage journal cards: no border, no hard offset shadow (both come
+   from the global .jcard) — on hover the card lifts 10px. Done with
+   `top` (the card is position: relative): GSAP owns transform and
+   writes an inline `translate: none`, so neither can be used here. */
+.hjournal__card.jcard,
+.hjournal__card.jcard:hover {
+  border: 0;
+  box-shadow: none;
+}
+
+.hjournal__card.jcard:hover {
+  top: -10px;
 }
 
 /* Image */
@@ -220,7 +230,7 @@
     font-size: clamp(46px, 9vw, 76px);
   }
 
-  .hjournal__head .btn {
+  .hjournal__head .cbtn {
     margin-bottom: 0;
   }
 
