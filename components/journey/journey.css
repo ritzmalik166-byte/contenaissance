@@ -692,21 +692,39 @@
 }
 .m-footer__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 48px;
+  /* brand block left, link columns pushed right */
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 40px clamp(48px, 7vw, 120px);
   padding: 56px 0 48px;
   border-top: 1px solid var(--line-gold);
-  text-align: center;
 }
-.m-footer__grid > * {
+.m-footer__brand {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  max-width: 440px;
+}
+.m-footer__brand img {
+  display: block;
+  width: auto;
+  height: 52px;
+}
+.m-footer__brand p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-3);
+}
+.m-footer ul.m-footer__social {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 18px;
+}
+.m-footer__social a {
+  display: inline-flex;
 }
 .m-footer ul {
   display: grid;
   gap: 14px;
-  justify-items: center;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -722,7 +740,6 @@
 }
 .m-footer__addr {
   max-width: 34ch;
-  margin-inline: auto;
   font-size: 13px;
   line-height: 1.6;
   color: var(--ink-3);
@@ -730,20 +747,17 @@
 .m-footer__bar {
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
+  justify-content: space-between;
+  gap: 12px 24px;
   padding-top: 24px;
   border-top: 1px solid var(--line);
-  text-align: center;
   font-size: 12px;
   color: var(--ink-3);
 }
 .m-footer__legal {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 12px 24px;
 }
 .m-footer__legal button,
@@ -831,7 +845,7 @@ html:has(.journey) .floating-contact {
 .j-tools { height: 260vh; }
 .j-trinity { height: 320vh; }
 .j-clients { height: calc(100vh + 5 * 60vh); }
-.j-logo { height: 360vh; }
+.j-logo { height: 300vh; }
 
 .j-stage {
   position: sticky;
@@ -1709,7 +1723,7 @@ html:has(.journey) .floating-contact {
 }
 .journey .m-footer {
   margin-top: 0;
-  padding-top: 30vh;
+  padding-top: 8vh;
   background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.88) 40%);
 }
 
@@ -1887,6 +1901,9 @@ html:has(.journey) .floating-contact {
   }
   .m-footer__grid {
     grid-template-columns: 1fr 1fr;
+  }
+  .m-footer__brand {
+    grid-column: 1 / -1;
   }
 }
 
