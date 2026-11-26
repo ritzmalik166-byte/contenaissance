@@ -27,9 +27,9 @@ export function EarthChapter() {
           <Kicker>{hero.kicker}</Kicker>
           <h1 id="j-hero-title" className="j-hero__title">
             <span className="j-display j-display--xl">
-              The next chapter
+              The next Chapter
               <br />
-              of creativity.
+              of Creativity.
             </span>
           </h1>
           <span className="j-hero__sub">{hero.sub}</span>
@@ -38,13 +38,13 @@ export function EarthChapter() {
           </p>
         </div>
         <p className="j-beat j-center j-tag" data-in="0.3" data-out="0.55" aria-hidden="true">
-          <span className="j-display j-display--md">Enter the atmosphere.</span>
+          <span className="j-display j-display--md">Enter the Atmosphere.</span>
         </p>
         <div className="j-beat j-center" data-in="0.6" data-out="0.86">
           <p className="j-display j-display--lg">
-            Every great idea
+            Every Great Idea
             <br />
-            starts somewhere.
+            Starts Somewhere.
           </p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export function CloudsChapter() {
     <section id="about" className="j-ch j-clouds" data-ch="clouds" aria-labelledby="j-about-title">
       <div className="j-stage">
         <p className="j-beat j-center j-ink-dark" data-in="0.06" data-out="0.3">
-          <span className="j-display j-display--xl">Ours starts here.</span>
+          <span className="j-display j-display--xl">Ours Starts here.</span>
         </p>
         <div className="j-beat j-left j-glass" data-in="0.34" data-out="0.64">
           <Kicker>{about.kicker}</Kicker>
@@ -113,7 +113,7 @@ export function PadChapter() {
           <h2 id="j-pad-title" className="j-display j-display--lg">
             Prepare
             <br />
-            for launch.
+            for Launch.
           </h2>
           <p className="j-lead">Our work, received as transmissions from the rocket. Scroll to move between its modules.</p>
         </div>
@@ -162,16 +162,16 @@ export function LaunchChapter() {
           <small data-hud="lphase">Systems check</small>
         </div>
         <p className="j-beat j-center j-top" data-in="-1" data-out="0.14">
-          <span className="j-display j-display--lg">Ignition sequence.</span>
+          <span className="j-display j-display--lg">Ignition Sequence.</span>
         </p>
         <p className="j-beat j-center j-top" data-in="0.42" data-out="0.58">
           <span className="j-display j-display--xl">Liftoff.</span>
         </p>
         <p className="j-beat j-center j-top" data-in="0.6" data-out="0.75">
-          <span className="j-display j-display--lg">Creativity has no gravity.</span>
+          <span className="j-display j-display--lg">Creativity has no Gravity.</span>
         </p>
         <p className="j-beat j-center" data-in="0.86" data-out="9">
-          <span className="j-display j-display--lg">We’re just getting started.</span>
+          <span className="j-display j-display--lg">We’re just Getting Started.</span>
         </p>
       </div>
     </section>
@@ -197,7 +197,7 @@ export function ShowreelChapter() {
     <section className="j-sec j-showreel" data-ch="showreel" aria-labelledby="j-showreel-title">
       <div className="j-wrap j-center">
         <Kicker>Showreel · {showreel.duration}</Kicker>
-        <h2 id="j-showreel-title" className="j-display j-display--lg">
+        <h2 id="j-showreel-title" className="j-display j-display--lg j-shadow">
           {showreel.title[0]} {showreel.title[1]}
         </h2>
         <p className="j-lead">{showreel.copy}</p>
@@ -236,7 +236,7 @@ export function WorldsChapter() {
           <h2 id="j-services-title" className="j-display j-display--lg">
             Welcome to
             <br />
-            the AI universe.
+            the AI Universe.
           </h2>
         </header>
         <div className="j-beat j-left j-panel j-world" data-in="0.08" data-out="9" aria-live="polite">
@@ -284,7 +284,7 @@ export function GalaxyChapter() {
         <header className="j-beat j-center j-top" data-in="-1" data-out="0.1">
           <Kicker>Portfolio galaxy</Kicker>
           <h2 id="j-work-title" className="j-display j-display--lg">
-            Mission archive.
+            Mission Archive.
           </h2>
           <p className="j-lead">Every project, a star system. Scroll to fly between them.</p>
         </header>
@@ -324,12 +324,12 @@ export function ToolsChapter() {
         <header className="j-beat j-center j-top" data-in="-1" data-out="0.5">
           <Kicker>The AI universe</Kicker>
           <h2 id="j-tools-title" className="j-display j-display--lg">
-            AI × creativity.
+            AI × Creativity.
           </h2>
           <p className="j-lead">Powered by the tools shaping the future.</p>
         </header>
         <p className="j-beat j-center j-top" data-in="0.6" data-out="9" aria-hidden="true">
-          <span className="j-display j-display--md">{tools.length} tools. One orbit.</span>
+          <span className="j-display j-display--md">{tools.length} Tools. One Orbit.</span>
         </p>
         <ul className="j-sr" aria-label="AI tools we work with">
           {tools.map((t) => (
@@ -404,7 +404,7 @@ export function ClientsChapter() {
         <header className="j-beat j-left j-top" data-in="-1" data-out="9">
           <Kicker>Client constellation</Kicker>
           <h2 id="j-clients-title" className="j-display j-display--md">
-            Signals from our clients.
+            Signals from our Clients.
           </h2>
         </header>
         <ul className="j-beat j-stars" data-in="-1" data-out="9" aria-label="Clients">

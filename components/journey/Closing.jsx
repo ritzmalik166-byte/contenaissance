@@ -24,7 +24,7 @@ export function Blog({ posts = [] }) {
           <div>
             <Kicker>Journal</Kicker>
             <h2 id="blog-title" className="j-display j-display--lg" data-reveal>
-              Field notes.
+              Field Notes.
             </h2>
           </div>
           <Link href="/blog" className="m-link" data-cursor="READ" data-reveal>
