@@ -38,7 +38,7 @@ export default function Header() {
       <header className={`header${hidden && !open ? ' is-hidden' : ''}${solid ? ' is-solid' : ''}`}>
         <div className="container header__inner">
           <Link href="/" className="logo" aria-label="Contenaissance home">
-            <img src="/images/logo.png" alt="Contenaissance — Ritz GenAI Storytelling Studios" />
+            <img src="/images/logo-400.webp" alt="Contenaissance — Ritz GenAI Storytelling Studios" />
           </Link>
 
           <nav className="nav" aria-label="Primary">

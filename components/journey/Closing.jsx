@@ -110,7 +110,7 @@ export function Footer() {
         <div className="m-footer__grid">
           <div className="m-footer__brand">
             <Link href="/" aria-label="Contenaissance, home">
-              <img src="/images/logo.png" alt="Contenaissance — Ritz GenAI Storytelling Studios" width="294" height="143" loading="lazy" />
+              <img src="/images/logo-600.webp" alt="Contenaissance — Ritz GenAI Storytelling Studios" width="294" height="143" loading="lazy" />
             </Link>
             <p className="m-footer__tag">
               Human stories.

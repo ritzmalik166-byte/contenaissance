@@ -90,7 +90,7 @@ export default function Journal({ posts = [] }) {
           {items.map((p) => (
             <Link key={p.slug} href={`/blog/${p.slug}`} className="hjournal__card jcard" data-cursor="Read">
               <div className="jcard__img">
-                <img src={p.image || '/images/logo.png'} alt={p.title || ''} loading="lazy" />
+                <img src={p.image || '/images/logo-600.webp'} alt={p.title || ''} loading="lazy" />
               </div>
               <p className="jmeta">
                 <span>{p.date}</span>

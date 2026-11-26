@@ -74,7 +74,7 @@ export default function Navigation() {
           data-cursor="HOME"
         >
           <img
-            src="/images/logo.png"
+            src="/images/logo-400.webp"
             alt="Contenaissance — Ritz GenAI Storytelling Studios"
             width="274"
             height="133"

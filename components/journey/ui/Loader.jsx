@@ -60,7 +60,7 @@ export default function Loader({ onDone }) {
         }
       }
     };
-    img.src = '/images/logo.png';
+    img.src = '/images/logo-600.webp';
 
     const onReady = () => (ready = true);
     window.addEventListener('journey:ready', onReady);
@@ -115,7 +115,7 @@ export default function Loader({ onDone }) {
       <div className="j-loader__inner">
         <span className="j-loader__logo">
           <canvas ref={canvas} aria-hidden="true" />
-          <img ref={mark} src="/images/logo@2x.png" alt="" width="274" height="133" />
+          <img ref={mark} src="/images/logo-600.webp" alt="" width="274" height="133" />
         </span>
         <span className="j-loader__bar" aria-hidden="true">
           <i ref={bar} />

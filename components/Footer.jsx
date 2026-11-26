@@ -207,7 +207,7 @@ export default function Footer() {
           <div className="footer__top">
             <div className="footer__brand">
               <Link href="/" className="footer__logo-link" aria-label="Go to homepage">
-                <img src="/images/logo.png" alt="Contenaissance" />
+                <img src="/images/logo-400.webp" alt="Contenaissance" />
               </Link>
               <p>Human stories. Uncharted possibilities.</p>
             </div>

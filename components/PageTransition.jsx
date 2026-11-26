@@ -110,7 +110,7 @@ export default function PageTransition() {
         <span className="ptrans__col" key={i} />
       ))}
       <div className="ptrans__center">
-        <img src="/images/logo.png" alt="" />
+        <img src="/images/logo-400.webp" alt="" />
         <span className="ptrans__label">{label}</span>
       </div>
     </div>

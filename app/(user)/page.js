@@ -13,6 +13,32 @@ export const metadata = {
   alternates: {
     canonical: "https://www.contenaissance.com/",
   },
+  // homepage share tags (a page's openGraph replaces the layout's entirely,
+  // so the placeholder text in app/(user)/layout.js never reaches this page)
+  openGraph: {
+    type: "website",
+    url: "https://www.contenaissance.com/",
+    siteName: "Contenaissance",
+    locale: "en_IN",
+    title: "Contenaissance | AI Creative Agency in India",
+    description:
+      "AI brand films, commercials and digital campaigns. Contenaissance blends human storytelling with generative AI to create cinematic work for brands.",
+    images: [
+      {
+        url: "/og/home.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Contenaissance — AI creative agency in India. The next chapter of creativity.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contenaissance | AI Creative Agency in India",
+    description:
+      "AI brand films, commercials and digital campaigns, made where human storytelling meets generative AI.",
+    images: ["/og/home.jpg"],
+  },
 };
 
 export default async function Home() {
