@@ -239,7 +239,7 @@ export function WorldsChapter() {
             the AI Universe.
           </h2>
         </header>
-        <div className="j-beat j-left j-panel j-world" data-in="0.02" data-out="0.94" aria-live="polite">
+        <div className="j-beat j-left j-panel j-world" data-in="0.02" data-out="0.96" aria-live="polite">
           <div key={s.code}>
             <Kicker gold={false}>
               Planet {s.code} · {s.planet.name}
@@ -257,10 +257,10 @@ export function WorldsChapter() {
             </Link>
           </div>
         </div>
-        <ol className="j-beat j-dots" data-in="0.08" data-out="0.94" aria-label="Service worlds">
+        <ol className="j-beat j-dots" data-in="0.08" data-out="0.96" aria-label="Service worlds">
           {services.map((x, i) => (
             <li key={x.code}>
-              <button type="button" className={i === step ? 'is-active' : ''} aria-current={i === step ? 'step' : undefined} onClick={() => scrollToProgress(ref.current, i / services.length)} data-cursor="VISIT">
+              <button type="button" className={i === step ? 'is-active' : ''} aria-current={i === step ? 'step' : undefined} onClick={() => scrollToProgress(ref.current, i / 5.6)} data-cursor="VISIT">
                 <span>{x.code}</span>
                 <b>{x.title}</b>
               </button>
@@ -281,7 +281,7 @@ export function GalaxyChapter() {
   return (
     <section id="work" ref={ref} className="j-ch j-galaxy" data-ch="galaxy" aria-labelledby="j-work-title" style={{ '--n': n }}>
       <div className="j-stage">
-        <header className="j-beat j-center j-top" data-in="-1" data-out="0.1">
+        <header className="j-beat j-center j-top" data-in="0.01" data-out="0.1">
           <Kicker>Portfolio galaxy</Kicker>
           <h2 id="j-work-title" className="j-display j-display--lg">
             Mission Archive.
@@ -321,14 +321,14 @@ export function ToolsChapter() {
   return (
     <section className="j-ch j-tools" data-ch="tools" aria-labelledby="j-tools-title">
       <div className="j-stage">
-        <header className="j-beat j-center j-top" data-in="-1" data-out="0.5">
+        <header className="j-beat j-center j-top" data-in="0.01" data-out="0.5">
           <Kicker>The AI universe</Kicker>
           <h2 id="j-tools-title" className="j-display j-display--lg">
             AI × Creativity.
           </h2>
           <p className="j-lead">Powered by the tools shaping the future.</p>
         </header>
-        <p className="j-beat j-center j-top" data-in="0.6" data-out="9" aria-hidden="true">
+        <p className="j-beat j-center j-top" data-in="0.6" data-out="0.97" aria-hidden="true">
           <span className="j-display j-display--md">{tools.length} Tools. One Orbit.</span>
         </p>
         <ul className="j-sr" aria-label="AI tools we work with">
@@ -354,7 +354,7 @@ export function TrinityChapter() {
         <h2 id="j-trinity-title" className="j-sr">
           Human × AI × Story: creativity, Contenaissance
         </h2>
-        <header className="j-beat j-center j-top" data-in="-1" data-out="0.16" aria-hidden="true">
+        <header className="j-beat j-center j-top" data-in="0.01" data-out="0.16" aria-hidden="true">
           <Kicker>Our creative philosophy</Kicker>
           <p className="j-display j-display--lg">Human × AI × Story</p>
         </header>

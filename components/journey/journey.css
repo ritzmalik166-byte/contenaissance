@@ -1336,6 +1336,15 @@ html:has(.journey) .floating-contact {
 .j-trinity .j-top {
   top: 20px;
 }
+/* mobile + tablet (incl. large iPads in landscape): sit just below the nav
+   bar (logo height + its padding) with ~24px air, so the headings never
+   crowd or slide under the header */
+@media (max-width: 1100px), (hover: none) and (pointer: coarse) {
+  .j-tools .j-top,
+  .j-trinity .j-top {
+    top: calc(clamp(34px, 3.3vw, 46px) + 44px);
+  }
+}
 /* "AI × Creativity." / "Human × AI × Story" blocks: tighter stack, heading 20px smaller */
 .j-tools header.j-top .m-kicker,
 .j-trinity header.j-top .m-kicker {
@@ -2422,6 +2431,98 @@ html:has(.journey) .floating-contact {
   }
   .j-holo .j-small {
     font-size: 10px;
+  }
+}
+
+/* PORTFOLIO GALAXY on mobile + tablet (incl. large iPads in landscape):
+   the frame sits centred-high (engine), so the mission card becomes a compact
+   strip at the bottom — above the HUD — instead of covering the frame */
+@media (max-width: 600px), (hover: none) and (pointer: coarse) {
+  .j-mission {
+    top: auto;
+    right: var(--pad);
+    bottom: 84px;
+    left: var(--pad);
+    max-width: 560px;
+    margin-inline: auto;
+    padding: 14px 16px 16px;
+    translate: none;
+  }
+  .j-mission__count {
+    margin: 0 0 4px;
+    font-size: 12px;
+  }
+  .j-mission__count b {
+    font-size: 28px;
+  }
+  .j-mission .m-kicker {
+    margin-bottom: 6px;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+  }
+  .j-mission .j-h3 {
+    font-size: 19px;
+  }
+  .j-mission .j-body {
+    display: none;
+  }
+  .j-mission .j-row {
+    gap: 0 20px;
+  }
+  .j-mission .j-link {
+    margin-top: 12px;
+    padding-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+  }
+}
+/* SERVICE WORLDS on large touch tablets (e.g. iPad Pro 1032 × 1376): the
+   planet is centred-high there, so the service card moves down into the empty
+   lower third, centred just above the 01–06 dots, instead of covering it */
+@media (min-width: 961px) and (hover: none) and (pointer: coarse) {
+  .j-world {
+    top: auto;
+    right: var(--pad);
+    bottom: calc(9vh + 64px);
+    left: var(--pad);
+    width: auto;
+    max-width: 920px;
+    margin-inline: auto;
+    translate: none;
+  }
+}
+
+/* tablets only (touch, wider than a phone): roomier strip with the description */
+@media (min-width: 601px) and (hover: none) and (pointer: coarse) {
+  .j-mission {
+    bottom: 96px;
+    max-width: 620px;
+    padding: 24px 28px 26px;
+  }
+  .j-mission__count {
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+  .j-mission__count b {
+    font-size: 40px;
+  }
+  .j-mission .m-kicker {
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+  .j-mission .j-h3 {
+    font-size: 26px;
+  }
+  .j-mission .j-body {
+    display: block;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  .j-mission .j-link {
+    margin-top: 18px;
+    padding-bottom: 8px;
+    font-size: 11.5px;
+    letter-spacing: 0.22em;
   }
 }
 
