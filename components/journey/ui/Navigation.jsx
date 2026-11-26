@@ -103,16 +103,16 @@ export default function Navigation() {
           Start a project
         </Link>
 
-<button
-  type="button"
-  className="m-nav__menu"
-  aria-expanded={open}
-  aria-controls="m-menu"
-  onClick={() => setOpen((o) => !o)}
->
-  <span>{open ? 'Close' : 'Menu'}</span>
-  <i aria-hidden="true" />
-</button>
+        <button
+          type="button"
+          className="m-nav__menu"
+          aria-expanded={open}
+          aria-controls="m-menu"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {/* <span>{open ? 'Close' : 'Menu'}</span> */}
+          <i aria-hidden="true" />
+        </button>
       </header>
 
       <div
