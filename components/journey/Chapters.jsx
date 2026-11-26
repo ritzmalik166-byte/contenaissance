@@ -231,7 +231,7 @@ export function WorldsChapter() {
   return (
     <section id="services" ref={ref} className="j-ch j-worlds" data-ch="worlds" aria-labelledby="j-services-title" style={{ '--n': services.length }}>
       <div className="j-stage">
-        <header className="j-beat j-left j-top" data-in="-1" data-out="0.1">
+        <header className="j-beat j-left j-top" data-in="-1" data-out="0.04">
           <Kicker>Our AI stages · Services</Kicker>
           <h2 id="j-services-title" className="j-display j-display--lg">
             Welcome to
@@ -239,7 +239,7 @@ export function WorldsChapter() {
             the AI Universe.
           </h2>
         </header>
-        <div className="j-beat j-left j-panel j-world" data-in="0.08" data-out="9" aria-live="polite">
+        <div className="j-beat j-left j-panel j-world" data-in="0.02" data-out="9" aria-live="polite">
           <div key={s.code}>
             <Kicker gold={false}>
               Planet {s.code} · {s.planet.name}
