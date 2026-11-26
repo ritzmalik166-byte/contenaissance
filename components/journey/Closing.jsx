@@ -41,7 +41,7 @@ export function Blog({ posts = [] }) {
                 <span className="m-post__text">
                   <span className="m-post__meta">
                     {fmtDate(p.date)}
-                    {p.readTime ? ` · ${p.readTime}` : ''}
+                    {/* {p.readTime ? ` · ${p.readTime}` : ''} */}
                   </span>
                   <span className="m-post__title">{p.title}</span>
                   {p.excerpt && <span className="m-post__excerpt">{p.excerpt}</span>}
