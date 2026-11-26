@@ -2298,23 +2298,21 @@ html:has(.journey) .floating-contact {
     right: var(--pad);
     bottom: 11vh;
   }
+  /* card sits left of the (centred) rocket, like desktop, sized to the
+     space between the screen edge and the rocket so it never covers it */
   .j-holo {
-    right: auto;
-    left: 0;
-    width: min(52vw, 230px);
-    translate: -50% 40px;
+    right: 40px;
+    left: auto;
+    width: clamp(118px, calc(50vw - 68px), 220px);
+    translate: 0 -50%;
   }
   .j-holo__line {
-    top: -40px;
-    right: auto;
-    left: 50%;
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(0deg, rgba(233, 185, 73, 0.9), rgba(233, 185, 73, 0.15));
-  }
-  .j-holo__line::after {
-    top: -4px;
-    right: -4px;
+    top: 50%;
+    right: -40px;
+    left: auto;
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(233, 185, 73, 0.9), rgba(233, 185, 73, 0.15));
   }
   .j-holo__media {
     aspect-ratio: 4 / 5;
@@ -2383,12 +2381,30 @@ html:has(.journey) .floating-contact {
   }
 }
 
+/* phones: same left-of-rocket layout, compact card */
 @media (max-width: 600px) {
-    .j-holo {
-    right: auto;
-    left: 0;
-    width: min(52vw, 230px);
-    translate: -50% 40px;
+  .j-holo__panel {
+    padding: 7px 7px 9px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .j-holo__label {
+    margin-bottom: 6px;
+    font-size: 7.5px;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+  }
+  .j-holo__play {
+    bottom: 6px;
+    left: 6px;
+    padding: 3px 7px;
+    font-size: 9px;
+  }
+  .j-holo .j-h3 {
+    margin-top: 7px;
+    font-size: 13px;
+  }
+  .j-holo .j-small {
+    font-size: 10px;
   }
 }
 

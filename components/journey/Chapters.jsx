@@ -239,7 +239,7 @@ export function WorldsChapter() {
             the AI Universe.
           </h2>
         </header>
-        <div className="j-beat j-left j-panel j-world" data-in="0.02" data-out="9" aria-live="polite">
+        <div className="j-beat j-left j-panel j-world" data-in="0.02" data-out="0.94" aria-live="polite">
           <div key={s.code}>
             <Kicker gold={false}>
               Planet {s.code} · {s.planet.name}
@@ -257,10 +257,10 @@ export function WorldsChapter() {
             </Link>
           </div>
         </div>
-        <ol className="j-beat j-dots" data-in="0.08" data-out="9" aria-label="Service worlds">
+        <ol className="j-beat j-dots" data-in="0.08" data-out="0.94" aria-label="Service worlds">
           {services.map((x, i) => (
             <li key={x.code}>
-              <button type="button" className={i === step ? 'is-active' : ''} aria-current={i === step ? 'step' : undefined} onClick={() => scrollToProgress(ref.current, i / (services.length - 1))} data-cursor="VISIT">
+              <button type="button" className={i === step ? 'is-active' : ''} aria-current={i === step ? 'step' : undefined} onClick={() => scrollToProgress(ref.current, i / services.length)} data-cursor="VISIT">
                 <span>{x.code}</span>
                 <b>{x.title}</b>
               </button>

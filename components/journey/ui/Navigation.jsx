@@ -7,22 +7,14 @@ import { nav, site } from '@/lib/journey/data';
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState('');
   const [solid, setSolid] = useState(false);
   const [hidden, setHidden] = useState(false);
+  // this nav only lives on the home page, so Home is the current item.
+  // (The old scroll-spy matched /services and /blog to the #services and
+  // #blog sections, lighting "Services" up while scrolling the planets.)
+  const isCurrent = (href) => href === '/';
 
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => e.isIntersecting && setCurrent(e.target.id)),
-      { rootMargin: '-40% 0px -55% 0px' },
-    );
-
-    nav.forEach((n) => {
-      const el = document.getElementById(n.href.slice(1));
-      if (el) io.observe(el);
-    });
-
     let lastY = window.scrollY;
 
     const onScroll = () => {
@@ -39,7 +31,6 @@ export default function Navigation() {
     window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
-      io.disconnect();
       window.removeEventListener('scroll', onScroll);
     };
   }, []);
@@ -59,18 +50,15 @@ export default function Navigation() {
     };
   }, [open]);
 
+  // Home: we're already here, so glide back to the top.
+  // Other items are real pages: let the Link navigate, just close the menu.
   const go = (href) => (e) => {
-    e.preventDefault();
     setOpen(false);
-
-    const t = document.querySelector(href);
-
+    if (href !== '/') return;
+    e.preventDefault();
     setTimeout(() => {
-      if (window.__lenis && t) {
-        window.__lenis.scrollTo(t, { duration: 1.5, offset: 0 });
-      } else {
-        t?.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (window.__lenis) window.__lenis.scrollTo(0, { duration: 1.5 });
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
     }, open ? 80 : 0);
   };
 
@@ -99,17 +87,15 @@ export default function Navigation() {
 
         <nav className="m-nav__links" aria-label="Primary">
           {nav.map((n) => (
-            <a
+            <Link
               key={n.href}
               href={n.href}
               onClick={go(n.href)}
-              className={current === n.href.slice(1) ? 'is-current' : ''}
-              aria-current={
-                current === n.href.slice(1) ? 'location' : undefined
-              }
+              className={isCurrent(n.href) ? 'is-current' : ''}
+              aria-current={isCurrent(n.href) ? 'page' : undefined}
             >
               {n.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -140,9 +126,9 @@ export default function Navigation() {
         <ul>
           {nav.map((n, i) => (
             <li key={n.href} style={{ '--i': i }}>
-              <a href={n.href} onClick={go(n.href)}>
+              <Link href={n.href} onClick={go(n.href)} aria-current={isCurrent(n.href) ? 'page' : undefined}>
                 {n.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

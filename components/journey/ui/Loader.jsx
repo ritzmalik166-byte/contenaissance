@@ -30,6 +30,17 @@ export default function Loader({ onDone }) {
     let finished = false;
     let shown = 0;
 
+    // time budget: 4s on the first visit in this tab, 3s when coming back to
+    // the home page (client navigation) or refreshing
+    let repeat = false;
+    try {
+      repeat = sessionStorage.getItem('cn-visited') === '1';
+      sessionStorage.setItem('cn-visited', '1');
+    } catch {}
+    const BUDGET = repeat ? 3000 : 4000;
+    const ASSEMBLE = repeat ? 0.8 : 1.1; // logo assembly, seconds
+    const MARK_AT = ASSEMBLE - 0.2; // real logo starts fading in
+
     const img = new Image();
     img.onload = () => {
       const s = document.createElement('canvas');
@@ -53,13 +64,15 @@ export default function Loader({ onDone }) {
 
     const onReady = () => (ready = true);
     window.addEventListener('journey:ready', onReady);
-    // never hold the page hostage: no WebGL or a slow network still opens it
-    const fallback = setTimeout(onReady, 4000);
+    // never hold the page hostage: treat it as ready ~0.5s before the budget
+    // so the bar can finish, and force the exit once the budget runs out
+    const fallback = setTimeout(onReady, BUDGET - 500);
 
     const draw = (now) => {
       const elapsed = (now - t0) / 1000;
-      // the logo assembles over ~1.6s with a long ease-out
-      const t = Math.min(1, elapsed / 1.1);
+      const late = elapsed * 1000 >= BUDGET;
+      // the logo assembles with a long ease-out
+      const t = Math.min(1, elapsed / ASSEMBLE);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, W, H);
       for (const q of pts) {
@@ -71,15 +84,15 @@ export default function Loader({ onDone }) {
       }
       // once the points have settled, the real logo image takes over
       if (mark.current) {
-        const m = Math.min(1, Math.max(0, (elapsed - 0.9) / 0.35));
+        const m = Math.min(1, Math.max(0, (elapsed - MARK_AT) / 0.35));
         mark.current.style.opacity = m.toFixed(3);
         c.style.opacity = (1 - m * 0.85).toFixed(3);
       }
       // progress: creeps toward 90% while loading, completes when ready
       const target = ready ? 1 : 0.9 * (1 - Math.exp(-elapsed / 2.2));
-      shown += (target - shown) * 0.12;
-      if (bar.current) bar.current.style.transform = `scaleX(${shown.toFixed(4)})`;
-      if (!finished && ready && t >= 1 && shown > 0.97) {
+      shown += (target - shown) * (ready ? 0.18 : 0.12);
+      if (bar.current) bar.current.style.transform = `scaleX(${(late ? 1 : shown).toFixed(4)})`;
+      if (!finished && (late || (ready && t >= 1 && shown > 0.97))) {
         finished = true;
         setGone(true);
         onDone?.();
