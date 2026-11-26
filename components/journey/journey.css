@@ -1331,6 +1331,23 @@ html:has(.journey) .floating-contact {
   top: 15vh;
   translate: none;
 }
+/* "AI × Creativity." / "Human × AI × Story": sit at the very top, 50px gap */
+.j-tools .j-top,
+.j-trinity .j-top {
+  top: 20px;
+}
+/* "AI × Creativity." / "Human × AI × Story" blocks: tighter stack, heading 20px smaller */
+.j-tools header.j-top .m-kicker,
+.j-trinity header.j-top .m-kicker {
+  margin-bottom: 8px;
+}
+.j-tools header.j-top .j-display--lg,
+.j-trinity header.j-top .j-display--lg {
+  font-size: clamp(30px, calc(5.6vw - 20px), 72px);
+}
+.j-tools header.j-top .j-lead {
+  margin-top: 8px;
+}
 .j-bottom {
   top: auto;
   bottom: 13vh;
