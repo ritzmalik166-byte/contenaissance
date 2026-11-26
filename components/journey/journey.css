@@ -974,7 +974,7 @@
   top: 10px;
   left: -20px;
   height: 100%;
-  width: 20px;
+  width: 19px;
   background: #b1b1b1;
   transition: 0.5s;
   transform: rotate(0deg) skewY(-45deg);
@@ -983,10 +983,10 @@
 .m-footer .m-footer__social > li a::after {
   content: '';
   position: absolute;
-  top: 79px;
-  left: -10px;
-  width: calc(100% + 1px);
-  height: 21px;
+  top: 80px;
+  left: -9px;
+  width: 100%;
+  height: 19px;
   background: #b1b1b1;
   transform: skewX(-45deg);
   transform-origin: center;
