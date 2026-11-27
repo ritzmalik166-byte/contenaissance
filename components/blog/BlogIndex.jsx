@@ -193,7 +193,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
         {/* <Link href={`/blog/${featured.slug}`} className="jfeat" data-cursor="Read"> */}
         <Link href={`/blog/${featured.slug}`} className="jfeat">
           <div className="jfeat__media" data-reveal="media">
-            <img src={featured.image || '/images/logo.png'} alt={featured.title || ''} data-parallax="6" />
+            <img src={featured.image || '/images/logo-600.webp'} alt={featured.title || ''} data-parallax="6" />
           </div>
           <div className="jfeat__copy">
             <h2 className="kicker">Latest Article</h2>
@@ -249,7 +249,7 @@ export default function BlogIndex({ posts = [], topics = [] }) {
               >
                 <div className="jcard__media">
                   <img
-                    src={p.image || '/images/logo.png'}
+                    src={p.image || '/images/logo-600.webp'}
                     alt={p.title || ''}
                     loading="lazy"
                   />

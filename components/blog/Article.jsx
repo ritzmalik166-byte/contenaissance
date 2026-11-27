@@ -136,7 +136,7 @@ export default function Article({ post, next, related = [] }) {
             </p>
             <div className="art__cover">
               <img
-                src={post.image || '/images/logo.png'}
+                src={post.image || '/images/logo-600.webp'}
                 alt={post.title || ''} x
               />
             </div>
@@ -165,7 +165,7 @@ export default function Article({ post, next, related = [] }) {
           <Link href={`/blog/${next.slug}`} className="anext" data-cursor="Next">
             <p className="mono">Next article</p>
             <div className="anext__img">
-              <img src={next.image || '/images/logo.png'} alt={next.title || ''} loading="lazy" />
+              <img src={next.image || '/images/logo-600.webp'} alt={next.title || ''} loading="lazy" />
             </div>
             <h2 className="display h-md">{next.title}</h2>
             <span className="anext__go">
@@ -196,7 +196,7 @@ export default function Article({ post, next, related = [] }) {
               >
                 <div className="arel__img">
                   <img
-                    src={p.image || '/images/logo.png'}
+                    src={p.image || '/images/logo-600.webp'}
                     alt={p.title || ''}
                     loading="lazy"
                   />

@@ -4,14 +4,25 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Close } from './Icons';
 
-export const openVideo = (src) => {
+/** Open the player. `poster` is optional — see posterFor(). */
+export const openVideo = (src, poster) => {
   window.dispatchEvent(
-    new CustomEvent('video:open', { detail: src })
+    new CustomEvent('video:open', { detail: { src, poster } })
   );
+};
+
+// Every video has a same-named poster frame in /public/posters
+// (/videos/12.mp4 → /posters/12.webp, also for CDN URLs), so the player shows
+// a still instead of an empty black box while the video buffers.
+const posterFor = (src) => {
+  const file = decodeURIComponent((src || '').split('?')[0].split('/').pop() || '');
+  const name = file.replace(/\.(mp4|webm|mov)$/i, '');
+  return name ? `/posters/${name}.webp` : undefined;
 };
 
 export default function VideoModal() {
   const [src, setSrc] = useState(null);
+  const [poster, setPoster] = useState(undefined);
   const video = useRef(null);
   const isOpen = useRef(false);
 
@@ -28,7 +39,9 @@ export default function VideoModal() {
 
   useEffect(() => {
     const open = (e) => {
-      if (!e.detail || isOpen.current) return;
+      // detail is { src, poster } (older callers may still send a string)
+      const d = typeof e.detail === 'string' ? { src: e.detail } : e.detail || {};
+      if (!d.src || isOpen.current) return;
 
       isOpen.current = true;
 
@@ -38,7 +51,8 @@ export default function VideoModal() {
         window.location.href
       );
 
-      setSrc(e.detail);
+      setPoster(d.poster || posterFor(d.src));
+      setSrc(d.src);
     };
 
     const handleBack = () => {
@@ -115,6 +129,7 @@ export default function VideoModal() {
               ref={video}
               key={src}
               src={src}
+              poster={poster}
               controls
               autoPlay
               playsInline
