@@ -455,7 +455,9 @@ export function LogoChapter() {
   return (
     <section id="contact" className="j-ch j-logo" data-ch="logo" aria-labelledby="j-cta-title">
       <div className="j-stage">
-        <p className="j-beat j-hint" data-in="0.02" data-out="0.6" aria-hidden="true">
+        {/* data-in="-1": already visible while the chapter scrolls in after the
+            journal, so the hand-off never reads as a blank screen */}
+        <p className="j-beat j-hint" data-in="-1" data-out="0.6" aria-hidden="true">
           Keep scrolling · the mark is forming
         </p>
         {/* "Start a mission" CTA — hidden for now; flip SHOW_CTA to bring it back */}

@@ -499,6 +499,54 @@
   color: var(--gold);
   text-decoration: none;
 }
+/* status + CTA inside the open menu (hidden from the bar on tablet/mobile) */
+.m-menu__status,
+.m-menu__cta {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease) 0.3s, transform 0.8s var(--ease) 0.3s, background 0.3s, color 0.3s;
+}
+.m-menu.is-open .m-menu__status,
+.m-menu.is-open .m-menu__cta {
+  opacity: 1;
+  transform: none;
+}
+.m-menu__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 -16px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition-delay: 0s;
+}
+.m-menu__status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6ee7a8;
+  box-shadow: 0 0 8px #6ee7a8;
+  animation: j-blink 2.4s ease-in-out infinite;
+}
+.m-menu__cta {
+  justify-self: start;
+  padding: 14px 24px;
+  border: 1px solid var(--line-gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.m-menu__cta:hover,
+.m-menu__cta:active {
+  background: var(--gold);
+  color: #000;
+}
 
 /* ---------- loader ---------- */
 .m-loader {
@@ -2163,11 +2211,13 @@ html:has(.journey) .floating-contact {
 }
 
 /* 12 logo + CTA */
+/* top of the screen, just below the nav bar (logo height + padding + air) */
 .j-hint {
+  top: calc(clamp(34px, 3.3vw, 46px) + 44px);
   right: 0;
-  bottom: 10vh;
   left: 0;
   margin: 0;
+  padding: 0 var(--pad);
   text-align: center;
   font-size: 11px;
   letter-spacing: 0.34em;
@@ -2378,8 +2428,19 @@ html:has(.journey) .floating-contact {
     width: auto;
     height: 26vh;
   }
+  /* tablet + mobile: keep the client names under the dots, smaller and
+     allowed to wrap onto two lines so neighbours never collide */
+  .j-stars button {
+    gap: 8px;
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+  }
   .j-stars span {
-    display: none;
+    display: block;
+    max-width: 110px;
+    text-align: center;
+    line-height: 1.35;
+    white-space: normal;
   }
   .j-target {
     width: 150px;
@@ -2409,6 +2470,16 @@ html:has(.journey) .floating-contact {
 
 /* phones: same left-of-rocket layout, compact card */
 @media (max-width: 600px) {
+  /* client names under the constellation dots: tighter for ~70px slots */
+  .j-stars button {
+    gap: 6px;
+    padding: 4px;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+  .j-stars span {
+    max-width: 72px;
+  }
   .j-holo__panel {
     padding: 7px 7px 9px;
     clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));

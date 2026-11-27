@@ -123,6 +123,11 @@ export default function Navigation() {
         aria-modal="true"
         aria-label="Menu"
       >
+        {/* the bar hides these on tablet/mobile, so the menu carries them */}
+        <p className="m-menu__status" aria-hidden="true">
+          <i /> System online
+        </p>
+
         <ul>
           {nav.map((n, i) => (
             <li key={n.href} style={{ '--i': i }}>
@@ -132,6 +137,10 @@ export default function Navigation() {
             </li>
           ))}
         </ul>
+
+        <Link href="/contact" className="m-menu__cta" onClick={() => setOpen(false)} data-cursor="LAUNCH">
+          Start a project
+        </Link>
 
         <p className="m-menu__contact">
           <a href={`mailto:${site.email}`}>{site.email}</a>
