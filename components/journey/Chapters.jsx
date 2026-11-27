@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { openVideo } from '@/components/VideoModal';
 import { useJStep, useJActive, scrollToProgress } from './hooks';
@@ -105,6 +105,13 @@ export function PadChapter() {
   const live = useJActive(ref) && step >= 0;
   const active = Math.max(0, step);
   const r = reels[active];
+  // warm every reel's poster once the page is idle, so switching modules
+  // never shows an empty box while the next poster downloads
+  useEffect(() => {
+    const warm = () => reels.forEach((x) => { const i = new Image(); i.decoding = 'async'; i.src = x.poster; });
+    const id = window.requestIdleCallback ? requestIdleCallback(warm, { timeout: 4000 }) : setTimeout(warm, 2500);
+    return () => (window.cancelIdleCallback ? cancelIdleCallback(id) : clearTimeout(id));
+  }, []);
   return (
     <section id="reels" ref={ref} className="j-ch j-pad" data-ch="pad" aria-labelledby="j-pad-title">
       <div className="j-stage">
@@ -125,7 +132,9 @@ export function PadChapter() {
               <p className="j-holo__label">
                 <i className="j-live" aria-hidden="true" /> AI transmission {pad2(active + 1)} · Module {pad2(active + 1)}
               </p>
-              <button type="button" className="j-holo__media" onClick={() => openVideo(r.full)} data-cursor="PLAY" aria-label={`Play ${r.title}, ${r.duration}`}>
+              {/* the small poster (≈20 KB) paints behind instantly as a fallback
+                  until the full poster / first video frame is ready */}
+              <button type="button" className="j-holo__media" style={{ backgroundImage: `url("${r.tex}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} onClick={() => openVideo(r.full, r.poster)} data-cursor="PLAY" aria-label={`Play ${r.title}, ${r.duration}`}>
                 {live ? <video src={r.preview} poster={r.poster} muted loop playsInline autoPlay preload="auto" aria-hidden="true" tabIndex={-1} /> : <img src={r.poster} alt="" decoding="async" />}
                 <span className="j-holo__scan" aria-hidden="true" />
                 <span className="j-holo__play" aria-hidden="true">
@@ -204,7 +213,7 @@ export function ShowreelChapter() {
         <button
           type="button"
           className={`j-reel${hot ? ' is-hot' : ''}`}
-          onClick={() => openVideo(showreel.full)}
+          onClick={() => openVideo(showreel.full, showreel.poster)}
           onPointerEnter={enter}
           onPointerLeave={leave}
           onFocus={enter}
@@ -289,7 +298,7 @@ export function GalaxyChapter() {
           <p className="j-lead">Every project, a star system. Scroll to fly between them.</p>
         </header>
         <div className="j-anchor" data-anchor="frame">
-          <button type="button" className="j-beat j-target" data-in="0.1" data-out="9" onClick={() => openVideo(p.full)} data-cursor="VIEW" aria-label={`View project: ${p.title}`} />
+          <button type="button" className="j-beat j-target" data-in="0.1" data-out="9" onClick={() => openVideo(p.full, p.poster)} data-cursor="VIEW" aria-label={`View project: ${p.title}`} />
         </div>
         <div className="j-beat j-right j-panel j-mission" data-in="0.1" data-out="9" aria-live="polite">
           <div key={p.code}>
@@ -302,7 +311,7 @@ export function GalaxyChapter() {
             <h3 className="j-h3">{p.title}</h3>
             <p className="j-body">{p.body}</p>
             <div className="j-row">
-              <button type="button" className="j-link" onClick={() => openVideo(p.full)} data-cursor="VIEW">
+              <button type="button" className="j-link" onClick={() => openVideo(p.full, p.poster)} data-cursor="VIEW">
                 View project · {p.duration}
               </button>
               <Link href="/portfolio" className="j-link j-link--quiet" data-cursor="EXPLORE">

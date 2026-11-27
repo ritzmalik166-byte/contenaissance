@@ -70,12 +70,17 @@ export const metadata = {
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "contenaissance",
+  name: "Contenaissance",
   url: "https://www.contenaissance.com/",
-  logo: "https://www.contenaissance.com/assets/favicon.png",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://www.contenaissance.com/images/logo-600.webp",
+    width: 600,
+    height: 294,
+  },
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "9220516777",
+    telephone: "+91-9220516777",
     contactType: "customer service",
     areaServed: "IN",
     availableLanguage: ["en", "Hindi"],
@@ -92,7 +97,7 @@ const organizationSchema = {
 const websiteSchema = {
   "@context": "https://schema.org/",
   "@type": "WebSite",
-  name: "contenaissance",
+  name: "Contenaissance",
   url: "https://www.contenaissance.com/",
 };
 
