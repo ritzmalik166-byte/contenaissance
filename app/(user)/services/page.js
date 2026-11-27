@@ -1,15 +1,5 @@
-
-import Cta from '@/components/Cta';
-import DigitalContentSection from '@/components/services/DigitalContentSection';
-import DigitalInnovationSection from '@/components/services/DigitalInnovationSection';
-import GalaxyBackground from '@/components/services/GalaxyBackground';
-import ServiceCampaigns from '@/components/services/ServiceCampaigns';
-import ServiceDetail from '@/components/services/ServiceDetail';
-import ServiceIdentity from '@/components/services/ServiceIdentity';
-import ServiceList from '@/components/services/ServiceList';
-import ServicesHero from '@/components/services/ServicesHero';
-import ServiceShowreel from '@/components/services/ServiceShowreel';
-import StorytellingShowreel from '@/components/services/StorytellingShowreel';
+import ServicesJourney from '@/components/journey/services/ServicesJourney';
+import { worlds } from '@/lib/journey/services-data';
 
 export const metadata = {
   title: "AI Creative & Video Production Agency | Contenaissance",
@@ -23,23 +13,30 @@ export const metadata = {
   },
 };
 
+// the six services as a structured list for search engines
+const servicesSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Contenaissance services",
+  itemListElement: worlds.map((w, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Service",
+      name: w.title,
+      description: w.body,
+      url: `https://www.contenaissance.com${w.href}`,
+      provider: { "@type": "Organization", name: "Contenaissance", url: "https://www.contenaissance.com/" },
+      areaServed: "IN",
+    },
+  })),
+};
+
 export default function ServicesPage() {
   return (
-    <div className="services-page">
-      <GalaxyBackground />
-
-      <main className="services-page-content">
-        <ServicesHero />
-        <ServiceList />
-        <ServiceDetail />
-        <ServiceShowreel />
-        <DigitalContentSection />
-        <StorytellingShowreel />
-        <ServiceCampaigns />
-        <ServiceIdentity />
-        <DigitalInnovationSection />
-        <Cta />
-      </main>
-    </div>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesSchema) }} />
+      <ServicesJourney />
+    </>
   );
 }

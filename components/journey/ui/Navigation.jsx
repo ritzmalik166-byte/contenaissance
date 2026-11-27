@@ -3,16 +3,18 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { nav, site } from '@/lib/journey/data';
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
   const [hidden, setHidden] = useState(false);
-  // this nav only lives on the home page, so Home is the current item.
-  // (The old scroll-spy matched /services and /blog to the #services and
-  // #blog sections, lighting "Services" up while scrolling the planets.)
-  const isCurrent = (href) => href === '/';
+  // this nav lives on the immersive pages (home, services): the current
+  // item is the page itself — never a section scroll-spy (that lit up
+  // "Services" while scrolling the home page's planets)
+  const pathname = usePathname();
+  const isCurrent = (href) => href === pathname;
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -50,11 +52,11 @@ export default function Navigation() {
     };
   }, [open]);
 
-  // Home: we're already here, so glide back to the top.
+  // The current page: we're already here, so glide back to the top.
   // Other items are real pages: let the Link navigate, just close the menu.
   const go = (href) => (e) => {
     setOpen(false);
-    if (href !== '/') return;
+    if (href !== pathname) return;
     e.preventDefault();
     setTimeout(() => {
       if (window.__lenis) window.__lenis.scrollTo(0, { duration: 1.5 });
