@@ -125,7 +125,10 @@ export function PadChapter() {
           <p className="j-lead">Our work, received as transmissions from the rocket. Scroll to move between its modules.</p>
         </div>
 
-        <div className="j-anchor" data-anchor="reel" aria-hidden={step < 0}>
+        {/* fixed on screen (not tracked to the 3D rocket, which made the card
+            drift and shake while scrolling); the rocket stays centred, so the
+            card sits just left of it with its line pointing at the rocket */}
+        <div className="j-anchor j-anchor--fixed" aria-hidden={step < 0}>
           <div className="j-beat j-holo" data-in="0.31" data-out="9">
             <span className="j-holo__line" aria-hidden="true" />
             <div className="j-holo__panel" key={r.title}>

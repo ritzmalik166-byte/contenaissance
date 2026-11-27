@@ -1763,6 +1763,12 @@ html:has(.journey) .floating-contact {
   height: 0;
   will-change: transform;
 }
+/* a static anchor at the screen centre (the transmission card) */
+.j-anchor--fixed {
+  top: 50%;
+  left: 50%;
+  will-change: auto;
+}
 .j-holo {
   top: 0;
   right: 54px;
@@ -1792,18 +1798,22 @@ html:has(.journey) .floating-contact {
   position: relative;
   padding: 12px 12px 16px;
   border: 1px solid rgba(233, 185, 73, 0.45);
-  background: linear-gradient(180deg, rgba(233, 185, 73, 0.1), rgba(6, 9, 14, 0.62) 40%);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* solid tint instead of backdrop blur: the card tracks the rocket every
+     frame, and re-blurring the WebGL scene behind it made it stutter */
+  background: linear-gradient(180deg, rgba(233, 185, 73, 0.1), rgba(6, 9, 14, 0.86) 40%);
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
-  animation: j-holo-in 0.7s var(--ease);
+  animation: j-holo-in 0.6s var(--ease);
 }
+/* a plain fade — no jump, scale or flash when the reel changes */
 @keyframes j-holo-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
-    filter: brightness(2.2);
   }
+}
+/* the anchor already moves the card with the rocket; skip the generic
+   beat slide-in on top of that so it fades in place */
+.j-holo.j-beat {
+  transform: none !important;
 }
 .j-holo__label {
   display: flex;
