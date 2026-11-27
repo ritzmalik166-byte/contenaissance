@@ -6,35 +6,7 @@
 ===================================================== */
 
 .sv {
-  --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
   --blue: #7f9bff;
-}
-.sv .sv-mono {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.sv-sep {
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin: 0 6px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.6;
-  vertical-align: middle;
-}
-/* the engine lifts this black veil once the first worlds have their surfaces */
-.sv-veil {
-  opacity: 1;
-  background: #000;
-}
-.gl-off .sv-veil {
-  display: none;
 }
 
 /* chapter lengths (scroll distance = height − 100vh) */
@@ -123,21 +95,6 @@
 }
 
 /* "Approaching · Planet 02 · Neptune" between worlds */
-.sv-transit {
-  top: auto;
-  bottom: 15vh;
-  translate: none;
-  font: 500 11.5px/1.6 var(--font-body);
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  text-shadow: 0 1px 14px #000;
-}
-.sv-transit span {
-  display: block;
-  margin-bottom: 10px;
-  color: var(--gold);
-}
 
 /* =====================================================
    02–07 · THE WORLDS
@@ -323,28 +280,6 @@
   color: var(--ink-2);
 }
 
-.sv-explore {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: clamp(16px, 3.4vh, 36px);
-  padding: 17px 28px;
-  border: 1px solid var(--line-gold);
-  border-radius: 999px;
-  color: var(--gold);
-  font: 500 12px/1 var(--font-body);
-  letter-spacing: 0.26em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: background 0.4s, border-color 0.4s, color 0.4s, gap 0.5s var(--ease), box-shadow 0.4s;
-}
-.sv-explore:hover {
-  gap: 18px;
-  border-color: var(--gold);
-  background: var(--gold);
-  color: #0b0905;
-  box-shadow: 0 10px 40px rgba(233, 185, 73, 0.28);
-}
 
 /* the copy assembles line by line once the world is reached */
 .sv-r {
@@ -848,7 +783,7 @@ button.sv-film__frame:hover .sv-play {
   50% { font-weight: 700; }
   75% { font-weight: 800; }
 }
-.sv-id__type .sv-mono {
+.sv-id__type .ij-mono {
   margin-top: 12px;
 }
 .sv-id__type ul {
@@ -1256,7 +1191,7 @@ button.sv-film__frame:hover .sv-play {
 }
 .gl-off .sv-tag-anchor,
 .gl-off .sv-scrim,
-.gl-off .sv-transit,
+.gl-off .ij-transit,
 .gl-off .sv-count,
 .gl-off .sv-numeral {
   display: none;
@@ -1393,7 +1328,7 @@ button.sv-film__frame:hover .sv-play {
     padding: 0 10px 12px 36px;
     font-size: 13px;
   }
-  .sv-explore {
+  .ij-explore {
     margin-top: 14px;
     padding: 14px 22px;
     font-size: 11px;

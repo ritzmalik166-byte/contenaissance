@@ -1,16 +1,5 @@
-import PfHero from '@/components/portfolio/PfHero';
-import PfShowreel from '@/components/portfolio/PfShowreel';
-import PfArchive from '@/components/portfolio/PfArchive';
-import PfMarquee from '@/components/portfolio/PfMarquee';
-import PfStages from '@/components/portfolio/PfStages';
-import PfQuote from '@/components/portfolio/PfQuote';
-import PfCta from '@/components/portfolio/PfCta';
-import PfHandoff from '@/components/portfolio/PfHandoff';
-import PortfolioCanvas from '@/components/portfolio/PortfolioCanvas';
-import '@/components/portfolio/portfolio.css';
-
-/* Type: the site's two families only (loaded in app/(user)/layout.js) —
-   Plus Jakarta Sans for headings, Roboto for everything else. */
+import PortfolioJourney from '@/components/journey/portfolio/PortfolioJourney';
+import { missions } from '@/lib/journey/portfolio-data';
 
 export const metadata = {
   title: "AI Creative Portfolio & Campaigns | Contenaissance",
@@ -24,20 +13,28 @@ export const metadata = {
   },
 };
 
+// the work as a structured list for search engines
+const portfolioSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Contenaissance portfolio",
+  url: "https://www.contenaissance.com/portfolio",
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: missions.map((m, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      // CreativeWork, not VideoObject: a VideoObject needs an uploadDate we don't have
+      item: { "@type": "CreativeWork", name: m.title, description: m.summary, image: `https://www.contenaissance.com${m.poster}`, genre: m.category },
+    })),
+  },
+};
+
 export default function PortfolioPage() {
   return (
-    <div className="pf">
-      <PfHero />
-      <PfShowreel />
-      <PfArchive />
-      <PfMarquee />
-      <PfStages />
-      <PfQuote />
-      <PfCta />
-      {/* Fixed WebGL "Gilded Atelier" behind every section; sections cut
-          between chambers with an aperture transition. */}
-      <PortfolioCanvas />
-      <PfHandoff />
-    </div>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(portfolioSchema) }} />
+      <PortfolioJourney />
+    </>
   );
 }

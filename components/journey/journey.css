@@ -2674,3 +2674,77 @@ html:has(.journey) .floating-contact {
   height: 100%;
   opacity: 0;
 }
+
+/* =====================================================
+   INNER-PAGE JOURNEYS (services, portfolio) — shared bits
+   the stage (lib/journey/stage.js) lifts this black veil
+   once the page's world is ready to be seen
+===================================================== */
+.ij-veil {
+  opacity: 1;
+  background: #000;
+}
+.gl-off .ij-veil {
+  display: none;
+}
+
+/* shared type + controls of the inner pages */
+.journey {
+  --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+}
+.journey .ij-mono {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.ij-sep {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+  vertical-align: middle;
+}
+.ij-transit {
+  top: auto;
+  bottom: 15vh;
+  translate: none;
+  font: 500 11.5px/1.6 var(--font-body);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  text-shadow: 0 1px 14px #000;
+}
+.ij-transit span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--gold);
+}
+.ij-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: clamp(16px, 3.4vh, 36px);
+  padding: 17px 28px;
+  border: 1px solid var(--line-gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font: 500 12px/1 var(--font-body);
+  letter-spacing: 0.26em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.4s, border-color 0.4s, color 0.4s, gap 0.5s var(--ease), box-shadow 0.4s;
+}
+.ij-explore:hover {
+  gap: 18px;
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #0b0905;
+  box-shadow: 0 10px 40px rgba(233, 185, 73, 0.28);
+}

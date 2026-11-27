@@ -53,9 +53,9 @@ export default function Shell({ children }) {
     return () => clearTimeout(id);
   }, [pathname]);
 
-  // The home and services pages are immersive WebGL journeys with their own
+  // The home, services and portfolio pages are immersive WebGL journeys with their own
   // navigation, cursor and footer (components/journey), so the standard chrome steps aside.
-  const immersive = pathname === '/' || pathname === '/services';
+  const immersive = pathname === '/' || pathname === '/services' || pathname === '/portfolio';
 
   return (
     <>

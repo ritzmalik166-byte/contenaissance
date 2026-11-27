@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { openVideo } from '@/components/VideoModal';
 import { media } from '@/lib/journey/services-data';
+import LiveVideo from '../ui/LiveVideo';
 
 /* =====================================================
    One small "proof" object per world, sitting between the
@@ -11,20 +12,6 @@ import { media } from '@/lib/journey/services-data';
    (the current chapter and arrived), so off-screen worlds
    cost nothing.
 ===================================================== */
-
-/** a muted preview that only loads and plays while live */
-function LiveVideo({ src, poster, live }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (live) {
-      if (!v.getAttribute('src')) v.src = src;
-      v.play().catch(() => {});
-    } else v.pause();
-  }, [live, src]);
-  return <video ref={ref} poster={poster} muted loop playsInline preload="none" aria-hidden="true" tabIndex={-1} />;
-}
 
 /** a counter that ticks every `ms` while live */
 function useTicker(live, ms, start = 0) {
@@ -45,7 +32,7 @@ function FilmShow({ live }) {
   const [a, b, c] = media.film;
   return (
     <div className="sv-film">
-      <p className="sv-film__meta sv-mono">
+      <p className="sv-film__meta ij-mono">
         <i className="sv-rec" aria-hidden="true" /> REC <span>{tc(t)}</span>
         <span>2.39 : 1</span>
         <span className="sv-hide-sm">Contenaissance / AI Brand Films</span>
@@ -86,7 +73,7 @@ function PhonesShow({ live }) {
             </span>
             {m.caption && <span className="sv-phone__cap">{m.caption}</span>}
           </div>
-          <figcaption className="sv-mono">{m.label}</figcaption>
+          <figcaption className="ij-mono">{m.label}</figcaption>
         </figure>
       ))}
     </div>
@@ -104,7 +91,7 @@ function CampaignShow({ live }) {
   return (
     <div className="sv-camp">
       <div className="sv-camp__dash">
-        <p className="sv-mono">
+        <p className="ij-mono">
           <i className="sv-dot" aria-hidden="true" /> Campaign intelligence / live
         </p>
         <ol>
@@ -139,14 +126,14 @@ function IdentityShow() {
       </figure>
       <div className="sv-id__type">
         <b>Aa</b>
-        <p className="sv-mono">Plus Jakarta Sans</p>
+        <p className="ij-mono">Plus Jakarta Sans</p>
         <ul aria-label="Core colours">
           {SWATCHES.map((c, i) => (
             <li key={c} style={{ '--c': c, '--i': i }} />
           ))}
         </ul>
       </div>
-      <p className="sv-id__note sv-mono">Grid 8 · Type scale 1.25 · 4 core colours</p>
+      <p className="sv-id__note ij-mono">Grid 8 · Type scale 1.25 · 4 core colours</p>
     </div>
   );
 }
@@ -172,7 +159,7 @@ function CreativeShow({ live }) {
           </li>
         ))}
       </ol>
-      <p className="sv-gen__note sv-mono">Human brief → generative models → crafted final frame</p>
+      <p className="sv-gen__note ij-mono">Human brief → generative models → crafted final frame</p>
     </div>
   );
 }
@@ -195,13 +182,13 @@ function NetworkShow() {
       </svg>
       <span className="sv-net__hub" style={{ left: `${HUB.x}%`, top: `${HUB.y}%` }} aria-hidden="true" />
       {NODES.map((n, i) => (
-        <span key={n.t} className="sv-net__node sv-mono" style={{ left: `${n.x}%`, top: `${n.y}%`, '--i': i }}>
+        <span key={n.t} className="sv-net__node ij-mono" style={{ left: `${n.x}%`, top: `${n.y}%`, '--i': i }}>
           <i aria-hidden="true" />
           {n.t}
         </span>
       ))}
       <div className="sv-net__chart">
-        <p className="sv-mono">Signal growth · Illustrative</p>
+        <p className="ij-mono">Signal growth · Illustrative</p>
         <svg viewBox="0 0 200 80" aria-hidden="true">
           <line x1="6" y1="76" x2="194" y2="76" />
           <path d="M6 72 C 50 68, 80 58, 112 46 S 162 20, 194 8" pathLength="1" />

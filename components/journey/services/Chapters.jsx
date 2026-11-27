@@ -27,7 +27,7 @@ export function IntroChapter() {
       <div className="j-stage">
         <div className="j-beat sv-hero" data-in="-1" data-out="0.3">
           <Kicker>
-            {intro.kicker[0]} <span className="sv-sep" aria-hidden="true" /> {intro.kicker[1]}
+            {intro.kicker[0]} <span className="ij-sep" aria-hidden="true" /> {intro.kicker[1]}
           </Kicker>
           <h1 id="sv-title" className="j-display j-display--xl sv-hero__title">
             {intro.title[0]}
@@ -61,7 +61,7 @@ export function IntroChapter() {
             One Creative Universe.
           </p>
         </div>
-        <p className="j-beat j-center sv-transit" data-in="0.7" data-out="0.97" aria-hidden="true">
+        <p className="j-beat j-center ij-transit" data-in="0.7" data-out="0.97" aria-hidden="true">
           <span>First stop</span> Planet 01 · {worlds[0].planet}
         </p>
       </div>
@@ -90,7 +90,7 @@ export function WorldChapter({ w }) {
       <div className="j-stage">
         <div className="sv-scrim" aria-hidden="true" />
 
-        <p className="j-beat j-center sv-transit" data-in="-1" data-out="0.09" aria-hidden="true">
+        <p className="j-beat j-center ij-transit" data-in="-1" data-out="0.09" aria-hidden="true">
           <span>Approaching</span> Planet {w.code} · {w.planet}
         </p>
 
@@ -100,7 +100,7 @@ export function WorldChapter({ w }) {
           </span>
           <header className="sv-panel__head sv-r" style={{ '--i': 0 }}>
             <p className="sv-panel__planet">
-              Planet {w.code} <span className="sv-sep" aria-hidden="true" /> {w.planet}
+              Planet {w.code} <span className="ij-sep" aria-hidden="true" /> {w.planet}
               {w.planetSub ? ` · ${w.planetSub}` : ''}
             </p>
             <p className="sv-panel__stage" aria-hidden="true">
@@ -140,7 +140,7 @@ export function WorldChapter({ w }) {
               );
             })}
           </ul>
-          <Link href={w.href} className="sv-explore sv-r" style={{ '--i': 8 }} data-cursor="EXPLORE">
+          <Link href={w.href} className="ij-explore sv-r" style={{ '--i': 8 }} data-cursor="EXPLORE">
             Explore service <span aria-hidden="true">→</span>
           </Link>
         </div>
